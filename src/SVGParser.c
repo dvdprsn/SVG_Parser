@@ -10,9 +10,7 @@ SVG* createSVG(const char *fileName) {
     xmlNode *root = NULL;
     //Creates Empty SVG struct
     //TODO Catch for failed malloc
-    //TODO Namespace has a special way to be pulled out
     SVG *svgReturn = malloc(sizeof(SVG));
-    //Init all linked lists associated with elements of this SVG
     //TODO other attributes must be set, can be empty, NEVER null
     //TODO Create a function in helper to init svg
     //TODO Check StructListDemo for how to use these
@@ -40,6 +38,10 @@ SVG* createSVG(const char *fileName) {
 char *SVGToString(const SVG *img) {
     
     printf("Namespace: %s\n", img->namespace);
+    printf("Title: %s\n", img->title);
+    printf("Description: %s\n",img->description);
+
+    toString(img->otherAttributes);
 
 }
 
@@ -107,12 +109,22 @@ int numAttr(const SVG *img) {
 //TODO These helpers are passed into the LIST API
 //ATTRIBUTE
 void deleteAttribute(void *data) {
+
+    if(data == NULL)  {
+        return;
+    }
     //Make sure it is not null
     //See structlistdemo.c for help
     free(data);
 }
 
 char *attributeToString(void *data) {   
+
+    if(data == NULL) return;
+
+    //Recurssively check 
+
+
 
 }
 
@@ -123,8 +135,15 @@ int compareAttributes(const void *first, const void *second) {
 
 //GROUPS
 void deleteGroup(void *data) {
-    free(data);
-    //Should likely be reccursive
+    Group *tmpGroup; 
+
+    if(data == NULL) {
+        return;
+    }
+
+    tmpGroup = (Group*) data;
+
+    free(tmpGroup);
 }
 
 char *groupToString(void *data) {
