@@ -153,3 +153,9 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
+# VSCODE
+.vscode/
+
+# SVG
+*.svg
+
