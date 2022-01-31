@@ -21,9 +21,20 @@ void parser(xmlNode *a_node, SVG *svg) {
             printf("Child name: %s\n", cur_node->name);
         }
         */
+       char *nodeName = "\0";
 
         if (cur_node->type == XML_ELEMENT_NODE) {
 
+            nodeName = (char *)cur_node->name;
+
+            if(strcmp(nodeName, "title") == 0) {
+                setSVGTitle(svg,cur_node->children);
+            } else if (strcmp(nodeName, "desc") == 0) {
+                setSVGDesc(svg,cur_node->children);
+            } else if (strcmp(nodeName, "svg") == 0) {
+                fillSVG(svg,cur_node);
+            }
+        /*
             if (xmlStrcmp(cur_node->name, (const xmlChar *) "path") == 0) { //Create Path
                 createPath(svg, cur_node);
             } else if (xmlStrcmp(cur_node->name, (const xmlChar *) "circle") == 0) { //Create Circle
@@ -33,20 +44,21 @@ void parser(xmlNode *a_node, SVG *svg) {
             } else if (xmlStrcmp(cur_node->name, (const xmlChar *) "svg") == 0) {
                 fillSVG(svg, cur_node);
             } else if (xmlStrcmp(cur_node->name, (const xmlChar *) "title") == 0) {
-                setSVGTitle(svg, cur_node);
+                if(cur_node->content != NULL) {
+                    printf(" content: %s\n ", cur_node->content);
+                }
+                //setSVGTitle(svg, cur_node);
             } else if (xmlStrcmp(cur_node->name, (const xmlChar *) "desc") == 0) {
                 setSVGDesc(svg, cur_node);
             } else if (xmlStrcmp(cur_node->name, (const xmlChar *) "g") == 0) {
                 createGroup(svg, cur_node);
             }
+            */
 
         }
 
-        // Uncomment the code below if you want to see the content of every node.
 
-        // if (cur_node->content != NULL ){
-        //     printf("  content: %s\n", cur_node->content);
-        // }
+        // Uncomment the code below if you want to see the content of every node.
 
         parser(cur_node->children, svg);
 
@@ -173,9 +185,9 @@ void initRect(Rectangle *rect) {
 
 void initSVG(SVG *svgReturn) {
 
-    strcpy(svgReturn->namespace, "");
-    strcpy(svgReturn->title, "");
-    strcpy(svgReturn->description, "");
+    strcpy(svgReturn->namespace, "\0");
+    strcpy(svgReturn->title, "\0");
+    strcpy(svgReturn->description, "\0");
 
     svgReturn->paths = initializeList(&pathToString, &deletePath, &comparePaths);
     svgReturn->groups = initializeList(&groupToString, &deleteGroup, &compareGroups);
@@ -211,7 +223,9 @@ void fillSVG(SVG *svg, xmlNode *cur_node) {
 }
 
 void setSVGTitle(SVG *svg, xmlNode *cur_node) {
+    
     if (cur_node->content != NULL) strcpy(svg->title, (char *) cur_node->content);
+
 }
 
 void setSVGDesc(SVG *svg, xmlNode *cur_node) {
