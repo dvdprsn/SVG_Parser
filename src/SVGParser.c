@@ -119,9 +119,11 @@ void deleteAttribute(void *data) {
 }
 
 char *attributeToString(void *data) {   
-
+    Attribute *tempAttr;
     if(data == NULL) return;
-
+    tempAttr = (Attribute *) data;
+    
+    
     //Recurssively check 
 
 
