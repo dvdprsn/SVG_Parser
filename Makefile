@@ -37,12 +37,17 @@ clean:
 #This is the target for the in-class XML example
 xmlExample: $(SRC)libXmlExample.c
 	$(CC) $(CFLAGS) -I$(XML_PATH) $(SRC)libXmlExample.c -lxml2 -o $(BIN)xmlExample
-
 #These are sample targets for the list demo code included in the class examples.  They will not be used
 #for A1, but they can help you figure out who to set up a target for your own test main
 
+main: $(BIN)main.o $(BIN)libsvgparser.so $(BIN)liblist.so
+	$(CC) $(CFLAGS) $(LDFLAGS) -L$(BIN) -o $(BIN)main $(BIN)main.o -lxml2 -llist -lsvgparser
+
+$(BIN)main.o: $(SRC)main.c
+	$(CC) $(CFLAGS) -I$(INC) -I$(XML_PATH) -c $(SRC)main.c -o $(BIN)main.o
+
 StructListDemo: $(BIN)StructListDemo.o $(BIN)liblist.so
-	$(CC) $(CFLAGS) $(LDFLAGS) -L$(BIN) -o $(BIN)StructListDemo $(BIN)StructListDemo.o  -llist
+	$(CC) $(CFLAGS) $(LDFLAGS) -L$(BIN) -o $(BIN)StructListDemo $(BIN)StructListDemo.o -llist
 	
 $(BIN)StructListDemo.o: $(SRC)StructListDemo.c
 	$(CC) $(CFLAGS) -I$(INC) -c $(SRC)StructListDemo.c -o $(BIN)StructListDemo.o
