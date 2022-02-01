@@ -1,22 +1,16 @@
 #include "SVGHelpers.h"
 #include "SVGParser.h"
 
-//TODO Ask about when we need to check for contents
-
 SVG* createSVG(const char *fileName) {
-    //TODO Lecture 2B is super useful
-    //TODO for path attr 'd' it is just a single string, doesnt need to be parsed into elements
+
     xmlDoc *doc = NULL;
     xmlNode *root = NULL;
     //Creates Empty SVG struct
-    //TODO Catch for failed malloc
     SVG *svgReturn = malloc(sizeof(SVG));
     if(svgReturn == NULL) {
         return NULL;
     }
-    //TODO other attributes must be set, can be empty, NEVER null
-    //TODO Create a function in helper to init svg
-    //TODO Check StructListDemo for how to use these
+
     initSVG(svgReturn);
 
     doc = xmlReadFile(fileName, NULL, 0);
@@ -30,7 +24,6 @@ SVG* createSVG(const char *fileName) {
     strcpy(svgReturn->namespace,getNS(root));
 
     parser(root, svgReturn);
-    //TODO: Use parser functions for other attributes here
 
     xmlFreeDoc(doc);
     xmlCleanupParser();
@@ -43,11 +36,10 @@ char *SVGToString(const SVG *img) {
     printf("Namespace: %s\n", img->namespace);
     printf("Title: %s\n", img->title);
     printf("Description: %s\n",img->description);
-
+    //Attributes of SVG
     char *str = toString(img->otherAttributes);
     printf("%s\n", str);
     free(str);
-
 
 }
 
@@ -61,7 +53,6 @@ void deleteSVG(SVG *img) {
      */
     //TODO you can just call free list once on each attribute of the SVG struct sine we pass in the delete for each data type
     //TODO so long as the delete functions are correct
-    //TODO Free Attributes and list
     free(img);
 }
 
@@ -122,27 +113,28 @@ void deleteAttribute(void *data) {
     }
 
     tmpAttr = (Attribute *)data;
-    //TODO something wrong with allocation 
-    free(tmpAttr->name);
-    //free(tmpAttr);
 
+    //TODO something wrong with allocation 
+    if(tmpAttr->name != NULL) {
+        free(tmpAttr->name);
+    }
+        
+    free(tmpAttr);
 }
 
 char *attributeToString(void *data) { 
 
-    Attribute *tempAttr;
-    char *tempStr;
+    Attribute *tmpAttr;
+    char *tmpStr;
     int len;
     if(data == NULL) return NULL;
-    tempAttr = (Attribute *) data;
+    tmpAttr = (Attribute *) data;
 
-    len = strlen(tempAttr->name) + strlen(tempAttr->value);
-    tempStr = (char*)malloc(sizeof(char)*len); //MUST BE FREED AFTER USE
+    len = strlen(tmpAttr->name) + strlen(tmpAttr->value);
+    tmpStr = malloc(sizeof(char)*len); //MUST BE FREED AFTER USE
+    sprintf(tmpStr, "Name: %s, Value %s", tmpAttr->name, tmpAttr->value);
 
-    sprintf(tempStr, "Name: %s, Value %s", tempAttr->name, tempAttr->value);
-
-    return tempStr;
-
+    return tmpStr;
 
 }
 
@@ -161,7 +153,7 @@ void deleteGroup(void *data) {
 
     tmpGroup = (Group*) data;
 
-    free(tmpGroup);
+
 }
 
 char *groupToString(void *data) {
@@ -174,7 +166,7 @@ int compareGroups(const void *first, const void *second) {
 
 //RECTANGLE
 void deleteRectangle(void *data) {
-    free(data);
+
 }
 
 char *rectangleToString(void *data) {
@@ -187,7 +179,7 @@ int compareRectangles(const void *first, const void *second) {
 
 //CIRCLE
 void deleteCircle(void *data) {
-    free(data);
+
 }
 
 char *circleToString(void *data) {
@@ -200,7 +192,7 @@ int compareCircles(const void *first, const void *second) {
 
 //PATHS
 void deletePath(void *data) {
-    free(data);
+
 }
 
 char *pathToString(void *data) {
