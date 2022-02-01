@@ -31,7 +31,7 @@ void parser(xmlNode *a_node, SVG *svg) {
                 setSVGTitle(svg,cur_node->children);
             } else if (strcmp(nodeName, "desc") == 0) { //Works
                 setSVGDesc(svg,cur_node->children);
-            } else if (strcmp(nodeName, "svg") == 0) { //Works
+            } else if (strcmp(nodeName, "svg") == 0) { //Works (Fills it, unsure about mem issues)
                 fillSVG(svg,cur_node);
             }
         /*
@@ -130,23 +130,20 @@ void createGroup(SVG *svg, xmlNode *cur_node) { //TODO Figure out groups (nested
 }
 
 Attribute *createAttr(char *name, char value[]) {
-    Attribute *attr = malloc(sizeof(Attribute) + sizeof(char) * strlen(value));
 
-    if(attr == NULL) {
-        return NULL;
-    }
+    Attribute *attr;
+    attr = malloc(sizeof(Attribute) + sizeof(char) * strlen(value)); //Allocate for flexible array member
+    if(attr == NULL) return NULL; //If alloc failed
 
-    int charLen = strlen(name)+10;
-
-    attr->name = malloc(sizeof(char)*charLen);
-    if(attr->name == NULL) {
-        return NULL;
-    }
+    attr->name = malloc(sizeof(char)*strlen(name)); //Allocate space for the char* in attr struct
+    if(attr->name == NULL) return NULL; //Check for fail
     
-    attr->name = name;
-    strcpy(attr->value, value);
+    strcpy(attr->name, name);
+    strcpy(attr->value, value); //Copy string for value
 
-    return attr;
+    printf("createAttr -> Name: %s, Value: %s\n",attr->name,attr->value);
+
+    return attr;    //Return create attribute to caller
 
 }
 
@@ -216,23 +213,19 @@ void initGroup(Group *group) {
 void fillSVG(SVG *svg, xmlNode *cur_node) {
 
     xmlAttr *xmlAttr;
+    xmlNode *value;
+    Attribute *toAdd;
+    char *attrName;
+    char *cont;
+    
 
-    for (xmlAttr = cur_node->properties; xmlAttr != NULL; xmlAttr = xmlAttr->next) {
+    for (xmlAttr = cur_node->properties; xmlAttr != NULL; xmlAttr = xmlAttr->next) { //Go through all attributes on the node
 
-        xmlNode *value = xmlAttr->children;
-        char *attrName = (char *) xmlAttr->name;
-        char *cont = (char *) value->content;
-
-        Attribute *attr = malloc(sizeof(Attribute) + sizeof(char) * strlen(cont));
-        if(attr == NULL) return;
-
-        attr->name = malloc(sizeof(char)*strlen(attrName));
-        if(attr->name == NULL) return;
- 
-        strcpy(attr->name, attrName);
-        strcpy(attr->value, cont);
-
-        insertBack(svg->otherAttributes, attr);
+        value = xmlAttr->children; 
+        attrName = (char *) xmlAttr->name;
+        cont = (char *) value->content;
+        toAdd = createAttr(attrName, cont);
+        insertBack(svg->otherAttributes, toAdd); //Insert new attr to back of attribute list for SVG
 
     }
 
