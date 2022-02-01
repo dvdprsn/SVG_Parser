@@ -11,6 +11,9 @@ SVG* createSVG(const char *fileName) {
     //Creates Empty SVG struct
     //TODO Catch for failed malloc
     SVG *svgReturn = malloc(sizeof(SVG));
+    if(svgReturn == NULL) {
+        return NULL;
+    }
     //TODO other attributes must be set, can be empty, NEVER null
     //TODO Create a function in helper to init svg
     //TODO Check StructListDemo for how to use these
@@ -41,13 +44,17 @@ char *SVGToString(const SVG *img) {
     printf("Title: %s\n", img->title);
     printf("Description: %s\n",img->description);
 
-    toString(img->otherAttributes);
+    char *str = toString(img->otherAttributes);
+    printf("%s\n", str);
+    free(str);
+
 
 }
 
 void deleteSVG(SVG *img) {
-    /*
+    
     freeList(img->otherAttributes);
+    /*
     freeList(img->circles);
     freeList(img->rectangles);
     freeList(img->groups);
@@ -106,26 +113,35 @@ int numAttr(const SVG *img) {
 }
 
 //------------------------HELPER--------------------------------
-//TODO These helpers are passed into the LIST API
 //ATTRIBUTE
 void deleteAttribute(void *data) {
+    Attribute* tmpAttr;
 
     if(data == NULL)  {
         return;
     }
-    //Make sure it is not null
-    //See structlistdemo.c for help
-    free(data);
+
+    tmpAttr = (Attribute *)data;
+    //TODO something wrong with allocation 
+    free(tmpAttr->name);
+    //free(tmpAttr);
+
 }
 
-char *attributeToString(void *data) {   
-    Attribute *tempAttr;
-    if(data == NULL) return;
-    tempAttr = (Attribute *) data;
-    
-    
-    //Recurssively check 
+char *attributeToString(void *data) { 
 
+    Attribute *tempAttr;
+    char *tempStr;
+    int len;
+    if(data == NULL) return NULL;
+    tempAttr = (Attribute *) data;
+
+    len = strlen(tempAttr->name) + strlen(tempAttr->value);
+    tempStr = (char*)malloc(sizeof(char)*len); //MUST BE FREED AFTER USE
+
+    sprintf(tempStr, "Name: %s, Value %s", tempAttr->name, tempAttr->value);
+
+    return tempStr;
 
 
 }
