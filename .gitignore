@@ -159,3 +159,4 @@ Temporary Items
 # SVG
 *.svg
 
+bin/main
