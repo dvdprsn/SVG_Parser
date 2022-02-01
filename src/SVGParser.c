@@ -32,10 +32,16 @@ SVG* createSVG(const char *fileName) {
 }
 
 char *SVGToString(const SVG *img) {
+    if(strcmp(img->namespace,"\0")!=0) {
+        printf("Namespace: %s\n", img->namespace);
+    }
+    if(strcmp(img->title,"\0")!= 0) {
+        printf("Title: %s\n", img->title);
+    }
+    if(strcmp(img->description, "\0")!=0) {
+        printf("Description: %s\n",img->description);
+    }
     
-    printf("Namespace: %s\n", img->namespace);
-    printf("Title: %s\n", img->title);
-    printf("Description: %s\n",img->description);
     //Attributes of SVG
     char *str = toString(img->otherAttributes);
     printf("%s\n", str);
@@ -60,22 +66,22 @@ void deleteSVG(SVG *img) {
 
 // Function that returns a list of all rectangles in the struct.
 List *getRects(const SVG *img) {
-    return img->rectangles;
+    
 }
 
 // Function that returns a list of all circles in the struct.
 List *getCircles(const SVG *img) {
-    return img->circles;
+    
 }
 
 // Function that returns a list of all groups in the struct.
 List *getGroups(const SVG *img) {
-    return img->groups;
+    
 }
 
 // Function that returns a list of all paths in the struct.
 List *getPaths(const SVG *img) {
-    return img->paths;
+    
 }
 
 //-------------------SEARCHERS--------------------------
@@ -106,32 +112,37 @@ int numAttr(const SVG *img) {
 //------------------------HELPER--------------------------------
 //ATTRIBUTE
 void deleteAttribute(void *data) {
-    Attribute* tmpAttr;
+    //Much of this logic is from the StructListDemo
+    Attribute* tmpAttr; // Create temp attribute
 
-    if(data == NULL)  {
+    if(data == NULL)  { //Check if empty already
         return;
     }
 
-    tmpAttr = (Attribute *)data;
+    tmpAttr = (Attribute *)data; // Cast data to type attribute
 
     //TODO something wrong with allocation 
-    if(tmpAttr->name != NULL) {
-        free(tmpAttr->name);
+    if(tmpAttr->name != NULL) { //Check if name is already null
+        printf("Delete Function -> Name: %s, value: %s\n", tmpAttr->name, tmpAttr->value);
+        //free(tmpAttr->name); //free name
     }
-        
-    free(tmpAttr);
+    //free(tmpAttr); //THIS LINE CAUSES ISSUES
+
 }
 
 char *attributeToString(void *data) { 
 
-    Attribute *tmpAttr;
     char *tmpStr;
+    Attribute *tmpAttr;
     int len;
+
     if(data == NULL) return NULL;
     tmpAttr = (Attribute *) data;
 
     len = strlen(tmpAttr->name) + strlen(tmpAttr->value);
     tmpStr = malloc(sizeof(char)*len); //MUST BE FREED AFTER USE
+    if(tmpStr == NULL) return NULL;
+
     sprintf(tmpStr, "Name: %s, Value %s", tmpAttr->name, tmpAttr->value);
 
     return tmpStr;
