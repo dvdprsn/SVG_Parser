@@ -27,11 +27,11 @@ void parser(xmlNode *a_node, SVG *svg) {
 
             nodeName = (char *)cur_node->name;
 
-            if(strcmp(nodeName, "title") == 0) {
+            if(strcmp(nodeName, "title") == 0) { //Works
                 setSVGTitle(svg,cur_node->children);
-            } else if (strcmp(nodeName, "desc") == 0) {
+            } else if (strcmp(nodeName, "desc") == 0) { //Works
                 setSVGDesc(svg,cur_node->children);
-            } else if (strcmp(nodeName, "svg") == 0) {
+            } else if (strcmp(nodeName, "svg") == 0) { //Works
                 fillSVG(svg,cur_node);
             }
         /*
@@ -135,7 +135,15 @@ void createGroup(SVG *svg, xmlNode *cur_node) { //TODO Figure out groups (nested
 Attribute *createAttr(char *name, char value[]) {
 
     Attribute *attr = malloc(sizeof(Attribute) + sizeof(char) * strlen(value));
+    if(attr == NULL) {
+        return NULL;
+    }
 
+    int charLen = strlen(name)+10;
+    attr->name = malloc(sizeof(char)*charLen);
+    if(attr->name == NULL) {
+        return NULL;
+    }
     attr->name = name;
     strcpy(attr->value, value);
 
@@ -193,7 +201,6 @@ void initSVG(SVG *svgReturn) {
     svgReturn->groups = initializeList(&groupToString, &deleteGroup, &compareGroups);
     svgReturn->circles = initializeList(&circleToString, &deleteCircle, &compareCircles);
     svgReturn->rectangles = initializeList(&rectangleToString, &deleteRectangle, &compareRectangles);
-
     svgReturn->otherAttributes = initializeList(&attributeToString, &deleteAttribute, &compareAttributes);
 
 }
@@ -215,8 +222,11 @@ void fillSVG(SVG *svg, xmlNode *cur_node) {
         xmlNode *value = attr->children;
         char *attrName = (char *) attr->name;
         char *cont = (char *) (value->content);
-
-        insertBack(svg->otherAttributes, createAttr(attrName, cont));
+        Attribute *toAdd = createAttr(attrName, cont);
+        if(toAdd == NULL) {
+            return;
+        }
+        insertBack(svg->otherAttributes, toAdd);
 
     }
 
