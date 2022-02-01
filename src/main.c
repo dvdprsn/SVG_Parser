@@ -15,6 +15,9 @@ int main(int argc, char **argv) {
      * However, if SVGToString is commented out everything APPEARS to run as intended
      * 
      */
+    //TODO Ask about Branch
+    //TODO Ask about nested groups
+    
     //SVGToString(svg);
     //printf("%s\n",toString(svg->otherAttributes));
     deleteSVG(svg); 
