@@ -57,9 +57,6 @@ void parser(xmlNode *a_node, SVG *svg) {
 
         }
 
-
-        // Uncomment the code below if you want to see the content of every node.
-
         parser(cur_node->children, svg);
 
     }
@@ -133,21 +130,24 @@ void createGroup(SVG *svg, xmlNode *cur_node) { //TODO Figure out groups (nested
 }
 
 Attribute *createAttr(char *name, char value[]) {
-
     Attribute *attr = malloc(sizeof(Attribute) + sizeof(char) * strlen(value));
+
     if(attr == NULL) {
         return NULL;
     }
 
     int charLen = strlen(name)+10;
+
     attr->name = malloc(sizeof(char)*charLen);
     if(attr->name == NULL) {
         return NULL;
     }
+    
     attr->name = name;
     strcpy(attr->value, value);
 
     return attr;
+
 }
 
 Path *createPath(SVG *svg, xmlNode *cur_node) {
@@ -215,18 +215,24 @@ void initGroup(Group *group) {
 
 void fillSVG(SVG *svg, xmlNode *cur_node) {
 
-    xmlAttr *attr;
+    xmlAttr *xmlAttr;
 
-    for (attr = cur_node->properties; attr != NULL; attr = attr->next) {
+    for (xmlAttr = cur_node->properties; xmlAttr != NULL; xmlAttr = xmlAttr->next) {
 
-        xmlNode *value = attr->children;
-        char *attrName = (char *) attr->name;
-        char *cont = (char *) (value->content);
-        Attribute *toAdd = createAttr(attrName, cont);
-        if(toAdd == NULL) {
-            return;
-        }
-        insertBack(svg->otherAttributes, toAdd);
+        xmlNode *value = xmlAttr->children;
+        char *attrName = (char *) xmlAttr->name;
+        char *cont = (char *) value->content;
+
+        Attribute *attr = malloc(sizeof(Attribute) + sizeof(char) * strlen(cont));
+        if(attr == NULL) return;
+
+        attr->name = malloc(sizeof(char)*strlen(attrName));
+        if(attr->name == NULL) return;
+ 
+        strcpy(attr->name, attrName);
+        strcpy(attr->value, cont);
+
+        insertBack(svg->otherAttributes, attr);
 
     }
 
