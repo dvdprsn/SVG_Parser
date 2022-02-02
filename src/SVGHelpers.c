@@ -31,36 +31,17 @@ void parser(xmlNode *a_node, SVG *svg) {
                 setSVGTitle(svg,cur_node->children);
             } else if (strcmp(nodeName, "desc") == 0) { //Works
                 setSVGDesc(svg,cur_node->children);
-            } else if (strcmp(nodeName, "svg") == 0) { //Works (Fills it, unsure about mem issues)
+            } else if (strcmp(nodeName, "svg") == 0) { //Works
                 fillSVG(svg,cur_node);
-            } else if (strcmp(nodeName, "path") == 0) { //NOT WORKING
-                //createPath(svg,cur_node);
-            }else if (strcmp(nodeName, "rect") == 0) {
+            } else if (strcmp(nodeName, "path") == 0) { 
+                createPath(svg,cur_node);
+            }else if (strcmp(nodeName, "rect") == 0) { //WORKS
                 createRect(svg,cur_node);
-            } else if (strcmp(nodeName, "circle") == 0) {
+            } else if (strcmp(nodeName, "circle") == 0) { //WORKS
                 createCircle(svg,cur_node);
+            } else if(strcmp(nodeName, "g") == 0) {
+                //createGroup(svg,cur_node);
             }
-
-        /*
-            if (xmlStrcmp(cur_node->name, (const xmlChar *) "path") == 0) { //Create Path
-                createPath(svg, cur_node);
-            } else if (xmlStrcmp(cur_node->name, (const xmlChar *) "circle") == 0) { //Create Circle
-                createCircle(svg, cur_node);
-            } else if (xmlStrcmp(cur_node->name, (const xmlChar *) "rectangle") == 0) { //Create Rectangle
-                createRect(svg, cur_node);
-            } else if (xmlStrcmp(cur_node->name, (const xmlChar *) "svg") == 0) {
-                fillSVG(svg, cur_node);
-            } else if (xmlStrcmp(cur_node->name, (const xmlChar *) "title") == 0) {
-                if(cur_node->content != NULL) {
-                    printf(" content: %s\n ", cur_node->content);
-                }
-                //setSVGTitle(svg, cur_node);
-            } else if (xmlStrcmp(cur_node->name, (const xmlChar *) "desc") == 0) {
-                setSVGDesc(svg, cur_node);
-            } else if (xmlStrcmp(cur_node->name, (const xmlChar *) "g") == 0) {
-                createGroup(svg, cur_node);
-            }
-            */
 
         }
 
@@ -160,7 +141,6 @@ void createPath(SVG *svg, xmlNode *cur_node) {
     xmlNode *value; 
     Path *path = malloc(sizeof(Path) + sizeof(char) * 512);
 
-    //path = malloc(sizeof(Path) + sizeof(char) * 512);
     if(path == NULL) return;
 
     path->otherAttributes = initializeList(&pathToString,&deletePath,&comparePaths);

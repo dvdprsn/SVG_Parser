@@ -67,7 +67,7 @@ char *SVGToString(const SVG *img) {
     
     toReturn = realloc(toReturn, sizeof(char)*charSize+20);
     if(toReturn == NULL){
-        //fprintf(stderr, "REALLOCE FAILED");
+        fprintf(stderr, "REALLOCE FAILED");
         return NULL;
     }
     strcat(toReturn, sizeCheck);
@@ -239,6 +239,7 @@ char *rectangleToString(void *data) {
         fprintf(stderr, "Error: ");
     }
     strcat(tmpStr, strTest);
+    strcat(tmpStr,"\n");
 
     free(strTest);
 
