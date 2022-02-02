@@ -141,8 +141,6 @@ Attribute *createAttr(char *name, char value[]) {
     strcpy(attr->name, name);
     strcpy(attr->value, value); //Copy string for value
 
-    printf("createAttr -> Name: %s, Value: %s\n",attr->name,attr->value);
-
     return attr;    //Return create attribute to caller
 
 }

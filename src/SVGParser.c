@@ -32,20 +32,39 @@ SVG* createSVG(const char *fileName) {
 }
 
 char *SVGToString(const SVG *img) {
+    int charSize = 256;
+    char *toReturn = malloc(sizeof(char)*charSize);
+    
     if(strcmp(img->namespace,"\0")!=0) {
-        printf("Namespace: %s\n", img->namespace);
+        charSize += sizeof(img->namespace);
+        toReturn = realloc(toReturn,sizeof(char)*charSize+1);
+        strcat(toReturn, "NS: ");
+        strcat(toReturn, img->namespace);
+        strcat(toReturn, "\n");
+
     }
     if(strcmp(img->title,"\0")!= 0) {
-        printf("Title: %s\n", img->title);
+        charSize += sizeof(img->title);
+        toReturn = realloc(toReturn,sizeof(char)*charSize+1);
+        strcat(toReturn, "Title: ");
+        strcat(toReturn, img->title);
+        strcat(toReturn, "\n");
+
     }
     if(strcmp(img->description, "\0")!=0) {
-        printf("Description: %s\n",img->description);
+        charSize += sizeof(img->description);
+        toReturn = realloc(toReturn,sizeof(char)*charSize+1);
+        strcat(toReturn, "Description: ");
+        strcat(toReturn, img->description);
+        strcat(toReturn, "\n");
     }
     
     //Attributes of SVG
     char *str = toString(img->otherAttributes);
-    printf("%s\n", str);
-    free(str);
+    strcat(toReturn, str);
+    //free(str); //TODO FREE
+
+    return toReturn;
 
 }
 
@@ -121,12 +140,8 @@ void deleteAttribute(void *data) {
 
     tmpAttr = (Attribute *)data; // Cast data to type attribute
 
-    //TODO something wrong with allocation 
-    if(tmpAttr->name != NULL) { //Check if name is already null
-        printf("Delete Function -> Name: %s, value: %s\n", tmpAttr->name, tmpAttr->value);
-        //free(tmpAttr->name); //free name
-    }
-    //free(tmpAttr); //THIS LINE CAUSES ISSUES
+    free(tmpAttr->name);
+    //free(tmpAttr);
 
 }
 
@@ -172,7 +187,7 @@ char *groupToString(void *data) {
 }
 
 int compareGroups(const void *first, const void *second) {
-
+    return -1;
 }
 
 //RECTANGLE

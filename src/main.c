@@ -17,10 +17,11 @@ int main(int argc, char **argv) {
      */
     //TODO Ask about Branch
     //TODO Ask about nested groups
-    
-    //SVGToString(svg);
-    //printf("%s\n",toString(svg->otherAttributes));
-    deleteSVG(svg); 
+    char *string = SVGToString(svg);
 
+    printf("%s\n", string);
+
+    deleteSVG(svg); 
+    //free(string); //TODO free
     return 0;
 }
