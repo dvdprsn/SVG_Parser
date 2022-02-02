@@ -63,19 +63,20 @@ char *SVGToString(const SVG *img) {
     //RECTANGLE
     strcat(toReturn, "------Rect------\n");
     sizeCheck = toString(img->rectangles);
-    charSize += strlen(sizeCheck);
-    free(sizeCheck);
+    charSize += strlen(sizeCheck)+20;
+    
     toReturn = realloc(toReturn, sizeof(char)*charSize+20);
     if(toReturn == NULL){
         //fprintf(stderr, "REALLOCE FAILED");
         return NULL;
     }
-    strcat(toReturn, toString(img->rectangles));
+    strcat(toReturn, sizeCheck);
+    free(sizeCheck);
 
     //CIRCLE
     strcat(toReturn, "----Circle----\n");
     sizeCheck = toString(img->circles);
-    charSize += strlen(sizeCheck);
+    charSize += strlen(sizeCheck)+20;
     
     toReturn = realloc(toReturn, sizeof(*toReturn)*charSize+20);
     if(toReturn == NULL) return NULL;
@@ -219,6 +220,7 @@ void deleteRectangle(void *data) {
 char *rectangleToString(void *data) {
 
     char *tmpStr;
+    char *strTest;
     Rectangle *tmpRect;
     if(data == NULL) return NULL;
 
@@ -230,12 +232,15 @@ char *rectangleToString(void *data) {
     sprintf(tmpStr, "x: %f y: %f units: %s, width: %f height: %f ",tmpRect->x, tmpRect->y, tmpRect->units, tmpRect->width, tmpRect->height);
     strcat(tmpStr, "\n");
 
+    strTest = toString(tmpRect->otherAttributes);
 
-    tmpStr = realloc(tmpStr, sizeof(char)*(strlen(toString(tmpRect->otherAttributes))+30+sizeof(char)*256));
+    tmpStr = realloc(tmpStr, sizeof(char)*(strlen(strTest)+30+sizeof(char)*256));
     if(tmpStr == NULL) {
         fprintf(stderr, "Error: ");
     }
-    strcat(tmpStr, toString(tmpRect->otherAttributes));
+    strcat(tmpStr, strTest);
+
+    free(strTest);
 
     return tmpStr;
 
@@ -262,6 +267,7 @@ void deleteCircle(void *data) {
 
 char *circleToString(void *data) {
     char *tmpStr;
+    char *sizeTest;
     Circle *tmpCirc;
 
     if(data == NULL) return NULL;
@@ -274,12 +280,16 @@ char *circleToString(void *data) {
 
     }
 
+    sizeTest = toString(tmpCirc->otherAttributes);
+
     sprintf(tmpStr,"cx: %f cy: %f r: %f units: %s\n", tmpCirc->cx, tmpCirc->cy, tmpCirc->r, tmpCirc->units);
 
-    tmpStr = realloc(tmpStr, sizeof(*tmpStr)*(strlen(toString(tmpCirc->otherAttributes))+30+sizeof(char)*256));
+    tmpStr = realloc(tmpStr, sizeof(*tmpStr)*(strlen(sizeTest)+30+sizeof(char)*256));
     if(tmpStr == NULL) return NULL;
 
-    strcat(tmpStr,toString(tmpCirc->otherAttributes));
+    strcat(tmpStr,sizeTest);
+
+    free(sizeTest);
 
     return tmpStr;
 }
