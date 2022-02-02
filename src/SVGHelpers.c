@@ -139,10 +139,10 @@ Attribute *createAttr(char *name, char value[]) {
     if(value == NULL) return NULL; //Cannot have a nsame attr without value
 
     Attribute *attr;
-    attr = malloc(sizeof(Attribute) + sizeof(char) * strlen(value)); //Allocate for flexible array member
+    attr = malloc(sizeof(Attribute) + sizeof(char) * strlen(value)+1); //Allocate for flexible array member
     if(attr == NULL) return NULL; //If alloc failed
 
-    attr->name = malloc(sizeof(char)*strlen(name)); //Allocate space for the char* in attr struct
+    attr->name = malloc(sizeof(char)*strlen(name)+1); //Allocate space for the char* in attr struct
     if(attr->name == NULL) return NULL; //Check for fail
     
     strcpy(attr->name, name);

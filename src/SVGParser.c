@@ -161,7 +161,7 @@ char *attributeToString(void *data) {
     if(data == NULL) return NULL;
     tmpAttr = (Attribute *) data;
 
-    len = strlen(tmpAttr->name) + strlen(tmpAttr->value);
+    len = strlen(tmpAttr->name) + strlen(tmpAttr->value)+2;
     tmpStr = malloc(sizeof(char)*len); //MUST BE FREED AFTER USE
     if(tmpStr == NULL) return NULL;
 
@@ -219,7 +219,7 @@ char *rectangleToString(void *data) {
     strcat(tmpStr, "\n");
     printf("tmSt: %lu\n",strlen(tmpStr)*sizeof(char));
 
-    /tmpStr = realloc(tmpStr, sizeof(char)*(strlen(toString(tmpRect->otherAttributes))+30));
+    //tmpStr = realloc(tmpStr, sizeof(char)*(strlen(toString(tmpRect->otherAttributes))+30));
     if(tmpStr == NULL) {
         fprintf(stderr, "Error: ");
     }
