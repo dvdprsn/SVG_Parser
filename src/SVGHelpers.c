@@ -37,6 +37,8 @@ void parser(xmlNode *a_node, SVG *svg) {
                 //createPath(svg,cur_node);
             }else if (strcmp(nodeName, "rect") == 0) {
                 createRect(svg,cur_node);
+            } else if (strcmp(nodeName, "circle") == 0) {
+                createCircle(svg,cur_node);
             }
 
         /*
@@ -104,7 +106,7 @@ void createCircle(SVG *svg, xmlNode *cur_node) {
 
     Circle *circle = malloc(sizeof(Circle));
     initCircle(circle);
-    char *ptr = "\0";
+    char *ptr = " ";
     xmlAttr *attr;
 
     for (attr = cur_node->properties; attr != NULL; attr = attr->next) {

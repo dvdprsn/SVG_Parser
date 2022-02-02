@@ -22,6 +22,6 @@ int main(int argc, char **argv) {
     printf("%s\n", string);
 
     deleteSVG(svg); 
-    //free(string); //TODO free
+    free(string); //TODO free
     return 0;
 }

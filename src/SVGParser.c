@@ -33,7 +33,9 @@ SVG* createSVG(const char *fileName) {
 
 char *SVGToString(const SVG *img) {
     int charSize = 30;
+    char *sizeCheck;
     char *toReturn = malloc(sizeof(char)*charSize);
+    strcpy(toReturn, "--RUNNING--\n");
     
     if(strcmp(img->namespace,"\0")!=0) {
         charSize += strlen(img->namespace);
@@ -58,16 +60,28 @@ char *SVGToString(const SVG *img) {
         strcat(toReturn, img->description);
         strcat(toReturn, "\n");
     }
+    //RECTANGLE
     strcat(toReturn, "------Rect------\n");
-
-    charSize += strlen(toString(img->rectangles));
+    sizeCheck = toString(img->rectangles);
+    charSize += strlen(sizeCheck);
+    free(sizeCheck);
     toReturn = realloc(toReturn, sizeof(char)*charSize+20);
     if(toReturn == NULL){
-        fprintf(stderr, "REALLOCE FAILED");
+        //fprintf(stderr, "REALLOCE FAILED");
+        return NULL;
     }
-
     strcat(toReturn, toString(img->rectangles));
+
+    //CIRCLE
+    strcat(toReturn, "----Circle----\n");
+    sizeCheck = toString(img->circles);
+    charSize += strlen(sizeCheck);
     
+    toReturn = realloc(toReturn, sizeof(*toReturn)*charSize+20);
+    if(toReturn == NULL) return NULL;
+    strcat(toReturn, sizeCheck);
+
+    free(sizeCheck);
     
     return toReturn;
 
@@ -75,16 +89,12 @@ char *SVGToString(const SVG *img) {
 
 void deleteSVG(SVG *img) {
     
-    //freeList(img->otherAttributes);
-    //freeList(img->paths);
-    //freeList(img->rectangles);
-    /*
-    freeList(img->circles);
+    freeList(img->otherAttributes);
+    freeList(img->paths);
     freeList(img->rectangles);
+    freeList(img->circles);
     freeList(img->groups);
-     */
-    //TODO you can just call free list once on each attribute of the SVG struct sine we pass in the delete for each data type
-    //TODO so long as the delete functions are correct
+
     free(img);
 }
 
@@ -147,8 +157,8 @@ void deleteAttribute(void *data) {
 
     tmpAttr = (Attribute *)data; // Cast data to type attribute
 
-    //free(tmpAttr->name);
-    //free(tmpAttr);
+    free(tmpAttr->name);
+    free(tmpAttr);
 
 }
 
@@ -162,7 +172,7 @@ char *attributeToString(void *data) {
     tmpAttr = (Attribute *) data;
 
     len = strlen(tmpAttr->name) + strlen(tmpAttr->value)+2;
-    tmpStr = malloc(sizeof(char)*len); //MUST BE FREED AFTER USE
+    tmpStr = malloc(sizeof(*tmpStr)*len+100); //MUST BE FREED AFTER USE
     if(tmpStr == NULL) return NULL;
 
     sprintf(tmpStr, "Name: %s, Value %s", tmpAttr->name, tmpAttr->value);
@@ -178,15 +188,13 @@ int compareAttributes(const void *first, const void *second) {
 
 //GROUPS
 void deleteGroup(void *data) {
-    Group *tmpGroup; 
+    //Group *tmpGroup; 
 
     if(data == NULL) {
         return;
     }
 
-    tmpGroup = (Group*) data;
-
-
+    //tmpGroup = (Group*) data;
 }
 
 char *groupToString(void *data) {
@@ -200,13 +208,18 @@ int compareGroups(const void *first, const void *second) {
 //RECTANGLE
 void deleteRectangle(void *data) {
 
+    Rectangle *tmpRect;
+    if(data == NULL) return;
+    tmpRect = (Rectangle *) data;
+    freeList(tmpRect->otherAttributes);
+    free(tmpRect);
+
 }
 
 char *rectangleToString(void *data) {
 
     char *tmpStr;
     Rectangle *tmpRect;
-    int len;
     if(data == NULL) return NULL;
 
     tmpRect = (Rectangle *) data;
@@ -215,19 +228,14 @@ char *rectangleToString(void *data) {
     if(tmpStr == NULL) return NULL;
 
     sprintf(tmpStr, "x: %f y: %f units: %s, width: %f height: %f ",tmpRect->x, tmpRect->y, tmpRect->units, tmpRect->width, tmpRect->height);
-    //printf("%s\n",tmpStr);
     strcat(tmpStr, "\n");
-    printf("tmSt: %lu\n",strlen(tmpStr)*sizeof(char));
 
-    //tmpStr = realloc(tmpStr, sizeof(char)*(strlen(toString(tmpRect->otherAttributes))+30));
+
+    tmpStr = realloc(tmpStr, sizeof(char)*(strlen(toString(tmpRect->otherAttributes))+30+sizeof(char)*256));
     if(tmpStr == NULL) {
         fprintf(stderr, "Error: ");
     }
-    printf("Inital alloc: %lu\n", sizeof(char)*256);
-    printf("Space taken: %lu\n",strlen(tmpStr)*sizeof(char));
-    printf("Additional needed: %lu\n", sizeof(char)*(strlen(toString(tmpRect->otherAttributes))+30));
-    //strcat(tmpStr, toString(tmpRect->otherAttributes));
-    //printf("%s",toString(tmpRect->otherAttributes));
+    strcat(tmpStr, toString(tmpRect->otherAttributes));
 
     return tmpStr;
 
@@ -239,11 +247,41 @@ int compareRectangles(const void *first, const void *second) {
 
 //CIRCLE
 void deleteCircle(void *data) {
+    Circle *tmpCirc;
+
+    if(data == NULL) return;
+
+    tmpCirc = (Circle *) data;
+
+    freeList(tmpCirc->otherAttributes);
+    free(tmpCirc);
+
+
 
 }
 
 char *circleToString(void *data) {
+    char *tmpStr;
+    Circle *tmpCirc;
 
+    if(data == NULL) return NULL;
+
+    tmpCirc = (Circle *) data;
+    tmpStr = malloc(sizeof(*tmpStr)*256);
+
+    if(tmpCirc == NULL) {
+        return NULL;
+
+    }
+
+    sprintf(tmpStr,"cx: %f cy: %f r: %f units: %s\n", tmpCirc->cx, tmpCirc->cy, tmpCirc->r, tmpCirc->units);
+
+    tmpStr = realloc(tmpStr, sizeof(*tmpStr)*(strlen(toString(tmpCirc->otherAttributes))+30+sizeof(char)*256));
+    if(tmpStr == NULL) return NULL;
+
+    strcat(tmpStr,toString(tmpCirc->otherAttributes));
+
+    return tmpStr;
 }
 
 int compareCircles(const void *first, const void *second) {
@@ -262,8 +300,8 @@ void deletePath(void *data) {
     }
 
     tmpPath = (Path *)data; // Cast data to type attribute
-
-    //free(tmpPath);
+    freeList(tmpPath->otherAttributes);
+    free(tmpPath);
 
 }
 
