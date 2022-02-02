@@ -33,7 +33,12 @@ void parser(xmlNode *a_node, SVG *svg) {
                 setSVGDesc(svg,cur_node->children);
             } else if (strcmp(nodeName, "svg") == 0) { //Works (Fills it, unsure about mem issues)
                 fillSVG(svg,cur_node);
+            } else if (strcmp(nodeName, "path") == 0) { //NOT WORKING
+                //createPath(svg,cur_node);
+            }else if (strcmp(nodeName, "rect") == 0) {
+                createRect(svg,cur_node);
             }
+
         /*
             if (xmlStrcmp(cur_node->name, (const xmlChar *) "path") == 0) { //Create Path
                 createPath(svg, cur_node);
@@ -96,6 +101,7 @@ void createRect(SVG *svg, xmlNode *cur_node) {
 }
 
 void createCircle(SVG *svg, xmlNode *cur_node) {
+
     Circle *circle = malloc(sizeof(Circle));
     initCircle(circle);
     char *ptr = "\0";
@@ -130,6 +136,7 @@ void createGroup(SVG *svg, xmlNode *cur_node) { //TODO Figure out groups (nested
 }
 
 Attribute *createAttr(char *name, char value[]) {
+    if(value == NULL) return NULL; //Cannot have a nsame attr without value
 
     Attribute *attr;
     attr = malloc(sizeof(Attribute) + sizeof(char) * strlen(value)); //Allocate for flexible array member
@@ -145,27 +152,38 @@ Attribute *createAttr(char *name, char value[]) {
 
 }
 
-Path *createPath(SVG *svg, xmlNode *cur_node) {
+void createPath(SVG *svg, xmlNode *cur_node) {
+    
     xmlAttr *attr;
-    Path *path;
+    xmlNode *value; 
+    Path *path = malloc(sizeof(Path) + sizeof(char) * 512);
+
+    //path = malloc(sizeof(Path) + sizeof(char) * 512);
+    if(path == NULL) return;
+
+    path->otherAttributes = initializeList(&pathToString,&deletePath,&comparePaths);
+
+    char *attrName;
+    char *cont;
 
     for (attr = cur_node->properties; attr != NULL; attr = attr->next) {
-        xmlNode *value = attr->children;
 
-        char *attrName = (char *) attr->name;
-        char *cont = (char *) (value->content);
+        value = attr->children;
+        attrName = (char *) (attr->name);
+        cont = (char *) (value->content);
+
 
         if (strcmp(attrName, "d") == 0) {
-            //TODO may not malloc depending on order in path
-            path = malloc(sizeof(Path) + sizeof(char) * strlen(cont));
-            strcpy(path->data, cont);
+            //strcpy(path->data, cont);
+            printf("d: %s\n", cont);
         } else { //Other Attributes
             insertBack(path->otherAttributes, createAttr(attrName, cont));
+            
         }
 
     }
 
-    return path;
+    insertBack(svg->paths,path);
 
 }
 
@@ -174,7 +192,7 @@ void initCircle(Circle *circle) {
     circle->cy = 0;
     circle->r = 0;
     strcpy(circle->units, "\0");
-    circle->otherAttributes = initializeList(&circleToString, &deleteCircle, &compareCircles);
+    circle->otherAttributes = initializeList(&attributeToString, &deleteAttribute, &compareAttributes);
 }
 
 void initRect(Rectangle *rect) {
@@ -182,8 +200,8 @@ void initRect(Rectangle *rect) {
     rect->width = 0;
     rect->x = 0;
     rect->y = 0;
-    strcpy(rect->units, "\0");
-    rect->otherAttributes = initializeList(&rectangleToString, &deleteRectangle, &compareRectangles);
+    strcpy(rect->units, "");
+    rect->otherAttributes = initializeList(&attributeToString, &deleteAttribute, &compareAttributes);
 }
 
 void initSVG(SVG *svgReturn) {

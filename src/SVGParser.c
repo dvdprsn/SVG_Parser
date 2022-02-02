@@ -32,45 +32,52 @@ SVG* createSVG(const char *fileName) {
 }
 
 char *SVGToString(const SVG *img) {
-    int charSize = 256;
+    int charSize = 30;
     char *toReturn = malloc(sizeof(char)*charSize);
     
     if(strcmp(img->namespace,"\0")!=0) {
-        charSize += sizeof(img->namespace);
-        toReturn = realloc(toReturn,sizeof(char)*charSize+1);
+        charSize += strlen(img->namespace);
+        toReturn = realloc(toReturn,sizeof(char)*charSize+20);
         strcat(toReturn, "NS: ");
         strcat(toReturn, img->namespace);
         strcat(toReturn, "\n");
 
     }
     if(strcmp(img->title,"\0")!= 0) {
-        charSize += sizeof(img->title);
-        toReturn = realloc(toReturn,sizeof(char)*charSize+1);
+        charSize += strlen(img->title);
+        toReturn = realloc(toReturn,sizeof(char)*charSize+20);
         strcat(toReturn, "Title: ");
         strcat(toReturn, img->title);
         strcat(toReturn, "\n");
 
     }
     if(strcmp(img->description, "\0")!=0) {
-        charSize += sizeof(img->description);
-        toReturn = realloc(toReturn,sizeof(char)*charSize+1);
+        charSize += strlen(img->description);
+        toReturn = realloc(toReturn,sizeof(char)*charSize+20);
         strcat(toReturn, "Description: ");
         strcat(toReturn, img->description);
         strcat(toReturn, "\n");
     }
-    
-    //Attributes of SVG
-    char *str = toString(img->otherAttributes);
-    strcat(toReturn, str);
-    //free(str); //TODO FREE
+    strcat(toReturn, "------Rect------\n");
 
+    charSize += strlen(toString(img->rectangles));
+    toReturn = realloc(toReturn, sizeof(char)*charSize+20);
+    if(toReturn == NULL){
+        fprintf(stderr, "REALLOCE FAILED");
+    }
+
+    strcat(toReturn, toString(img->rectangles));
+    
+    
     return toReturn;
 
 }
 
 void deleteSVG(SVG *img) {
     
-    freeList(img->otherAttributes);
+    //freeList(img->otherAttributes);
+    //freeList(img->paths);
+    //freeList(img->rectangles);
     /*
     freeList(img->circles);
     freeList(img->rectangles);
@@ -140,7 +147,7 @@ void deleteAttribute(void *data) {
 
     tmpAttr = (Attribute *)data; // Cast data to type attribute
 
-    free(tmpAttr->name);
+    //free(tmpAttr->name);
     //free(tmpAttr);
 
 }
@@ -197,6 +204,33 @@ void deleteRectangle(void *data) {
 
 char *rectangleToString(void *data) {
 
+    char *tmpStr;
+    Rectangle *tmpRect;
+    int len;
+    if(data == NULL) return NULL;
+
+    tmpRect = (Rectangle *) data;
+
+    tmpStr = malloc(sizeof(char)*256);
+    if(tmpStr == NULL) return NULL;
+
+    sprintf(tmpStr, "x: %f y: %f units: %s, width: %f height: %f ",tmpRect->x, tmpRect->y, tmpRect->units, tmpRect->width, tmpRect->height);
+    //printf("%s\n",tmpStr);
+    strcat(tmpStr, "\n");
+    printf("tmSt: %lu\n",strlen(tmpStr)*sizeof(char));
+
+    /tmpStr = realloc(tmpStr, sizeof(char)*(strlen(toString(tmpRect->otherAttributes))+30));
+    if(tmpStr == NULL) {
+        fprintf(stderr, "Error: ");
+    }
+    printf("Inital alloc: %lu\n", sizeof(char)*256);
+    printf("Space taken: %lu\n",strlen(tmpStr)*sizeof(char));
+    printf("Additional needed: %lu\n", sizeof(char)*(strlen(toString(tmpRect->otherAttributes))+30));
+    //strcat(tmpStr, toString(tmpRect->otherAttributes));
+    //printf("%s",toString(tmpRect->otherAttributes));
+
+    return tmpStr;
+
 }
 
 int compareRectangles(const void *first, const void *second) {
@@ -219,9 +253,54 @@ int compareCircles(const void *first, const void *second) {
 //PATHS
 void deletePath(void *data) {
 
+    //Much of this logic is from the StructListDemo
+
+    Path *tmpPath;
+
+    if(data == NULL)  { //Check if empty already
+        return;
+    }
+
+    tmpPath = (Path *)data; // Cast data to type attribute
+
+    //free(tmpPath);
+
 }
 
 char *pathToString(void *data) {
+/*
+    char *tmpStr;
+    Attribute *tmpAttr;
+    int len;
+
+    if(data == NULL) return NULL;
+    tmpAttr = (Attribute *) data;
+
+    len = strlen(tmpAttr->name) + strlen(tmpAttr->value);
+    tmpStr = malloc(sizeof(char)*len); //MUST BE FREED AFTER USE
+    if(tmpStr == NULL) return NULL;
+
+    sprintf(tmpStr, "Name: %s, Value %s", tmpAttr->name, tmpAttr->value);
+
+    return tmpStr;
+*/
+
+    char *tmpStr;
+    Path *tmpPath;
+    int len;
+    if(data == NULL) return NULL;
+
+    tmpPath = (Path *) data;
+
+    len = strlen(tmpPath->data);
+
+    tmpStr = malloc(sizeof(char)*len);
+    if(tmpStr == NULL) return NULL;
+
+    sprintf(tmpStr, "Data: %s", tmpPath->data);
+    strcat(tmpStr, "\n");
+    strcat(tmpStr, toString(tmpPath->otherAttributes));
+    return tmpStr;
 
 }
 

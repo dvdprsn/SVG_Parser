@@ -28,7 +28,7 @@ void initGroup(Group *group);
 
 Attribute *createAttr(char *name, char value[]);
 
-Path *createPath(SVG * svg, xmlNode * cur_node);
+void createPath(SVG * svg, xmlNode * cur_node);
 
 char *getNS(xmlNode *cur_node);
 
