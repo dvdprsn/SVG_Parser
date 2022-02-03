@@ -28,17 +28,17 @@ void parser(xmlNode *a_node, SVG *svg) {
             nodeName = (char *)cur_node->name;
 
             if(strcmp(nodeName, "title") == 0) { //Works
-                setSVGTitle(svg,cur_node->children);
+                setSVGTitle(svg, cur_node->children);
             } else if (strcmp(nodeName, "desc") == 0) { //Works
-                setSVGDesc(svg,cur_node->children);
+                setSVGDesc(svg, cur_node->children);
             } else if (strcmp(nodeName, "svg") == 0) { //Works
-                fillSVG(svg,cur_node);
+                fillSVG(svg, cur_node);
             } else if (strcmp(nodeName, "path") == 0) { 
-                createPath(svg,cur_node);
+                createPath(svg, cur_node);
             }else if (strcmp(nodeName, "rect") == 0) { //WORKS
                 createRect(svg,cur_node);
             } else if (strcmp(nodeName, "circle") == 0) { //WORKS
-                createCircle(svg,cur_node);
+                createCircle(svg, cur_node);
             } else if(strcmp(nodeName, "g") == 0) {
                 //createGroup(svg,cur_node);
             }
@@ -53,7 +53,7 @@ void parser(xmlNode *a_node, SVG *svg) {
 
 void createRect(SVG *svg, xmlNode *cur_node) {
 
-    Rectangle *rect = malloc(sizeof(Rectangle));
+    Rectangle *rect = malloc(sizeof(Rectangle)+30);
     initRect(rect);
     char *ptr = "\0";
     xmlAttr *attr;
@@ -85,7 +85,7 @@ void createRect(SVG *svg, xmlNode *cur_node) {
 
 void createCircle(SVG *svg, xmlNode *cur_node) {
 
-    Circle *circle = malloc(sizeof(Circle));
+    Circle *circle = malloc(sizeof(Circle)+20);
     initCircle(circle);
     char *ptr = " ";
     xmlAttr *attr;
@@ -122,7 +122,7 @@ Attribute *createAttr(char *name, char value[]) {
     if(value == NULL) return NULL; //Cannot have a nsame attr without value
 
     Attribute *attr;
-    attr = malloc(sizeof(Attribute) + sizeof(char) * strlen(value)+1); //Allocate for flexible array member
+    attr = malloc(sizeof(Attribute) + sizeof(char) * (strlen(value)+30)); //Allocate for flexible array member
     if(attr == NULL) return NULL; //If alloc failed
 
     attr->name = malloc(sizeof(char)*strlen(name)+1); //Allocate space for the char* in attr struct
@@ -139,11 +139,12 @@ void createPath(SVG *svg, xmlNode *cur_node) {
     
     xmlAttr *attr;
     xmlNode *value; 
-    Path *path = malloc(sizeof(Path) + sizeof(char) * 512);
+    Path *path;
 
+    path = malloc(sizeof(Path));
     if(path == NULL) return;
+    path->otherAttributes = initializeList(&attributeToString,&deleteAttribute,&compareAttributes);
 
-    path->otherAttributes = initializeList(&pathToString,&deletePath,&comparePaths);
 
     char *attrName;
     char *cont;
@@ -156,16 +157,16 @@ void createPath(SVG *svg, xmlNode *cur_node) {
 
 
         if (strcmp(attrName, "d") == 0) {
-            //strcpy(path->data, cont);
-            printf("d: %s\n", cont);
+            path = realloc(path, sizeof(path)+ (sizeof(char)*strlen(cont)+30));
+            strcpy(path->data, cont);
         } else { //Other Attributes
             insertBack(path->otherAttributes, createAttr(attrName, cont));
             
         }
 
     }
-
-    insertBack(svg->paths,path);
+    
+    insertBack(svg->paths, path);
 
 }
 

@@ -302,7 +302,7 @@ int compareCircles(const void *first, const void *second) {
 //PATHS
 void deletePath(void *data) {
 
-    //Much of this logic is from the StructListDemo
+
 
     Path *tmpPath;
 
@@ -310,30 +310,14 @@ void deletePath(void *data) {
         return;
     }
 
-    tmpPath = (Path *)data; // Cast data to type attribute
+    tmpPath = (Path *)data; 
     freeList(tmpPath->otherAttributes);
     free(tmpPath);
 
 }
 
 char *pathToString(void *data) {
-/*
-    char *tmpStr;
-    Attribute *tmpAttr;
-    int len;
-
-    if(data == NULL) return NULL;
-    tmpAttr = (Attribute *) data;
-
-    len = strlen(tmpAttr->name) + strlen(tmpAttr->value);
-    tmpStr = malloc(sizeof(char)*len); //MUST BE FREED AFTER USE
-    if(tmpStr == NULL) return NULL;
-
-    sprintf(tmpStr, "Name: %s, Value %s", tmpAttr->name, tmpAttr->value);
-
-    return tmpStr;
-*/
-
+    //TODO change this 
     char *tmpStr;
     Path *tmpPath;
     int len;
