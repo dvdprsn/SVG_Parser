@@ -143,6 +143,9 @@ List *getRects(const SVG *img) {
     }
 
     //Get from Groups
+    /**TODO
+     * Maybe create a group iter that returns the group list from groups
+     */
 
 
     return toReturn;
@@ -165,8 +168,10 @@ List *getCircles(const SVG *img) {
         insertBack(toReturn, circ);
     }
 
+    //GET from groups
 
-    
+
+
     return toReturn;
     
 }
@@ -180,6 +185,19 @@ List *getGroups(const SVG *img) {
 // Function that returns a list of all paths in the struct.
 List *getPaths(const SVG *img) {
     if(img == NULL) return NULL;
+    List *toReturn = initializeList(&pathToString, &dummyDel, &compareCircles);
+
+    List *tmpPath = img->paths;
+    ListIterator iter = createIterator(tmpPath);
+
+    void *elem;
+    while(elem = nextElement(&iter)!=NULL) {
+        Path *path = (Path *) elem;
+
+        insertBack(toReturn, path);
+    }
+
+    //Get from groups
     
 }
 
@@ -187,17 +205,64 @@ List *getPaths(const SVG *img) {
 // Function that returns the number of all rectangles with the specified area
 //TODO Use get functions for a list of all rectangles then compare to area
 int numRectsWithArea(const SVG *img, float area) {
-    return 0;
+    if(img == NULL) return -1;
+
+    List *rectList = getRects(img);
+    ListIterator iter = createIterator(rectList);
+    void *elem;
+
+    int ar = 0;
+    int toReturn = 0;
+
+    while(elem = nextElement(&iter)!=NULL) {
+        Rectangle *rect = (Rectangle *) elem;
+        ar = rect->height * rect->width;
+        if(ar = area) {
+            toReturn++;
+        } 
+    }
+
+
+
+    return toReturn;
 }
 
 // Function that returns the number of all circles with the specified area
 int numCirclesWithArea(const SVG *img, float area) {
-    return 0;
+    if(img == NULL) return -1;
+
+    List *circList = getCircles(img);
+    ListIterator iter = createIterator(circList);
+    void *elem;
+    int ar = 0;
+    int toReturn = 0;
+
+    while (elem = nextElement(&iter)!=NULL) {
+        Circle *circ = (Circle *) elem;
+        ar = (circ->r*circ->r)*3.1459;
+        if(ar = area){
+            toReturn++;
+        }
+    }
+    return toReturn;;
 }
 
 // Function that returns the number of all paths with the specified data - i.e. Path.data field
 int numPathsWithdata(const SVG *img, const char *data) {
-    return 0;
+    if(img == NULL) return -1;
+
+    List *pathList = getPaths(img);
+    ListIterator iter = createIterator(pathList);
+    void *elem;
+    int match = 0;
+
+    while (elem = nextElement(&iter)!=NULL) {
+        Path *path = (Path *)elem;
+        if(strcmp(path->data, data) == 0) {
+            match++;
+        }
+    }
+    return match;
 }
 
 // Function that returns the number of all groups with the specified length - see A1 Module 2 for details
