@@ -50,7 +50,6 @@ void parser(xmlNode *a_node, SVG *svg) {
                 initGroup(g);
                 createGroup(g,cur_node->children); //Maybe return XML node so it doesnt continue anyways
                 insertBack(svg->groups,g);
-                //cur_node = cur_node->next;
 
             }
 
