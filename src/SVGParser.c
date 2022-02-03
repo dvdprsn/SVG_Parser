@@ -61,39 +61,50 @@ char *SVGToString(const SVG *img) {
         strcat(toReturn, "\n");
     }
     //RECTANGLE
-    charSize += strlen("------Rect------\n");
-    toReturn = realloc(toReturn, sizeof(*toReturn) * (charSize+20));
+    charSize += strlen("------Rect------\n")+20;
+    toReturn = realloc(toReturn, sizeof(*toReturn) * (charSize));
     strcat(toReturn, "------Rect------\n");
+
     sizeCheck = toString(img->rectangles);
     charSize += strlen(sizeCheck)+20;
-    
     toReturn = realloc(toReturn, sizeof(char)*charSize+20);
-    if(toReturn == NULL){
-        fprintf(stderr, "REALLOCE FAILED");
-        return NULL;
-    }
+    if(toReturn == NULL) return NULL;
     strcat(toReturn, sizeCheck);
+
     free(sizeCheck);
 
     //CIRCLE
+    charSize += strlen("----Circle----\n")+20;
+    toReturn = realloc(toReturn, sizeof(*toReturn) * (charSize));
     strcat(toReturn, "----Circle----\n");
+    
     sizeCheck = toString(img->circles);
     charSize += strlen(sizeCheck)+20;
-    
-    toReturn = realloc(toReturn, sizeof(*toReturn)*(charSize+20));
+    toReturn = realloc(toReturn, sizeof(*toReturn)*(charSize));
     if(toReturn == NULL) return NULL;
     strcat(toReturn, sizeCheck);
 
     free(sizeCheck);
 
     //PATH
+    charSize += strlen("---PATH----\n")+20;
+    toReturn = realloc(toReturn, sizeof(*toReturn) * (charSize));
     strcat(toReturn, "---PATH----\n");
+
     sizeCheck = toString(img->paths);
     charSize += strlen(sizeCheck)+20;
-
-    toReturn = realloc(toReturn, sizeof(*toReturn)*charSize+20);
+    toReturn = realloc(toReturn, sizeof(*toReturn)*charSize);
     if(toReturn == NULL) return NULL;
     strcat(toReturn, sizeCheck);
+
+    free(sizeCheck);
+
+    //GROUP
+    sizeCheck = toString(img->groups);
+    charSize += strlen(sizeCheck)+20;
+    toReturn = realloc(toReturn, sizeof(*toReturn)*(charSize));
+    if(toReturn == NULL) return NULL;
+    strcat(toReturn,sizeCheck);
 
     free(sizeCheck);
     
@@ -223,6 +234,58 @@ void deleteGroup(void *data) {
 }
 
 char *groupToString(void *data) {
+    char *tmpStr;
+    char *strTest;
+
+    int tmpSize = 30;
+
+    Group *tmpGroup;
+    if(data == NULL) return NULL;
+    tmpGroup = (Group *)data;
+
+    //Group Separator
+    tmpSize += strlen("-------GROUP------\n") +30;
+    tmpStr = malloc(sizeof(*tmpStr)*tmpSize);
+    strcpy(tmpStr,"-------GROUP------\n");
+
+    //Grab rectangles
+    strTest = toString(tmpGroup->rectangles);
+    tmpSize += strlen(strTest)+30;
+    tmpStr = realloc(tmpStr,sizeof(*tmpStr)*tmpSize);
+    strcat(tmpStr,strTest);
+    free(strTest);
+
+    //GrabCircles
+    strTest = toString(tmpGroup->circles);
+    tmpSize += strlen(strTest)+ 30;
+    tmpStr = realloc(tmpStr, sizeof(*tmpStr)*tmpSize);
+    strcat(tmpStr,strTest);
+    free(strTest);
+
+    //Grab Paths
+    strTest = toString(tmpGroup->paths);
+    tmpSize += strlen(strTest)+30;
+    tmpStr = realloc(tmpStr, sizeof(*tmpStr)*tmpSize);
+    strcat(tmpStr,strTest);
+    free(strTest);
+
+    //Grab Attributes
+    strTest = toString(tmpGroup->otherAttributes);
+    tmpSize += strlen(strTest)+30;
+    tmpStr = realloc(tmpStr, sizeof(*tmpStr)*tmpSize);
+    strcat(tmpStr, strTest);
+    free(strTest);
+
+    //Recursive Groups
+    strTest = toString(tmpGroup->groups);
+    tmpSize += strlen(strTest)+30;
+    tmpStr = realloc(tmpStr, sizeof(*tmpStr)*tmpSize);
+    strcat(tmpStr, strTest);
+    free(strTest);
+
+    //Return
+    return tmpStr;
+
 
 }
 

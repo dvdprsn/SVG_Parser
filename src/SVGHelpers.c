@@ -6,21 +6,6 @@ void parser(xmlNode *a_node, SVG *svg) {
 
     for (cur_node = a_node; cur_node != NULL; cur_node = cur_node->next) {
 
-        /*
-        if(cur_node->parent->type == XML_ELEMENT_NODE && cur_node->type == XML_ELEMENT_NODE) {
-            if(xmlStrcmp(cur_node->parent->name, (const xmlChar *)"g") == 0){
-                printf("Parent name: %s\n", cur_node->parent->name);
-                printf("-------->Child name: %s\n", cur_node->name);
-            } else {
-                printf("Parent name: %s\n", cur_node->parent->name);
-                printf("Child name: %s\n", cur_node->name);
-            }
-            
-            printf("-----------------------\n");
-        } else if (cur_node->type == XML_ELEMENT_NODE) {
-            printf("Child name: %s\n", cur_node->name);
-        }
-        */
        char *nodeName = "\0";
 
         if (cur_node->type == XML_ELEMENT_NODE) {
@@ -48,7 +33,7 @@ void parser(xmlNode *a_node, SVG *svg) {
                 g = malloc(sizeof(Group)+30);
                 if(g == NULL) return;
                 initGroup(g);
-                createGroup(g,cur_node->children); //Maybe return XML node so it doesnt continue anyways
+                createGroup(g,cur_node);
                 insertBack(svg->groups,g);
 
             }
@@ -89,7 +74,6 @@ Rectangle *createRect(xmlNode *cur_node) {
 
     }
 
-    //insertBack(svg->rectangles, rect);
     return rect;
 
 }
@@ -120,37 +104,36 @@ Circle *createCircle(xmlNode *cur_node) {
 
     }
 
-    //insertBack(svg->circles, circle);
     return circle;
 
 }
 
 void createGroup(Group *g, xmlNode *cur_node) { //TODO Figure out groups (nested groups specifically)
 
-    xmlNode *a_node = cur_node;
+    xmlNode *a_node = cur_node->children;
 
     xmlAttr *attr;
     xmlNode *value;
     char *attrName;
     char *cont;
-    
-    for (cur_node = a_node; cur_node != NULL; cur_node = cur_node->next) { //Go over siblings ONLY
 
-        for(attr = cur_node->properties; attr != NULL; attr = attr->next) { //Get Attributes
+    for(attr = cur_node->properties; attr != NULL; attr = attr->next) { //Get Attributes
             value = attr->children;
 
             attrName = (char *) (attr->name);
             cont = (char *) (value->content);
 
             insertBack(g->otherAttributes,createAttr(attrName,cont));
-        }
+    
+    }
+    
+    for (cur_node = a_node; cur_node != NULL; cur_node = cur_node->next) { //Go over siblings ONLY
 
        char *nodeName = "\0";
 
         if (cur_node->type == XML_ELEMENT_NODE) {
 
             nodeName = (char *)cur_node->name;
-            //printf("Inside Group: %s\n",nodeName);
 
             if(strcmp(nodeName, "rect") == 0 ) {
                 insertBack(g->rectangles, createRect(cur_node));
@@ -220,7 +203,6 @@ Path * createPath(xmlNode *cur_node) {
 
     }
     
-    //insertBack(svg->paths, path);
     return path;
 
 }
