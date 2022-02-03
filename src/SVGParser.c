@@ -111,6 +111,7 @@ void deleteSVG(SVG *img) {
 }
 
 //-------------------GETTERS----------------------------------
+//Create new list and iterate through the list in img to fill
 
 // Function that returns a list of all rectangles in the struct.
 List *getRects(const SVG *img) {
@@ -200,6 +201,7 @@ int compareAttributes(const void *first, const void *second) {
 
 //GROUPS
 void deleteGroup(void *data) {
+    //NOTE - Free lists first then freeList on the groups (Check valgrind)
     //Group *tmpGroup; 
 
     if(data == NULL) {

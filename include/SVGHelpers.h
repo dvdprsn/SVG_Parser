@@ -22,7 +22,7 @@ void createCircle(SVG * svg, xmlNode * cur_node);
 
 void initCircle(Circle *circle);
 
-void createGroup(SVG * svg, xmlNode * cur_node);
+void createGroup(SVG *svg, xmlNode *cur_node);
 
 void initGroup(Group *group);
 

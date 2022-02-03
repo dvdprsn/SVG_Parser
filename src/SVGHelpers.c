@@ -40,7 +40,7 @@ void parser(xmlNode *a_node, SVG *svg) {
             } else if (strcmp(nodeName, "circle") == 0) { //WORKS
                 createCircle(svg, cur_node);
             } else if(strcmp(nodeName, "g") == 0) {
-                //createGroup(svg,cur_node);
+                createGroup(svg,cur_node->children); //Maybe return XML node so it doesnt continue anyways
             }
 
         }
@@ -114,8 +114,32 @@ void createCircle(SVG *svg, xmlNode *cur_node) {
 }
 
 void createGroup(SVG *svg, xmlNode *cur_node) { //TODO Figure out groups (nested groups specifically)
+
     Group *group = malloc(sizeof(Group));
     initGroup(group);
+    xmlNode *setNode;
+
+    xmlNode *a_node = cur_node;
+    
+    for (cur_node = a_node; cur_node != NULL; cur_node = cur_node->next) {
+
+       char *nodeName = "\0";
+
+        if (cur_node->type == XML_ELEMENT_NODE) {
+
+            nodeName = (char *)cur_node->name;
+            printf("Inside Group: %s\n",nodeName);
+
+            if(strcmp(nodeName, "g") == 0) { //Nested group found
+                //createGroup(svg,cur_node->children);
+            }
+
+        }
+
+        setNode = cur_node;
+
+    }
+
 }
 
 Attribute *createAttr(char *name, char value[]) {
