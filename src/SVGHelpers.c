@@ -43,12 +43,14 @@ void parser(xmlNode *a_node, SVG *svg) {
                 insertBack(svg->circles,createCircle(cur_node));
                 //createCircle(svg, cur_node);
             } else if(strcmp(nodeName, "g") == 0) {
+
                 Group *g; 
                 g = malloc(sizeof(Group)+30);
                 if(g == NULL) return;
                 initGroup(g);
                 createGroup(g,cur_node->children); //Maybe return XML node so it doesnt continue anyways
                 insertBack(svg->groups,g);
+                //cur_node = cur_node->next;
 
             }
 

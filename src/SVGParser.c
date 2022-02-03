@@ -55,12 +55,14 @@ char *SVGToString(const SVG *img) {
     }
     if(strcmp(img->description, "\0")!=0) {
         charSize += strlen(img->description);
-        toReturn = realloc(toReturn,sizeof(char)*charSize+20);
+        toReturn = realloc(toReturn,sizeof(*toReturn)*(charSize+20));
         strcat(toReturn, "Description: ");
         strcat(toReturn, img->description);
         strcat(toReturn, "\n");
     }
     //RECTANGLE
+    charSize += strlen("------Rect------\n");
+    toReturn = realloc(toReturn, sizeof(*toReturn) * (charSize+20));
     strcat(toReturn, "------Rect------\n");
     sizeCheck = toString(img->rectangles);
     charSize += strlen(sizeCheck)+20;
@@ -78,7 +80,7 @@ char *SVGToString(const SVG *img) {
     sizeCheck = toString(img->circles);
     charSize += strlen(sizeCheck)+20;
     
-    toReturn = realloc(toReturn, sizeof(*toReturn)*charSize+20);
+    toReturn = realloc(toReturn, sizeof(*toReturn)*(charSize+20));
     if(toReturn == NULL) return NULL;
     strcat(toReturn, sizeCheck);
 
@@ -349,7 +351,7 @@ char *pathToString(void *data) {
 
     len = strlen(tmpPath->data);
 
-    tmpStr = malloc(sizeof(char)*(len+30));
+    tmpStr = malloc(sizeof(char)*(len+256));
     if(tmpStr == NULL) return NULL;
 
     strTest = toString(tmpPath->otherAttributes);
