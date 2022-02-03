@@ -5,8 +5,8 @@ SVG* createSVG(const char *fileName) {
 
     xmlDoc *doc = NULL;
     xmlNode *root = NULL;
-    //Creates Empty SVG struct
-    SVG *svgReturn = malloc(sizeof(SVG));
+    //Creates Empty SVG struct + buffer
+    SVG *svgReturn = malloc(sizeof(SVG)+30);
     if(svgReturn == NULL) {
         return NULL;
     }
