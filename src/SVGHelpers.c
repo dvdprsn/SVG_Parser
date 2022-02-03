@@ -63,7 +63,7 @@ void createRect(SVG *svg, xmlNode *cur_node) {
 
         char *attrName = (char *) attr->name;
         char *cont = (char *) (value->content);
-
+        //TODO make sure its grabbing units correctly (same as circle
         if (strcmp(attrName, "x") == 0) {
             rect->x = strtol(cont, &ptr, 10); //Get X
             strcpy(rect->units, ptr); //Get units
@@ -95,7 +95,7 @@ void createCircle(SVG *svg, xmlNode *cur_node) {
 
         char *attrName = (char *) attr->name;
         char *cont = (char *) (value->content);
-
+        //TODO Grabbing Units wrong -> decimal is breakpoint
         if (strcmp(attrName, "cx") == 0) {
             circle->cx = strtol(cont, &ptr, 10); //Get X
             strcpy(circle->units, ptr); //Get units

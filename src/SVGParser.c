@@ -83,6 +83,17 @@ char *SVGToString(const SVG *img) {
     strcat(toReturn, sizeCheck);
 
     free(sizeCheck);
+
+    //PATH
+    strcat(toReturn, "---PATH----\n");
+    sizeCheck = toString(img->paths);
+    charSize += strlen(sizeCheck)+20;
+
+    toReturn = realloc(toReturn, sizeof(*toReturn)*charSize+20);
+    if(toReturn == NULL) return NULL;
+    strcat(toReturn, sizeCheck);
+
+    free(sizeCheck);
     
     return toReturn;
 
@@ -283,12 +294,13 @@ char *circleToString(void *data) {
 
     sizeTest = toString(tmpCirc->otherAttributes);
 
-    sprintf(tmpStr,"cx: %f cy: %f r: %f units: %s\n", tmpCirc->cx, tmpCirc->cy, tmpCirc->r, tmpCirc->units);
+    sprintf(tmpStr,"cx: %f cy: %f r: %f units: %s", tmpCirc->cx, tmpCirc->cy, tmpCirc->r, tmpCirc->units);
 
     tmpStr = realloc(tmpStr, sizeof(*tmpStr)*(strlen(sizeTest)+30+sizeof(char)*256));
     if(tmpStr == NULL) return NULL;
 
     strcat(tmpStr,sizeTest);
+    strcat(tmpStr, "\n");
 
     free(sizeTest);
 
@@ -302,8 +314,6 @@ int compareCircles(const void *first, const void *second) {
 //PATHS
 void deletePath(void *data) {
 
-
-
     Path *tmpPath;
 
     if(data == NULL)  { //Check if empty already
@@ -316,23 +326,29 @@ void deletePath(void *data) {
 
 }
 
-char *pathToString(void *data) {
-    //TODO change this 
+char *pathToString(void *data) { 
     char *tmpStr;
     Path *tmpPath;
+    char *strTest;
     int len;
+
     if(data == NULL) return NULL;
 
     tmpPath = (Path *) data;
 
     len = strlen(tmpPath->data);
 
-    tmpStr = malloc(sizeof(char)*len);
+    tmpStr = malloc(sizeof(char)*(len+30));
     if(tmpStr == NULL) return NULL;
 
+    strTest = toString(tmpPath->otherAttributes);
+
     sprintf(tmpStr, "Data: %s", tmpPath->data);
+    strcat(tmpStr, strTest);
     strcat(tmpStr, "\n");
-    strcat(tmpStr, toString(tmpPath->otherAttributes));
+
+    free(strTest);
+
     return tmpStr;
 
 }
