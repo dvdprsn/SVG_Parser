@@ -14,21 +14,21 @@ void parser(xmlNode *a_node, SVG *svg);
 void initSVG(SVG * svgReturn);
 void fillSVG(SVG * svg, xmlNode * cur_node);
 
-void createRect(SVG * svg, xmlNode * cur_node);
+Rectangle* createRect(xmlNode * cur_node);
 
 void initRect(Rectangle *rect);
 
-void createCircle(SVG * svg, xmlNode * cur_node);
+Circle* createCircle(xmlNode * cur_node);
 
 void initCircle(Circle *circle);
 
-void createGroup(SVG *svg, xmlNode *cur_node);
+void createGroup(Group *g, xmlNode *cur_node);
 
 void initGroup(Group *group);
 
 Attribute *createAttr(char *name, char value[]);
 
-void createPath(SVG * svg, xmlNode * cur_node);
+Path *createPath(xmlNode * cur_node);
 
 char *getNS(xmlNode *cur_node);
 

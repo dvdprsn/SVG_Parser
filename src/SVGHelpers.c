@@ -34,13 +34,22 @@ void parser(xmlNode *a_node, SVG *svg) {
             } else if (strcmp(nodeName, "svg") == 0) { //Works
                 fillSVG(svg, cur_node);
             } else if (strcmp(nodeName, "path") == 0) { 
-                createPath(svg, cur_node);
+                //createPath(svg, cur_node);
+                insertBack(svg->paths,createPath(cur_node));
             }else if (strcmp(nodeName, "rect") == 0) { //WORKS
-                createRect(svg,cur_node);
+                //createRect(svg,cur_node)
+                insertBack(svg->rectangles,createRect(cur_node));
             } else if (strcmp(nodeName, "circle") == 0) { //WORKS
-                createCircle(svg, cur_node);
+                insertBack(svg->circles,createCircle(cur_node));
+                //createCircle(svg, cur_node);
             } else if(strcmp(nodeName, "g") == 0) {
-                createGroup(svg,cur_node->children); //Maybe return XML node so it doesnt continue anyways
+                Group *g; 
+                g = malloc(sizeof(Group)+30);
+                if(g == NULL) return;
+                initGroup(g);
+                createGroup(g,cur_node->children); //Maybe return XML node so it doesnt continue anyways
+                insertBack(svg->groups,g);
+
             }
 
         }
@@ -51,7 +60,7 @@ void parser(xmlNode *a_node, SVG *svg) {
 
 }
 
-void createRect(SVG *svg, xmlNode *cur_node) {
+Rectangle *createRect(xmlNode *cur_node) {
 
     Rectangle *rect = malloc(sizeof(Rectangle)+30);
     initRect(rect);
@@ -63,7 +72,7 @@ void createRect(SVG *svg, xmlNode *cur_node) {
 
         char *attrName = (char *) attr->name;
         char *cont = (char *) (value->content);
-        //TODO make sure its grabbing units correctly (same as circle
+        //TODO make sure its grabbing units correctly (same as circle)
         if (strcmp(attrName, "x") == 0) {
             rect->x = strtol(cont, &ptr, 10); //Get X
             strcpy(rect->units, ptr); //Get units
@@ -79,11 +88,12 @@ void createRect(SVG *svg, xmlNode *cur_node) {
 
     }
 
-    insertBack(svg->rectangles, rect);
+    //insertBack(svg->rectangles, rect);
+    return rect;
 
 }
 
-void createCircle(SVG *svg, xmlNode *cur_node) {
+Circle *createCircle(xmlNode *cur_node) {
 
     Circle *circle = malloc(sizeof(Circle)+20);
     initCircle(circle);
@@ -109,34 +119,53 @@ void createCircle(SVG *svg, xmlNode *cur_node) {
 
     }
 
-    insertBack(svg->circles, circle);
+    //insertBack(svg->circles, circle);
+    return circle;
 
 }
 
-void createGroup(SVG *svg, xmlNode *cur_node) { //TODO Figure out groups (nested groups specifically)
-
-    Group *group = malloc(sizeof(Group));
-    initGroup(group);
-    xmlNode *setNode;
+void createGroup(Group *g, xmlNode *cur_node) { //TODO Figure out groups (nested groups specifically)
 
     xmlNode *a_node = cur_node;
+
+    xmlAttr *attr;
+    xmlNode *value;
+    char *attrName;
+    char *cont;
     
-    for (cur_node = a_node; cur_node != NULL; cur_node = cur_node->next) {
+    for (cur_node = a_node; cur_node != NULL; cur_node = cur_node->next) { //Go over siblings ONLY
+
+        for(attr = cur_node->properties; attr != NULL; attr = attr->next) { //Get Attributes
+            value = attr->children;
+
+            attrName = (char *) (attr->name);
+            cont = (char *) (value->content);
+
+            insertBack(g->otherAttributes,createAttr(attrName,cont));
+        }
 
        char *nodeName = "\0";
 
         if (cur_node->type == XML_ELEMENT_NODE) {
 
             nodeName = (char *)cur_node->name;
-            printf("Inside Group: %s\n",nodeName);
+            //printf("Inside Group: %s\n",nodeName);
 
-            if(strcmp(nodeName, "g") == 0) { //Nested group found
-                //createGroup(svg,cur_node->children);
+            if(strcmp(nodeName, "rect") == 0 ) {
+                insertBack(g->rectangles, createRect(cur_node));
+            } else if(strcmp(nodeName, "circle") == 0) {
+                insertBack(g->circles,createCircle(cur_node));
+            } else if(strcmp(nodeName,"path")==0) {
+                insertBack(g->paths,createPath(cur_node));
+            } else if(strcmp(nodeName, "g") == 0) { //Nested group found
+                Group *groupNest; 
+                groupNest = malloc(sizeof(Group)+30); //Create nested group
+                initGroup(groupNest); //Init with empty lists
+                insertBack(g->groups,groupNest); //insert pointer to top level group
+                createGroup(groupNest,cur_node->children); //Fill group with children
             }
 
         }
-
-        setNode = cur_node;
 
     }
 
@@ -159,14 +188,14 @@ Attribute *createAttr(char *name, char value[]) {
 
 }
 
-void createPath(SVG *svg, xmlNode *cur_node) {
+Path * createPath(xmlNode *cur_node) {
     
     xmlAttr *attr;
     xmlNode *value; 
     Path *path;
 
     path = malloc(sizeof(Path));
-    if(path == NULL) return;
+    if(path == NULL) return NULL;
     path->otherAttributes = initializeList(&attributeToString,&deleteAttribute,&compareAttributes);
 
 
@@ -190,7 +219,8 @@ void createPath(SVG *svg, xmlNode *cur_node) {
 
     }
     
-    insertBack(svg->paths, path);
+    //insertBack(svg->paths, path);
+    return path;
 
 }
 

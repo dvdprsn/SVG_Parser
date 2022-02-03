@@ -202,13 +202,22 @@ int compareAttributes(const void *first, const void *second) {
 //GROUPS
 void deleteGroup(void *data) {
     //NOTE - Free lists first then freeList on the groups (Check valgrind)
-    //Group *tmpGroup; 
+    Group *tmpGroup; 
 
     if(data == NULL) {
         return;
     }
 
-    //tmpGroup = (Group*) data;
+    tmpGroup = (Group *) data;
+
+    freeList(tmpGroup->circles);
+    freeList(tmpGroup->paths);
+    freeList(tmpGroup->rectangles);
+    freeList(tmpGroup->otherAttributes);
+
+    freeList(tmpGroup->groups); //Should trigger recursion since freeList uses this function
+
+    free(tmpGroup); //On exit of recursion we can free the group
 }
 
 char *groupToString(void *data) {
