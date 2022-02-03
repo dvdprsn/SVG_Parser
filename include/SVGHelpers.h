@@ -35,4 +35,6 @@ char *getNS(xmlNode *cur_node);
 void setSVGDesc(SVG * svg, xmlNode * cur_node);
 void setSVGTitle(SVG * svg, xmlNode * cur_node);
 
+void dummyDel(void *data);
+
 #endif //A1_SVGHELPERS_H

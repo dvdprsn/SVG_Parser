@@ -128,26 +128,64 @@ void deleteSVG(SVG *img) {
 
 // Function that returns a list of all rectangles in the struct.
 List *getRects(const SVG *img) {
+    if(img == NULL) return NULL;
+    List *toReturn = initializeList(&rectangleToString, &dummyDel, &compareRectangles);
+
+    //Get from rectangles
+    List *tmpRect = img->rectangles;
+    ListIterator iter = createIterator(tmpRect);
+
+    void *elem;
+    while(elem = nextElement(&iter)!= NULL) {
+        Rectangle *rec = (Rectangle *) elem;
+
+        insertBack(toReturn, rec);
+    }
+
+    //Get from Groups
+
+
+    return toReturn;
     
 }
 
 // Function that returns a list of all circles in the struct.
 List *getCircles(const SVG *img) {
+    if(img == NULL) return NULL;
+    List *toReturn = initializeList(&circleToString, &dummyDel, &compareCircles);
+
+    //Get from  Circels
+    List *tmpCirc = img->circles;
+    ListIterator iter = createIterator(tmpCirc);
+
+    void *elem;
+    while(elem = nextElement(&iter)!=NULL) {
+        Circle *circ = (Circle *) elem;
+
+        insertBack(toReturn, circ);
+    }
+
+
+    
+    return toReturn;
     
 }
 
 // Function that returns a list of all groups in the struct.
 List *getGroups(const SVG *img) {
+    if(img == NULL) return NULL;
     
 }
 
 // Function that returns a list of all paths in the struct.
 List *getPaths(const SVG *img) {
+    if(img == NULL) return NULL;
     
 }
 
 //-------------------SEARCHERS--------------------------
 // Function that returns the number of all rectangles with the specified area
+//TODO Use get functions for a list of all rectangles then compare to area
 int numRectsWithArea(const SVG *img, float area) {
     return 0;
 }

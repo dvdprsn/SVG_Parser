@@ -281,3 +281,10 @@ char *getNS(xmlNode *cur_node) {
     if (cur_node) return (char *) cur_node->ns->href;
     return "";
 }
+
+void dummyDel(void *data){
+    return;
+}
+
+
+
