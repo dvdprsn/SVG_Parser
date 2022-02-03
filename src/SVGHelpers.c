@@ -285,6 +285,3 @@ char *getNS(xmlNode *cur_node) {
 void dummyDel(void *data){
     return;
 }
-
-
-

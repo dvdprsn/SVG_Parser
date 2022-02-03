@@ -136,7 +136,7 @@ List *getRects(const SVG *img) {
     ListIterator iter = createIterator(tmpRect);
 
     void *elem;
-    while(elem = nextElement(&iter)!= NULL) {
+    while((elem = nextElement(&iter))!= NULL) {
         Rectangle *rec = (Rectangle *) elem;
 
         insertBack(toReturn, rec);
@@ -162,7 +162,7 @@ List *getCircles(const SVG *img) {
     ListIterator iter = createIterator(tmpCirc);
 
     void *elem;
-    while(elem = nextElement(&iter)!=NULL) {
+    while((elem = nextElement(&iter))!=NULL) {
         Circle *circ = (Circle *) elem;
 
         insertBack(toReturn, circ);
@@ -179,6 +179,20 @@ List *getCircles(const SVG *img) {
 // Function that returns a list of all groups in the struct.
 List *getGroups(const SVG *img) {
     if(img == NULL) return NULL;
+    List *toReturn = initializeList(&groupToString, &dummyDel, &compareGroups);
+
+    List *tmpGroup = img->groups;
+    ListIterator iter = createIterator(tmpGroup);
+
+    void *elem;
+    while((elem= nextElement(&iter))!= NULL) {
+        Group *group = (Group *) elem;
+        insertBack(toReturn, group);
+    }
+
+    //Get the groups from inside this group list
+
+    return toReturn;
     
 }
 
@@ -191,14 +205,16 @@ List *getPaths(const SVG *img) {
     ListIterator iter = createIterator(tmpPath);
 
     void *elem;
-    while(elem = nextElement(&iter)!=NULL) {
+    while((elem = nextElement(&iter))!=NULL) {
         Path *path = (Path *) elem;
 
         insertBack(toReturn, path);
     }
 
     //Get from groups
-    
+
+
+    return toReturn;
 }
 
 //-------------------SEARCHERS--------------------------
@@ -214,10 +230,10 @@ int numRectsWithArea(const SVG *img, float area) {
     int ar = 0;
     int toReturn = 0;
 
-    while(elem = nextElement(&iter)!=NULL) {
+    while((elem = nextElement(&iter))!=NULL) {
         Rectangle *rect = (Rectangle *) elem;
         ar = rect->height * rect->width;
-        if(ar = area) {
+        if(ar == area) {
             toReturn++;
         } 
     }
@@ -237,10 +253,10 @@ int numCirclesWithArea(const SVG *img, float area) {
     int ar = 0;
     int toReturn = 0;
 
-    while (elem = nextElement(&iter)!=NULL) {
+    while ((elem = nextElement(&iter))!=NULL) {
         Circle *circ = (Circle *) elem;
         ar = (circ->r*circ->r)*3.1459;
-        if(ar = area){
+        if(ar == area){
             toReturn++;
         }
     }
@@ -256,7 +272,7 @@ int numPathsWithdata(const SVG *img, const char *data) {
     void *elem;
     int match = 0;
 
-    while (elem = nextElement(&iter)!=NULL) {
+    while ((elem = nextElement(&iter))!=NULL) {
         Path *path = (Path *)elem;
         if(strcmp(path->data, data) == 0) {
             match++;
@@ -270,7 +286,20 @@ int numGroupsWithLen(const SVG *img, int len) {
     return 0;
 }
 
+/**
+ * @brief 
+ * 
+ * @param img 
+ * @return int 
+ */
 int numAttr(const SVG *img) {
+    /**
+     * get lists of all elements in the svg using getters
+     * Set up iterator for each list type
+     * Check ALL elements in each list for attribute contents
+     * Use built in len on list for each element in those lists
+     */
+
     return 0;
 }
 
