@@ -7,6 +7,8 @@
 
 #include "SVGParser.h"
 #include <stdio.h>
+
+#define PI 3.141592653589
 #include <math.h>
 
 
