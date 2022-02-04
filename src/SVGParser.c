@@ -298,8 +298,30 @@ int numPathsWithdata(const SVG *img, const char *data) {
 
 // Function that returns the number of all groups with the specified length - see A1 Module 2 for details
 int numGroupsWithLen(const SVG *img, int len) {
+    if(img == NULL )return -1;
 
-    return 0;
+    int matches = 0;
+    int lenOfGroup = 0;
+
+    List *groups = getGroups(img);
+    ListIterator iter = createIterator(groups);
+    void *elem;
+
+    while((elem = nextElement(&iter))!=NULL) {
+        lenOfGroup = 0;
+        Group *group = (Group *) elem;
+        lenOfGroup += getLength(group->circles);
+        lenOfGroup += getLength(group->rectangles);
+        lenOfGroup += getLength(group->paths);
+        lenOfGroup += getLength(group->groups);
+
+        if(lenOfGroup == len) {
+            matches++;
+        }
+    }
+
+
+    return matches;
 }
 
 /**
