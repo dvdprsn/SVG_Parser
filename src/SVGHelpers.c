@@ -285,3 +285,65 @@ char *getNS(xmlNode *cur_node) {
 void dummyDel(void *data){
     return;
 }
+
+void findRect(Group *group, List *lst) {
+
+    //Get elements from list of rectangles in this group
+    ListIterator iter = createIterator(group->rectangles);
+    void *elem;
+    while ((elem = nextElement(&iter))!= NULL) {
+        Rectangle *rect = (Rectangle*) elem; //Cast to rectangle pointer
+        insertBack(lst,rect); //Insert rectangle into toReturn list
+
+    }
+    //Iterate over groups within the list of subgroups calling findRects
+    iter = createIterator(group->groups);
+    while((elem = nextElement(&iter))!=NULL) {
+        elem = (Group*) elem;
+        findRect(elem, lst);
+    }
+
+}
+
+void findCirc(Group *group, List *lst) {
+    //Get elements from list of rectangles in this group
+    ListIterator iter = createIterator(group->circles);
+    void *elem;
+    while ((elem = nextElement(&iter))!= NULL) {
+        Circle *circ = (Circle*) elem; //Cast to rectangle pointer
+        insertBack(lst,circ); //Insert rectangle into toReturn list
+
+    }
+    //Iterate over groups within the list of subgroups calling findRects
+    iter = createIterator(group->groups);
+    while((elem = nextElement(&iter))!=NULL) {
+        Group *g = (Group*) elem;
+        findCirc(g, lst);
+    }
+}
+
+void findPaths(Group *group, List *lst) {
+    ListIterator iter = createIterator(group->paths);
+    void *elem;
+    while((elem = nextElement(&iter))!=NULL) {
+        Path *p = (Path *) elem;
+        insertBack(lst,p);
+
+    }
+    iter = createIterator(group->groups);
+    while((elem = nextElement(&iter))!=NULL) {
+        Group *g = (Group *) elem;
+        findPaths(g,lst);
+    }
+}
+
+void findGroup(Group *group, List *lst) {
+
+    ListIterator iter = createIterator(group->groups);
+    void *elem;
+    while((elem = nextElement(&iter))!= NULL) {
+        Group *g = (Group *) elem;
+        insertBack(lst,g);
+        findGroup(g,lst);
+    }
+}

@@ -7,6 +7,7 @@
 
 #include "SVGParser.h"
 #include <stdio.h>
+#include <math.h>
 
 
 void parser(xmlNode *a_node, SVG *svg);
@@ -36,5 +37,10 @@ void setSVGDesc(SVG * svg, xmlNode * cur_node);
 void setSVGTitle(SVG * svg, xmlNode * cur_node);
 
 void dummyDel(void *data);
+
+void findRect(Group *group, List *lst);
+void findCirc(Group *group, List *lst);
+void findGroup(Group *group, List *lst);
+void findPaths(Group *group, List *lst);
 
 #endif //A1_SVGHELPERS_H

@@ -131,22 +131,25 @@ List *getRects(const SVG *img) {
     if(img == NULL) return NULL;
     List *toReturn = initializeList(&rectangleToString, &dummyDel, &compareRectangles);
 
-    //Get from rectangles
-    List *tmpRect = img->rectangles;
-    ListIterator iter = createIterator(tmpRect);
+    //Get from rectangles list in SVG
+
+    ListIterator iter = createIterator(img->rectangles);
 
     void *elem;
     while((elem = nextElement(&iter))!= NULL) {
         Rectangle *rec = (Rectangle *) elem;
-
         insertBack(toReturn, rec);
     }
 
-    //Get from Groups
-    /**TODO
-     * Maybe create a group iter that returns the group list from groups
-     */
 
+    //Get rectangles from groups and subgroups within SVG
+
+    iter = createIterator(img->groups);
+
+    while((elem = nextElement(&iter))!= NULL) {
+        Group *grp = (Group *) elem;
+        findRect(grp, toReturn);
+    }
 
     return toReturn;
     
@@ -155,21 +158,25 @@ List *getRects(const SVG *img) {
 // Function that returns a list of all circles in the struct.
 List *getCircles(const SVG *img) {
     if(img == NULL) return NULL;
+    //Create list with dummy delete to prevent double frees
     List *toReturn = initializeList(&circleToString, &dummyDel, &compareCircles);
 
     //Get from  Circels
-    List *tmpCirc = img->circles;
-    ListIterator iter = createIterator(tmpCirc);
+
+    ListIterator iter = createIterator(img->circles);
 
     void *elem;
     while((elem = nextElement(&iter))!=NULL) {
         Circle *circ = (Circle *) elem;
-
         insertBack(toReturn, circ);
     }
 
     //GET from groups
-
+    iter = createIterator(img->groups);
+    while((elem = nextElement(&iter))!=NULL) {
+        Group *group = (Group *) elem;
+        findCirc(group,toReturn);
+    }
 
 
     return toReturn;
@@ -181,16 +188,14 @@ List *getGroups(const SVG *img) {
     if(img == NULL) return NULL;
     List *toReturn = initializeList(&groupToString, &dummyDel, &compareGroups);
 
-    List *tmpGroup = img->groups;
-    ListIterator iter = createIterator(tmpGroup);
+    ListIterator iter = createIterator(img->groups);
 
     void *elem;
     while((elem= nextElement(&iter))!= NULL) {
         Group *group = (Group *) elem;
         insertBack(toReturn, group);
+        findGroup(group,toReturn); //Find subgroups of group just added
     }
-
-    //Get the groups from inside this group list
 
     return toReturn;
     
@@ -201,18 +206,19 @@ List *getPaths(const SVG *img) {
     if(img == NULL) return NULL;
     List *toReturn = initializeList(&pathToString, &dummyDel, &compareCircles);
 
-    List *tmpPath = img->paths;
-    ListIterator iter = createIterator(tmpPath);
+    ListIterator iter = createIterator(img->paths);
 
     void *elem;
     while((elem = nextElement(&iter))!=NULL) {
         Path *path = (Path *) elem;
-
         insertBack(toReturn, path);
     }
-
     //Get from groups
-
+    iter = createIterator(img->groups);
+    while((elem = nextElement(&iter))!=NULL) {
+        Group *group = (Group*) elem;
+        findPaths(group,toReturn);
+    }
 
     return toReturn;
 }
@@ -227,19 +233,21 @@ int numRectsWithArea(const SVG *img, float area) {
     ListIterator iter = createIterator(rectList);
     void *elem;
 
-    int ar = 0;
+    float ar = 0;
     int toReturn = 0;
 
     while((elem = nextElement(&iter))!=NULL) {
         Rectangle *rect = (Rectangle *) elem;
         ar = rect->height * rect->width;
+        ar = ceil(ar);
+        area = ceil(area);
         if(ar == area) {
             toReturn++;
         } 
     }
 
 
-
+    freeList(rectList);
     return toReturn;
 }
 
@@ -260,6 +268,8 @@ int numCirclesWithArea(const SVG *img, float area) {
             toReturn++;
         }
     }
+
+    freeList(circList);
     return toReturn;;
 }
 
@@ -278,6 +288,8 @@ int numPathsWithdata(const SVG *img, const char *data) {
             match++;
         }
     }
+
+    freeList(pathList);
     return match;
 }
 
