@@ -50,7 +50,7 @@ Rectangle *createRect(xmlNode *cur_node) {
 
     Rectangle *rect = malloc(sizeof(Rectangle)+30);
     initRect(rect);
-    char *ptr = "\0";
+    char *ptr;
     xmlAttr *attr;
 
     for (attr = cur_node->properties; attr != NULL; attr = attr->next) {
@@ -58,16 +58,24 @@ Rectangle *createRect(xmlNode *cur_node) {
 
         char *attrName = (char *) attr->name;
         char *cont = (char *) (value->content);
-        //TODO make sure its grabbing units correctly (same as circle)
+
         if (strcmp(attrName, "x") == 0) {
-            rect->x = strtol(cont, &ptr, 10); //Get X
-            strcpy(rect->units, ptr); //Get units
+            rect->x = atof(cont);
+
+            strtoul(cont, &ptr, 10); // gets decimal onwards 1.214cm -> .214cm
+            ptr += 1; //Shifts pointer past decimal .214cm -> 214cm
+            strtoul(ptr, &ptr, 10); //removes numbers from char 214cm -> cm
+            strcpy(rect->units,ptr);
+
         } else if (strcmp(attrName, "y") == 0) {
-            rect->y = strtol(cont, &ptr, 10); //Get Y
+
+            rect->y = atof(cont);
         } else if (strcmp(attrName, "width") == 0) {
-            rect->width = strtol(cont, &ptr, 10); //Get Width
+
+            rect->width = atof(cont);
         } else if (strcmp(attrName, "height") == 0) {
-            rect->height = strtol(cont, &ptr, 10); //Get Height
+
+            rect->height = atof(cont);
         } else { //Other Attributes
             insertBack(rect->otherAttributes, createAttr(attrName, cont));
         }
@@ -82,7 +90,7 @@ Circle *createCircle(xmlNode *cur_node) {
 
     Circle *circle = malloc(sizeof(Circle)+20);
     initCircle(circle);
-    char *ptr = " ";
+    char *ptr;
     xmlAttr *attr;
 
     for (attr = cur_node->properties; attr != NULL; attr = attr->next) {
@@ -90,14 +98,20 @@ Circle *createCircle(xmlNode *cur_node) {
 
         char *attrName = (char *) attr->name;
         char *cont = (char *) (value->content);
-        //TODO Grabbing Units wrong -> decimal is breakpoint
+
         if (strcmp(attrName, "cx") == 0) {
-            circle->cx = strtol(cont, &ptr, 10); //Get X
-            strcpy(circle->units, ptr); //Get units
+
+            circle->cx = atof(cont); // get just float 
+
+            strtoul(cont, &ptr, 10); // gets decimal onwards 1.214cm -> .214cm
+            ptr += 1; //Shifts pointer past decimal .214cm -> 214cm
+            strtoul(ptr, &ptr, 10); //removes numbers from char 214cm -> cm
+            strcpy(circle->units,ptr);
+
         } else if (strcmp(attrName, "cy") == 0) {
-            circle->cy = strtol(cont, &ptr, 10); //Get Y
+            circle->cy = atof(cont);
         } else if (strcmp(attrName, "r") == 0) {
-            circle->r = strtol(cont, &ptr, 10); //Get Width
+            circle->r = atof(cont);
         } else { //Other Attributes
             insertBack(circle->otherAttributes, createAttr(attrName, cont));
         }
