@@ -247,7 +247,6 @@ void initGroup(Group *group) {
 }
 
 void fillSVG(SVG *svg, xmlNode *cur_node) {
-
     xmlAttr *xmlAttr;
     xmlNode *value;
     Attribute *toAdd;

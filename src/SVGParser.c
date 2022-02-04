@@ -263,8 +263,10 @@ int numCirclesWithArea(const SVG *img, float area) {
 
     while ((elem = nextElement(&iter))!=NULL) {
         Circle *circ = (Circle *) elem;
-        ar = (circ->r*circ->r)*3.1459;
-        
+        ar = (circ->r*circ->r)*PI;
+        ar = ceil(ar);
+        area = ceil(area);
+
         if(ar == area){
             toReturn++;
         }
@@ -296,6 +298,7 @@ int numPathsWithdata(const SVG *img, const char *data) {
 
 // Function that returns the number of all groups with the specified length - see A1 Module 2 for details
 int numGroupsWithLen(const SVG *img, int len) {
+
     return 0;
 }
 
@@ -313,7 +316,52 @@ int numAttr(const SVG *img) {
      * Use built in len on list for each element in those lists
      */
 
-    return 0;
+    if(img == NULL) return -1;
+    void *elem;
+    int numAttr = 0;
+
+    //Get attributes from SVG
+    numAttr += getLength(img->otherAttributes);
+
+    //Attributes in rectangles list
+    List *rects = getRects(img);
+    ListIterator iter = createIterator(rects);
+    while((elem = nextElement(&iter))!= NULL) {
+        Rectangle *rect = (Rectangle *) elem;
+        numAttr += getLength(rect->otherAttributes);
+    }
+    freeList(rects);
+
+    //Attributes in circles list
+    List *circles = getCircles(img);
+    iter = createIterator(circles);
+    while((elem = nextElement(&iter))!= NULL) {
+        Circle *circ = (Circle *) elem;
+        numAttr += getLength(circ->otherAttributes);
+
+    }
+    freeList(circles);
+
+    //Attributes in paths list
+
+    List *paths = getPaths(img);
+    iter = createIterator(paths);
+    while((elem = nextElement(&iter))!=NULL) {
+        Path *path = (Path *) elem;
+        numAttr += getLength(path->otherAttributes);
+    }
+    freeList(paths);
+    
+    //Attributes in groups list
+    List *groups = getGroups(img);
+    iter = createIterator(groups);
+    while((elem = nextElement(&iter))!= NULL) {
+        Group *group = (Group *) elem;
+        numAttr += getLength(group->otherAttributes);
+    }
+    freeList(groups);
+
+    return numAttr;
 }
 
 //------------------------HELPER--------------------------------

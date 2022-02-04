@@ -29,6 +29,8 @@ int main(int argc, char **argv) {
     free(test);
     freeList(circles);
 
+    printf("Number of Attributes: %d\n", numAttr(svg));
+
     deleteSVG(svg);
 
     return 0;
