@@ -19,14 +19,14 @@ void parser(xmlNode *a_node, SVG *svg) {
             } else if (strcmp(nodeName, "svg") == 0) { //Works
                 fillSVG(svg, cur_node);
             } else if (strcmp(nodeName, "path") == 0) { 
-                //createPath(svg, cur_node);
+
                 insertBack(svg->paths,createPath(cur_node));
             }else if (strcmp(nodeName, "rect") == 0) { //WORKS
-                //createRect(svg,cur_node)
+
                 insertBack(svg->rectangles,createRect(cur_node));
             } else if (strcmp(nodeName, "circle") == 0) { //WORKS
                 insertBack(svg->circles,createCircle(cur_node));
-                //createCircle(svg, cur_node);
+
             } else if(strcmp(nodeName, "g") == 0) {
                 Group *g; 
                 g = malloc(sizeof(Group)+30);

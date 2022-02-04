@@ -225,7 +225,6 @@ List *getPaths(const SVG *img) {
 
 //-------------------SEARCHERS--------------------------
 // Function that returns the number of all rectangles with the specified area
-//TODO Use get functions for a list of all rectangles then compare to area
 int numRectsWithArea(const SVG *img, float area) {
     if(img == NULL) return -1;
 
@@ -258,12 +257,14 @@ int numCirclesWithArea(const SVG *img, float area) {
     List *circList = getCircles(img);
     ListIterator iter = createIterator(circList);
     void *elem;
-    int ar = 0;
+
+    float ar = 0;
     int toReturn = 0;
 
     while ((elem = nextElement(&iter))!=NULL) {
         Circle *circ = (Circle *) elem;
         ar = (circ->r*circ->r)*3.1459;
+        
         if(ar == area){
             toReturn++;
         }

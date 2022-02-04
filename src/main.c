@@ -24,6 +24,7 @@ int main(int argc, char **argv) {
     printf("Get Circles --------\n");
     List *circles = getCircles(svg);
     test = toString(circles);
+
     printf("%s\n",test);
     free(test);
     freeList(circles);
