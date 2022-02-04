@@ -14,12 +14,10 @@ SVG* createSVG(const char *fileName) {
     initSVG(svgReturn);
 
     doc = xmlReadFile(fileName, NULL, 0);
-
-    if (doc == NULL) {
-        printf("Error: Failed to parse");
-    }
+    if (doc == NULL) return NULL;
 
     root = xmlDocGetRootElement(doc);
+    if(root == NULL) return NULL;
 
     strcpy(svgReturn->namespace,getNS(root));
 
@@ -113,6 +111,7 @@ char *SVGToString(const SVG *img) {
 }
 
 void deleteSVG(SVG *img) {
+    if(img == NULL) return;
     
     freeList(img->otherAttributes);
     freeList(img->paths);
