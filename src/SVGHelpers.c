@@ -59,7 +59,7 @@ Rectangle *createRect(xmlNode *cur_node) {
             rect->x = atof(cont);
 
             strtoul(cont, &ptr, 10); // gets decimal onwards 1.214cm -> .214cm
-            ptr += 1; //Shifts pointer past decimal .214cm -> 214cm
+            if(ptr[0] == '.') ptr += 1; //Shifts pointer past decimal .214cm -> 214cm
             strtoul(ptr, &ptr, 10); //removes numbers from char 214cm -> cm
             strcpy(rect->units,ptr);
 
@@ -97,7 +97,7 @@ Circle *createCircle(xmlNode *cur_node) {
             circle->cx = atof(cont); // get just float 
 
             strtoul(cont, &ptr, 10); // gets decimal onwards 1.214cm -> .214cm
-            ptr += 1; //Shifts pointer past decimal .214cm -> 214cm
+            if(ptr[0] == '.') ptr += 1; //Shifts pointer past decimal .214cm -> 214cm
             strtoul(ptr, &ptr, 10); //removes numbers from char 214cm -> cm
             strcpy(circle->units,ptr);
 
