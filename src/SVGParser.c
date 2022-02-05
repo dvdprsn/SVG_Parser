@@ -11,18 +11,18 @@ SVG* createSVG(const char *fileName) {
         return NULL;
     }
 
-    initSVG(svgReturn);
-
+    initSVG(svgReturn); //Fill svg with blanks
+    //Read XML from file
     doc = xmlReadFile(fileName, NULL, 0);
     if (doc == NULL) return NULL;
-
+    //Find XML root
     root = xmlDocGetRootElement(doc);
     if(root == NULL) return NULL;
-
+    //Copy namespace to svg struct
     strcpy(svgReturn->namespace,getNS(root));
-
+    //Send to parser to complete svg struct
     parser(root, svgReturn);
-
+    //Free the doc and clean parser
     xmlFreeDoc(doc);
     xmlCleanupParser();
 
@@ -112,13 +112,13 @@ char *SVGToString(const SVG *img) {
 
 void deleteSVG(SVG *img) {
     if(img == NULL) return;
-    
+    //Free all lists
     freeList(img->otherAttributes);
     freeList(img->paths);
     freeList(img->rectangles);
     freeList(img->circles);
     freeList(img->groups);
-
+    //Finally free svg struct itself
     free(img);
 }
 
@@ -128,13 +128,11 @@ void deleteSVG(SVG *img) {
 // Function that returns a list of all rectangles in the struct.
 List *getRects(const SVG *img) {
     if(img == NULL) return NULL;
+
     List *toReturn = initializeList(&rectangleToString, &dummyDel, &compareRectangles);
-
-    //Get from rectangles list in SVG
-
     ListIterator iter = createIterator(img->rectangles);
-
     void *elem;
+    //Get rectangles from rectangle list in SVG struct
     while((elem = nextElement(&iter))!= NULL) {
         Rectangle *rec = (Rectangle *) elem;
         insertBack(toReturn, rec);
@@ -160,7 +158,7 @@ List *getCircles(const SVG *img) {
     //Create list with dummy delete to prevent double frees
     List *toReturn = initializeList(&circleToString, &dummyDel, &compareCircles);
 
-    //Get from  Circels
+    //Get from circles list
 
     ListIterator iter = createIterator(img->circles);
 
@@ -170,7 +168,7 @@ List *getCircles(const SVG *img) {
         insertBack(toReturn, circ);
     }
 
-    //GET from groups
+    //GET from groups and subgroups
     iter = createIterator(img->groups);
     while((elem = nextElement(&iter))!=NULL) {
         Group *group = (Group *) elem;
@@ -323,25 +321,13 @@ int numGroupsWithLen(const SVG *img, int len) {
     return matches;
 }
 
-/**
- * @brief 
- * 
- * @param img 
- * @return int 
- */
 int numAttr(const SVG *img) {
-    /**
-     * get lists of all elements in the svg using getters
-     * Set up iterator for each list type
-     * Check ALL elements in each list for attribute contents
-     * Use built in len on list for each element in those lists
-     */
 
     if(img == NULL) return -1;
     void *elem;
     int numAttr = 0;
 
-    //Get attributes from SVG
+    //Get num attributes from SVG
     numAttr += getLength(img->otherAttributes);
 
     //Attributes in rectangles list
@@ -388,17 +374,15 @@ int numAttr(const SVG *img) {
 //------------------------HELPER--------------------------------
 //ATTRIBUTE
 void deleteAttribute(void *data) {
-    //Much of this logic is from the StructListDemo
+    
     Attribute* tmpAttr; // Create temp attribute
 
-    if(data == NULL)  { //Check if empty already
-        return;
-    }
+    if(data == NULL) return;
 
     tmpAttr = (Attribute *)data; // Cast data to type attribute
 
-    free(tmpAttr->name);
-    free(tmpAttr);
+    free(tmpAttr->name); //Free name char
+    free(tmpAttr); //Free attribute struct
 
 }
 
@@ -411,8 +395,9 @@ char *attributeToString(void *data) {
     if(data == NULL) return NULL;
     tmpAttr = (Attribute *) data;
 
-    len = strlen(tmpAttr->name) + strlen(tmpAttr->value)+2;
-    tmpStr = malloc(sizeof(*tmpStr)*len+100); //MUST BE FREED AFTER USE
+    len = strlen(tmpAttr->name) + strlen(tmpAttr->value)+20;
+    //Alloc space for output plus a buffer
+    tmpStr = malloc(sizeof(*tmpStr)*len+100);
     if(tmpStr == NULL) return NULL;
 
     sprintf(tmpStr, "Name: %s, Value %s", tmpAttr->name, tmpAttr->value);
@@ -436,7 +421,7 @@ void deleteGroup(void *data) {
     }
 
     tmpGroup = (Group *) data;
-
+    //Free all lists within this group
     freeList(tmpGroup->circles);
     freeList(tmpGroup->paths);
     freeList(tmpGroup->rectangles);
@@ -500,7 +485,6 @@ char *groupToString(void *data) {
     //Return
     return tmpStr;
 
-
 }
 
 int compareGroups(const void *first, const void *second) {
@@ -509,9 +493,9 @@ int compareGroups(const void *first, const void *second) {
 
 //RECTANGLE
 void deleteRectangle(void *data) {
+    if(data == NULL) return;
 
     Rectangle *tmpRect;
-    if(data == NULL) return;
     tmpRect = (Rectangle *) data;
     freeList(tmpRect->otherAttributes);
     free(tmpRect);
@@ -527,7 +511,7 @@ char *rectangleToString(void *data) {
 
     tmpRect = (Rectangle *) data;
 
-    tmpStr = malloc(sizeof(char)*256);
+    tmpStr = malloc(sizeof(*tmpStr)*256);
     if(tmpStr == NULL) return NULL;
 
     sprintf(tmpStr, "x: %f y: %f units: %s, width: %f height: %f ",tmpRect->x, tmpRect->y, tmpRect->units, tmpRect->width, tmpRect->height);
@@ -554,9 +538,10 @@ int compareRectangles(const void *first, const void *second) {
 
 //CIRCLE
 void deleteCircle(void *data) {
-    Circle *tmpCirc;
+    
 
     if(data == NULL) return;
+    Circle *tmpCirc;
 
     tmpCirc = (Circle *) data;
 

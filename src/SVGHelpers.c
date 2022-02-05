@@ -19,14 +19,11 @@ void parser(xmlNode *a_node, SVG *svg) {
             } else if (strcmp(nodeName, "svg") == 0) { //Works
                 fillSVG(svg, cur_node);
             } else if (strcmp(nodeName, "path") == 0) { 
-
                 insertBack(svg->paths,createPath(cur_node));
             }else if (strcmp(nodeName, "rect") == 0) { //WORKS
-
                 insertBack(svg->rectangles,createRect(cur_node));
             } else if (strcmp(nodeName, "circle") == 0) { //WORKS
                 insertBack(svg->circles,createCircle(cur_node));
-
             } else if(strcmp(nodeName, "g") == 0) {
                 Group *g; 
                 g = malloc(sizeof(Group)+30);
@@ -34,8 +31,7 @@ void parser(xmlNode *a_node, SVG *svg) {
                 initGroup(g);
                 createGroup(g,cur_node);
                 insertBack(svg->groups,g);
-                cur_node = cur_node->next;
-
+                cur_node = cur_node->next; //Forwards node so children of group are not added to other lists
             }
 
         }
@@ -68,13 +64,10 @@ Rectangle *createRect(xmlNode *cur_node) {
             strcpy(rect->units,ptr);
 
         } else if (strcmp(attrName, "y") == 0) {
-
             rect->y = atof(cont);
         } else if (strcmp(attrName, "width") == 0) {
-
             rect->width = atof(cont);
         } else if (strcmp(attrName, "height") == 0) {
-
             rect->height = atof(cont);
         } else { //Other Attributes
             insertBack(rect->otherAttributes, createAttr(attrName, cont));
@@ -122,7 +115,7 @@ Circle *createCircle(xmlNode *cur_node) {
 
 }
 
-void createGroup(Group *g, xmlNode *cur_node) { //TODO Figure out groups (nested groups specifically)
+void createGroup(Group *g, xmlNode *cur_node) { 
 
     xmlNode *a_node = cur_node->children;
 
@@ -130,7 +123,7 @@ void createGroup(Group *g, xmlNode *cur_node) { //TODO Figure out groups (nested
     xmlNode *value;
     char *attrName;
     char *cont;
-
+    //Fills in attributes for this group
     for(attr = cur_node->properties; attr != NULL; attr = attr->next) { //Get Attributes
             value = attr->children;
 
@@ -140,7 +133,7 @@ void createGroup(Group *g, xmlNode *cur_node) { //TODO Figure out groups (nested
             insertBack(g->otherAttributes,createAttr(attrName,cont));
     
     }
-    
+    //Recursively adds structures to group lists
     for (cur_node = a_node; cur_node != NULL; cur_node = cur_node->next) { //Go over siblings ONLY
 
        char *nodeName = "\0";
@@ -176,7 +169,7 @@ Attribute *createAttr(char *name, char value[]) {
     attr = malloc(sizeof(Attribute) + sizeof(char) * (strlen(value)+30)); //Allocate for flexible array member
     if(attr == NULL) return NULL; //If alloc failed
 
-    attr->name = malloc(sizeof(char)*strlen(name)+1); //Allocate space for the char* in attr struct
+    attr->name = malloc(sizeof(char)*strlen(name)+20); //Allocate space for the char* in attr struct
     if(attr->name == NULL) return NULL; //Check for fail
     
     strcpy(attr->name, name);
@@ -186,7 +179,7 @@ Attribute *createAttr(char *name, char value[]) {
 
 }
 
-Path * createPath(xmlNode *cur_node) {
+Path *createPath(xmlNode *cur_node) {
     
     xmlAttr *attr;
     xmlNode *value; 
@@ -351,7 +344,6 @@ void findPaths(Group *group, List *lst) {
 }
 
 void findGroup(Group *group, List *lst) {
-
     ListIterator iter = createIterator(group->groups);
     void *elem;
     while((elem = nextElement(&iter))!= NULL) {
