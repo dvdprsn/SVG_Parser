@@ -143,6 +143,7 @@ void createGroup(Group *g, xmlNode *cur_node) {
             nodeName = (char *)cur_node->name;
 
             if(strcmp(nodeName, "rect") == 0 ) {
+                printf("Found rect in group\n");
                 insertBack(g->rectangles, createRect(cur_node));
             } else if(strcmp(nodeName, "circle") == 0) {
                 insertBack(g->circles,createCircle(cur_node));
@@ -153,7 +154,7 @@ void createGroup(Group *g, xmlNode *cur_node) {
                 groupNest = malloc(sizeof(Group)+30); //Create nested group
                 initGroup(groupNest); //Init with empty lists
                 insertBack(g->groups,groupNest); //insert pointer to top level group
-                createGroup(groupNest,cur_node->children); //Fill group with children
+                createGroup(groupNest,cur_node); //Fill group with children
             }
 
         }

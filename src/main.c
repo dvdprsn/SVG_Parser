@@ -10,6 +10,8 @@ int main(int argc, char **argv) {
 
     //TODO check for failed mallocs and reallcos in code
 
+
+    /*
     char *string = SVGToString(svg);
     printf("%s\n", string);
     free(string);
@@ -29,6 +31,9 @@ int main(int argc, char **argv) {
     free(test);
     freeList(circles);
 
+    printf("Number of Attributes: %d\n", numAttr(svg));
+    */
+    
     printf("Number of Attributes: %d\n", numAttr(svg));
 
     deleteSVG(svg);
