@@ -631,3 +631,59 @@ char *pathToString(void *data) {
 int comparePaths(const void *first, const void *second) {
     return -1;
 }
+
+
+//------------A2-----------
+
+//MODULE 1
+
+SVG* createValidSVG(const char* fileName, const char* schemaFile) {
+    xmlDoc *doc = NULL;
+    xmlNode *root = NULL;
+    //Creates Empty SVG struct + buffer
+    SVG *svgReturn = malloc(sizeof(SVG)+30);
+
+    if(svgReturn == NULL) {
+        return NULL;
+    }
+
+    initSVG(svgReturn); //Fill svg with blanks
+    //Read XML from file
+    doc = xmlReadFile(fileName, NULL, 0);
+    if (doc == NULL) return NULL;
+    int ret;
+    ret = validateTree(doc, (char *)schemaFile);
+    if(ret == 0) {
+        //Validated
+        printf("Valid\n");
+    } else if(ret > 0) {
+        //Invalid xmlDoc
+        printf("Invalid\n");
+        return NULL;
+    } else {
+        //Internal Error
+        return NULL;
+    }
+
+    //Find XML root
+    root = xmlDocGetRootElement(doc);
+    if(root == NULL) return NULL;
+    //Copy namespace to svg struct
+    strcpy(svgReturn->namespace,getNS(root));
+    //Send to parser to complete svg struct
+    parser(root, svgReturn);
+    //Free the doc and clean parser
+    xmlFreeDoc(doc);
+    xmlCleanupParser();
+
+    return svgReturn;
+    
+}
+
+bool validateSVG(const SVG* img, const char* schemaFile) {
+    return true;
+}
+
+bool writeSVG(const SVG* img, const char* fileName) {
+    return true;
+}
