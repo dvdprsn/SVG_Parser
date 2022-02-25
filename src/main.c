@@ -3,15 +3,15 @@
 
 int main(int argc, char **argv) {
 
-    SVG *svg = createSVG(argv[1]);
+    //SVG *svg = createSVG(argv[1]);
+    SVG *svg = createValidSVG(argv[1], "svg.xsd");
     if(svg == NULL){
         printf("Failed to create SVG\n");
+        return 0;
     }
 
     //TODO check for failed mallocs and reallcos in code
 
-
-    /*
     char *string = SVGToString(svg);
     printf("%s\n", string);
     free(string);
@@ -32,9 +32,9 @@ int main(int argc, char **argv) {
     freeList(circles);
 
     printf("Number of Attributes: %d\n", numAttr(svg));
-    */
     
-    printf("Number of Attributes: %d\n", numAttr(svg));
+
+    //printf("Number of Attributes: %d\n", numAttr(svg));
 
     deleteSVG(svg);
 
