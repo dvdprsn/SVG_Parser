@@ -361,8 +361,13 @@ void svgToTree() {
 
 }
 
-//TODO function that validates a libxml tree
-
+/**
+ * @brief Validates an xmlDoc, NOT VALUES just in ref to the xsd file
+ * 
+ * @param fileName .svg filename
+ * @param xsdRef .xsd validation file
+ * @return int the result of the validateDoc call
+ */
 int validateTree(char *fileName, char *xsdRef) {
     xmlDocPtr doc;
     xmlSchemaPtr schema = NULL;
