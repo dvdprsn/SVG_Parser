@@ -46,6 +46,6 @@ void findGroup(Group *group, List *lst);
 void findPaths(Group *group, List *lst);
 
 //A2
-int validateTree(xmlDoc *xmlDc, char *xsdRef);
+int validateTree(char *fileName, char *xsdRef);
 
 #endif //A1_SVGHELPERS_H

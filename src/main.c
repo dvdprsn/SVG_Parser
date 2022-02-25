@@ -16,25 +16,30 @@ int main(int argc, char **argv) {
     printf("%s\n", string);
     free(string);
 
-    printf("Get Rectanlges -----------\n");
+    char *test;
     List *rects = getRects(svg);
-    char *test = toString(rects);
-    printf("%s\n", test);
-    free(test);
+    if(getLength(rects) != 0) {
+        printf("Get Rectanlges -----------\n");
+        test = toString(rects);
+        printf("%s\n", test);
+        free(test);
+    }
+
     freeList(rects);
 
-    printf("Get Circles --------\n");
+    
     List *circles = getCircles(svg);
-    test = toString(circles);
-
-    printf("%s\n",test);
-    free(test);
+    if(getLength(circles) != 0) {
+        printf("Get Circles --------\n");
+        test = toString(circles);
+        printf("%s\n",test);
+        free(test);
+    }
+    
+    
     freeList(circles);
 
     printf("Number of Attributes: %d\n", numAttr(svg));
-    
-
-    //printf("Number of Attributes: %d\n", numAttr(svg));
 
     deleteSVG(svg);
 

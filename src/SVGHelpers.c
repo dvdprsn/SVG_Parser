@@ -363,8 +363,8 @@ void svgToTree() {
 
 //TODO function that validates a libxml tree
 
-int validateTree(xmlDoc *xmlDc, char *xsdRef) {
-    
+int validateTree(char *fileName, char *xsdRef) {
+    xmlDocPtr doc;
     xmlSchemaPtr schema = NULL;
     xmlSchemaParserCtxtPtr txt;
 
@@ -374,9 +374,12 @@ int validateTree(xmlDoc *xmlDc, char *xsdRef) {
 
     xmlSchemaSetParserErrors(txt, (xmlSchemaValidityErrorFunc) fprintf, (xmlSchemaValidityWarningFunc) fprintf, stderr);
     schema = xmlSchemaParse(txt);
+
     xmlSchemaFreeParserCtxt(txt);
 
-    if(xmlDc == NULL) {
+    doc = xmlReadFile(fileName, NULL, 0);
+
+    if(doc == NULL) {
         fprintf(stderr, "Could not parse in validateTree\n");
         return -1;
     }
@@ -386,15 +389,17 @@ int validateTree(xmlDoc *xmlDc, char *xsdRef) {
 
     ctxt = xmlSchemaNewValidCtxt(schema);
     xmlSchemaSetValidErrors(ctxt, (xmlSchemaValidityErrorFunc) fprintf, (xmlSchemaValidityWarningFunc) fprintf, stderr);
-    ret = xmlSchemaValidateDoc(ctxt, xmlDc);
+    ret = xmlSchemaValidateDoc(ctxt, doc);
 
     xmlSchemaFreeValidCtxt(ctxt);
-    
+    xmlFreeDoc(doc);
+
     if(schema !=NULL) {
-        xmlSchemaCleanupTypes();
-        xmlCleanupParser();
-        xmlMemoryDump();
+        xmlSchemaFree(schema);
     }
+    xmlSchemaCleanupTypes();
+    xmlCleanupParser();
+    xmlMemoryDump();
 
     return ret;
 

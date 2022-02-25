@@ -33,7 +33,7 @@ char *SVGToString(const SVG *img) {
     int charSize = 30;
     char *sizeCheck;
     char *toReturn = malloc(sizeof(char)*charSize);
-    strcpy(toReturn, "--RUNNING--\n");
+    strcpy(toReturn, "--RUNNING toString--\n");
     
     if(strcmp(img->namespace,"\0")!=0) {
         charSize += strlen(img->namespace);
@@ -637,46 +637,28 @@ int comparePaths(const void *first, const void *second) {
 
 //MODULE 1
 
+/**
+ * @brief Create a Valid SVG Object, validating from schemaFile
+ * 
+ * @param fileName Name of the .svg file
+ * @param schemaFile Name of .xsd file
+ * @return SVG* Parsed SVG Struct
+ */
 SVG* createValidSVG(const char* fileName, const char* schemaFile) {
-    xmlDoc *doc = NULL;
-    xmlNode *root = NULL;
-    //Creates Empty SVG struct + buffer
-    SVG *svgReturn = malloc(sizeof(SVG)+30);
 
-    if(svgReturn == NULL) {
-        return NULL;
-    }
+    int ret = validateTree((char*) fileName, (char*) schemaFile);
 
-    initSVG(svgReturn); //Fill svg with blanks
-    //Read XML from file
-    doc = xmlReadFile(fileName, NULL, 0);
-    if (doc == NULL) return NULL;
-    int ret;
-    ret = validateTree(doc, (char *)schemaFile);
     if(ret == 0) {
-        //Validated
-        printf("Valid\n");
+        //Valid XML
+        return createSVG(fileName);
     } else if(ret > 0) {
-        //Invalid xmlDoc
+        //Invalid XML
         printf("Invalid\n");
         return NULL;
     } else {
         //Internal Error
         return NULL;
     }
-
-    //Find XML root
-    root = xmlDocGetRootElement(doc);
-    if(root == NULL) return NULL;
-    //Copy namespace to svg struct
-    strcpy(svgReturn->namespace,getNS(root));
-    //Send to parser to complete svg struct
-    parser(root, svgReturn);
-    //Free the doc and clean parser
-    xmlFreeDoc(doc);
-    xmlCleanupParser();
-
-    return svgReturn;
     
 }
 
