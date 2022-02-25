@@ -143,7 +143,6 @@ void createGroup(Group *g, xmlNode *cur_node) {
             nodeName = (char *)cur_node->name;
 
             if(strcmp(nodeName, "rect") == 0 ) {
-                printf("Found rect in group\n");
                 insertBack(g->rectangles, createRect(cur_node));
             } else if(strcmp(nodeName, "circle") == 0) {
                 insertBack(g->circles,createCircle(cur_node));
@@ -352,4 +351,51 @@ void findGroup(Group *group, List *lst) {
         insertBack(lst,g);
         findGroup(g,lst);
     }
+}
+
+
+//-----------A2-------------
+
+//TODO function converting SVG to XMLdoc
+void svgToTree() {
+
+}
+
+//TODO function that validates a libxml tree
+
+int validateTree(xmlDoc *xmlDc, char *xsdRef) {
+    
+    xmlSchemaPtr schema = NULL;
+    xmlSchemaParserCtxtPtr txt;
+
+    xmlLineNumbersDefault(1);
+
+    txt = xmlSchemaNewParserCtxt(xsdRef);
+
+    xmlSchemaSetParserErrors(txt, (xmlSchemaValidityErrorFunc) fprintf, (xmlSchemaValidityWarningFunc) fprintf, stderr);
+    schema = xmlSchemaParse(txt);
+    xmlSchemaFreeParserCtxt(txt);
+
+    if(xmlDc == NULL) {
+        fprintf(stderr, "Could not parse in validateTree\n");
+        return -1;
+    }
+
+    xmlSchemaValidCtxtPtr ctxt;
+    int ret;
+
+    ctxt = xmlSchemaNewValidCtxt(schema);
+    xmlSchemaSetValidErrors(ctxt, (xmlSchemaValidityErrorFunc) fprintf, (xmlSchemaValidityWarningFunc) fprintf, stderr);
+    ret = xmlSchemaValidateDoc(ctxt, xmlDc);
+
+    xmlSchemaFreeValidCtxt(ctxt);
+    
+    if(schema !=NULL) {
+        xmlSchemaCleanupTypes();
+        xmlCleanupParser();
+        xmlMemoryDump();
+    }
+
+    return ret;
+
 }
