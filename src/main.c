@@ -10,6 +10,8 @@ int main(int argc, char **argv) {
         return 0;
     }
 
+    svgToTree(svg);
+
     char *string = SVGToString(svg);
     printf("%s\n", string);
     free(string);

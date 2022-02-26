@@ -7,6 +7,7 @@
 
 #include "SVGParser.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 #define PI 3.141592653589
 #include <math.h>
@@ -46,6 +47,8 @@ void findGroup(Group *group, List *lst);
 void findPaths(Group *group, List *lst);
 
 //A2
+void rectToXML(xmlNodePtr pNode, Rectangle *rect);
+xmlDocPtr svgToTree(SVG *svg);
 int validateTree(char *fileName, char *xsdRef);
 
 #endif //A1_SVGHELPERS_H

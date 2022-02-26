@@ -356,9 +356,144 @@ void findGroup(Group *group, List *lst) {
 
 //-----------A2-------------
 
-//TODO function converting SVG to XMLdoc
-void svgToTree() {
+void rectToXML(xmlNodePtr pNode, Rectangle *rect) {
+    xmlNodePtr rectNode = xmlNewChild(pNode, NULL, BAD_CAST "rect", NULL);
 
+    char *temp = malloc(sizeof(char) * 10);
+
+    //Get x
+    sprintf(temp, "%f", rect->x);
+    strcat(temp, rect->units);
+    xmlNewProp(rectNode, BAD_CAST "x", BAD_CAST temp);
+    
+
+    //Get y
+    sprintf(temp, "%f", rect->y);
+    strcat(temp, rect->units);
+    xmlNewProp(rectNode, BAD_CAST "y", BAD_CAST temp);
+
+    //Get width
+    sprintf(temp, "%f", rect->width);
+    strcat(temp, rect->units);
+    xmlNewProp(rectNode, BAD_CAST "width", BAD_CAST temp);
+
+    //Get height
+    sprintf(temp, "%f", rect->height);
+    strcat(temp, rect->units);
+    xmlNewProp(rectNode, BAD_CAST "height", BAD_CAST temp);
+
+    //Get otherAttr
+    ListIterator iter = createIterator(rect->otherAttributes);
+    void *elem;
+    while((elem = nextElement(&iter))!= NULL) {
+        Attribute *a = (Attribute *) elem;
+        xmlNewProp(rectNode, BAD_CAST a->name, BAD_CAST a->value);
+    }
+
+
+    free(temp);
+}
+
+void circToXML(xmlNodePtr pNode, Circle *circ) {
+    xmlNodePtr circNode = xmlNewChild(pNode, NULL, BAD_CAST "circle", NULL);
+
+    char *temp = malloc(sizeof(char) * 10);
+    //Get cx
+    sprintf(temp, "%f", circ->cx);
+    strcat(temp, circ->units);
+    xmlNewProp(circNode, BAD_CAST "cx", BAD_CAST temp);
+    //Get cy
+    sprintf(temp, "%f", circ->cy);
+    strcat(temp, circ->units);
+    xmlNewProp(circNode, BAD_CAST "cy", BAD_CAST temp);
+    //Get r
+    sprintf(temp, "%f", circ->r);
+    strcat(temp, circ->units);
+    xmlNewProp(circNode, BAD_CAST "r", BAD_CAST temp);
+    //Get otherAttr
+    ListIterator iter = createIterator(circ->otherAttributes);
+    void *elem;
+    while((elem = nextElement(&iter))!= NULL) {
+        Attribute *a = (Attribute *) elem;
+        xmlNewProp(circNode, BAD_CAST a->name, BAD_CAST a->value);
+    }
+
+    free(temp);
+}
+
+void pathToXML(xmlNodePtr pNode, Path *path) {
+    
+}
+
+
+//TODO function converting SVG to XMLdoc
+xmlDocPtr svgToTree(SVG *svg) {
+    xmlDocPtr doc = NULL;
+    xmlNodePtr root_node = NULL;
+
+    //Add attributes of the SVG Node
+    doc = xmlNewDoc(BAD_CAST "1.0");
+    root_node = xmlNewNode(NULL, BAD_CAST "svg");
+    xmlDocSetRootElement(doc,root_node);
+
+    ListIterator iter = createIterator(svg->otherAttributes);
+    void *elem;
+    while((elem = nextElement(&iter))!=NULL) {
+        Attribute *a = (Attribute *) elem;
+        xmlNewProp(root_node, BAD_CAST a->name, BAD_CAST a->value);
+
+    }
+    //Set NS
+    xmlNsPtr ns = xmlNewNs(root_node, BAD_CAST svg->namespace, NULL);
+    xmlSetNs(root_node, ns);
+
+    //Set title and description
+    if(strcmp(svg->title, "\0") != 0) {
+        xmlNewChild(root_node, NULL, BAD_CAST "title", BAD_CAST svg->title);
+    }
+    if(strcmp(svg->description, "\0") != 0) {
+        xmlNewChild(root_node, NULL, BAD_CAST "desc", BAD_CAST svg->description);
+    }
+
+    //Add rectangles to tree
+    iter = createIterator(svg->rectangles);
+    while((elem = nextElement(&iter))!=NULL) {
+        Rectangle *rect = (Rectangle *) elem;
+        rectToXML(root_node, rect);
+
+    }
+
+    //Add circle
+    iter = createIterator(svg->circles);
+    while((elem=nextElement(&iter)) != NULL) {
+        Circle *circ = (Circle *) elem;
+        circToXML(root_node, circ);
+    }
+
+    //Add paths
+    iter = createIterator(svg->paths);
+    while((elem = nextElement(&iter))!= NULL) {
+        Path *path = (Path *) elem;
+        pathToXML(root_node, path);
+    }
+
+    //Add groups
+    //Add rect of g
+    //Add circ of g
+    //Add path of g
+    //Add g of g
+
+    
+    
+    
+
+    xmlSaveFormatFile("test.svg", doc, 1);
+
+    xmlFreeDoc(doc);
+    xmlCleanupParser();
+    xmlMemoryDump();
+
+    return NULL;
 }
 
 /**
