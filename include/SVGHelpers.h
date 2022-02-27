@@ -48,7 +48,10 @@ void findPaths(Group *group, List *lst);
 
 //A2
 void rectToXML(xmlNodePtr pNode, Rectangle *rect);
-xmlDocPtr svgToTree(SVG *svg);
-int validateTree(char *fileName, char *xsdRef);
+void circToXML(xmlNodePtr pNode, Circle *circ);
+void pathToXML(xmlNodePtr pNode, Path *path);
+void groupToXML(xmlNodePtr pNode, Group *group);
+xmlDocPtr svgToTree(const SVG *svg);
+int validateTree(xmlDocPtr doc, char *xsdRef);
 
 #endif //A1_SVGHELPERS_H
