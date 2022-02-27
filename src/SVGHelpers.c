@@ -437,7 +437,9 @@ void pathToXML(xmlNodePtr pNode, Path *path) {
 }
 
 void groupToXML(xmlNodePtr pNode, Group *group) {
+
     xmlNodePtr gNode = xmlNewChild(pNode, NULL, BAD_CAST "g", NULL);
+
     //Add Attr
     ListIterator iter = createIterator(group->otherAttributes);
     void *elem;
@@ -477,8 +479,6 @@ void groupToXML(xmlNodePtr pNode, Group *group) {
 
 }
 
-
-//TODO function converting SVG to XMLdoc
 xmlDocPtr svgToTree(const SVG *svg) {
     xmlDocPtr doc = NULL;
     xmlNodePtr root_node = NULL;
@@ -537,9 +537,6 @@ xmlDocPtr svgToTree(const SVG *svg) {
         groupToXML(root_node, g);
     }
 
-    xmlSaveFormatFile("test.svg", doc, 1);
-
-    //xmlFreeDoc(doc);
     xmlCleanupParser();
     xmlMemoryDump();
 

@@ -664,6 +664,14 @@ SVG* createValidSVG(const char* fileName, const char* schemaFile) {
     
 }
 
+/**
+ * @brief Validates the SVG object against schema and constraints
+ * 
+ * @param img SVG img to validate
+ * @param schemaFile name of the schemaFile to check against
+ * @return true If vaid
+ * @return false If invalid
+ */
 bool validateSVG(const SVG* img, const char* schemaFile) {
 
     //Validate XML against schema
@@ -685,6 +693,14 @@ bool validateSVG(const SVG* img, const char* schemaFile) {
 
 }
 
+/**
+ * @brief Outputs the SVG object to a .svg XML file
+ * 
+ * @param img The SVG object to be output
+ * @param fileName the name of the file to be created
+ * @return true If write was success
+ * @return false If write failed
+ */
 bool writeSVG(const SVG* img, const char* fileName) {
 
     xmlDocPtr doc = svgToTree(img);
@@ -700,3 +716,5 @@ bool writeSVG(const SVG* img, const char* fileName) {
     }
 
 }
+
+//MODULE 2
