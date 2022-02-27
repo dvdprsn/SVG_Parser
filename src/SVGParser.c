@@ -646,14 +646,16 @@ int comparePaths(const void *first, const void *second) {
  */
 SVG* createValidSVG(const char* fileName, const char* schemaFile) {
 
-    int ret = validateTree((char*) fileName, (char*) schemaFile);
+    xmlDocPtr doc = xmlReadFile(fileName, NULL, 0);
+    int ret = validateTree(doc, (char*) schemaFile);
+
+    xmlFreeDoc(doc);
 
     if(ret == 0) {
         //Valid XML
         return createSVG(fileName);
     } else if(ret > 0) {
         //Invalid XML
-        printf("Invalid\n");
         return NULL;
     } else {
         //Internal Error
@@ -663,9 +665,38 @@ SVG* createValidSVG(const char* fileName, const char* schemaFile) {
 }
 
 bool validateSVG(const SVG* img, const char* schemaFile) {
-    return true;
+
+    //Validate XML against schema
+    xmlDocPtr doc = svgToTree(img);
+    int ret = validateTree(doc, (char*) schemaFile);
+    xmlFreeDoc(doc);
+    //If it fails the schema check
+    if(ret != 0) {
+        return false;
+    }
+
+    //TODO validate values within SVG struct itself
+
+    if(ret == 0){
+        return true;
+    } else {
+        return false;
+    }
+
 }
 
 bool writeSVG(const SVG* img, const char* fileName) {
-    return true;
+
+    xmlDocPtr doc = svgToTree(img);
+    int ret = xmlSaveFormatFile((char*) fileName, doc, 1);
+
+    xmlFreeDoc(doc);
+    xmlCleanupParser();
+
+    if(ret > 0) {
+        return true;
+    } else {
+        return false;
+    }
+
 }

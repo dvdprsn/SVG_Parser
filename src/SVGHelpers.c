@@ -423,8 +423,6 @@ void circToXML(xmlNodePtr pNode, Circle *circ) {
 
 void pathToXML(xmlNodePtr pNode, Path *path) {
     xmlNodePtr pathNode = xmlNewChild(pNode, NULL, BAD_CAST "path", NULL);
-    //Data
-    xmlNewProp(pathNode, BAD_CAST "d", BAD_CAST path->data);
     //Other attr
     ListIterator iter = createIterator(path->otherAttributes);
     void *elem;
@@ -432,6 +430,9 @@ void pathToXML(xmlNodePtr pNode, Path *path) {
         Attribute *a = (Attribute *) elem;
         xmlNewProp(pathNode, BAD_CAST a->name, BAD_CAST a->value);
     }
+    //Data
+    xmlNewProp(pathNode, BAD_CAST "d", BAD_CAST path->data);
+    
 
 }
 
@@ -478,12 +479,11 @@ void groupToXML(xmlNodePtr pNode, Group *group) {
 
 
 //TODO function converting SVG to XMLdoc
-xmlDocPtr svgToTree(SVG *svg) {
+xmlDocPtr svgToTree(const SVG *svg) {
     xmlDocPtr doc = NULL;
     xmlNodePtr root_node = NULL;
     
     doc = xmlNewDoc(BAD_CAST "1.0");
-    doc->standalone = 0;
     root_node = xmlNewNode(NULL, BAD_CAST "svg");
     xmlDocSetRootElement(doc,root_node);
 
@@ -537,22 +537,13 @@ xmlDocPtr svgToTree(SVG *svg) {
         groupToXML(root_node, g);
     }
 
-    //Add rect of g
-    //Add circ of g
-    //Add path of g
-    //Add g of g
-
-    
-    
-    
-
     xmlSaveFormatFile("test.svg", doc, 1);
 
-    xmlFreeDoc(doc);
+    //xmlFreeDoc(doc);
     xmlCleanupParser();
     xmlMemoryDump();
 
-    return NULL;
+    return doc;
 }
 
 /**
@@ -562,8 +553,8 @@ xmlDocPtr svgToTree(SVG *svg) {
  * @param xsdRef .xsd validation file
  * @return int the result of the validateDoc call
  */
-int validateTree(char *fileName, char *xsdRef) {
-    xmlDocPtr doc;
+int validateTree(xmlDocPtr doc, char *xsdRef) {
+
     xmlSchemaPtr schema = NULL;
     xmlSchemaParserCtxtPtr txt;
 
@@ -575,8 +566,6 @@ int validateTree(char *fileName, char *xsdRef) {
     schema = xmlSchemaParse(txt);
 
     xmlSchemaFreeParserCtxt(txt);
-
-    doc = xmlReadFile(fileName, NULL, 0);
 
     if(doc == NULL) {
         fprintf(stderr, "Could not parse in validateTree\n");
@@ -591,7 +580,7 @@ int validateTree(char *fileName, char *xsdRef) {
     ret = xmlSchemaValidateDoc(ctxt, doc);
 
     xmlSchemaFreeValidCtxt(ctxt);
-    xmlFreeDoc(doc);
+
 
     if(schema !=NULL) {
         xmlSchemaFree(schema);
