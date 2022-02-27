@@ -2,8 +2,7 @@
 #include "SVGHelpers.h"
 
 int main(int argc, char **argv) {
-
-    //SVG *svg = createSVG(argv[1]);
+    //TODO check if arg is valid
     SVG *svg = createValidSVG(argv[1], "svg.xsd");
     if(svg == NULL){
         printf("Failed to create SVG\n");
@@ -11,6 +10,7 @@ int main(int argc, char **argv) {
     }
 
     validateSVG(svg, "svg.xsd");
+    //TODO setup through args?
     writeSVG(svg, "test.svg");
 
     char *string = SVGToString(svg);

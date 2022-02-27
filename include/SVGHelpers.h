@@ -1,17 +1,19 @@
-//
-// Created by David Pearson on 2022-01-17.
-//
+/**
+ * @file SVGHelpers.h
+ * @author David Pearson (1050197)
+ * @brief 
+ * 
+ */
 
-#ifndef A1_SVGHELPERS_H
-#define A1_SVGHELPERS_H
+#ifndef SVGHELPERS_H
+#define SVGHELPERS_H
 
 #include "SVGParser.h"
 #include <stdio.h>
 #include <stdlib.h>
-
-#define PI 3.141592653589
 #include <math.h>
 
+#define PI 3.141592653589
 
 void parser(xmlNode *a_node, SVG *svg);
 
@@ -54,4 +56,4 @@ void groupToXML(xmlNodePtr pNode, Group *group);
 xmlDocPtr svgToTree(const SVG *svg);
 int validateTree(xmlDocPtr doc, char *xsdRef);
 
-#endif //A1_SVGHELPERS_H
+#endif

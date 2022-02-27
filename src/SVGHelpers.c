@@ -1,3 +1,10 @@
+/**
+ * @file SVGHelpers.c
+ * @author David Pearson (1050197)
+ * @brief 
+ * 
+ */
+
 #include "SVGHelpers.h"
 
 void parser(xmlNode *a_node, SVG *svg) {
@@ -356,6 +363,12 @@ void findGroup(Group *group, List *lst) {
 
 //-----------A2-------------
 
+/**
+ * @brief 
+ * 
+ * @param pNode 
+ * @param rect 
+ */
 void rectToXML(xmlNodePtr pNode, Rectangle *rect) {
     xmlNodePtr rectNode = xmlNewChild(pNode, NULL, BAD_CAST "rect", NULL);
     //TODO this is a bad malloc
@@ -366,7 +379,6 @@ void rectToXML(xmlNodePtr pNode, Rectangle *rect) {
     strcat(temp, rect->units);
     xmlNewProp(rectNode, BAD_CAST "x", BAD_CAST temp);
     
-
     //Get y
     sprintf(temp, "%f", rect->y);
     strcat(temp, rect->units);
@@ -394,22 +406,32 @@ void rectToXML(xmlNodePtr pNode, Rectangle *rect) {
     free(temp);
 }
 
+/**
+ * @brief 
+ * 
+ * @param pNode 
+ * @param circ 
+ */
 void circToXML(xmlNodePtr pNode, Circle *circ) {
     xmlNodePtr circNode = xmlNewChild(pNode, NULL, BAD_CAST "circle", NULL);
     //TODO this is a bad malloc
     char *temp = malloc((sizeof(char) * 20));
+
     //Get cx
     sprintf(temp, "%f", circ->cx);
     strcat(temp, circ->units);
     xmlNewProp(circNode, BAD_CAST "cx", BAD_CAST temp);
+    
     //Get cy
     sprintf(temp, "%f", circ->cy);
     strcat(temp, circ->units);
     xmlNewProp(circNode, BAD_CAST "cy", BAD_CAST temp);
+
     //Get r
     sprintf(temp, "%f", circ->r);
     strcat(temp, circ->units);
     xmlNewProp(circNode, BAD_CAST "r", BAD_CAST temp);
+
     //Get otherAttr
     ListIterator iter = createIterator(circ->otherAttributes);
     void *elem;
@@ -421,6 +443,12 @@ void circToXML(xmlNodePtr pNode, Circle *circ) {
     free(temp);
 }
 
+/**
+ * @brief 
+ * 
+ * @param pNode 
+ * @param path 
+ */
 void pathToXML(xmlNodePtr pNode, Path *path) {
     xmlNodePtr pathNode = xmlNewChild(pNode, NULL, BAD_CAST "path", NULL);
     //Other attr
@@ -436,6 +464,12 @@ void pathToXML(xmlNodePtr pNode, Path *path) {
 
 }
 
+/**
+ * @brief 
+ * 
+ * @param pNode 
+ * @param group 
+ */
 void groupToXML(xmlNodePtr pNode, Group *group) {
 
     xmlNodePtr gNode = xmlNewChild(pNode, NULL, BAD_CAST "g", NULL);
@@ -476,9 +510,14 @@ void groupToXML(xmlNodePtr pNode, Group *group) {
         groupToXML(gNode, g);
     }
 
-
 }
 
+/**
+ * @brief 
+ * 
+ * @param svg 
+ * @return xmlDocPtr 
+ */
 xmlDocPtr svgToTree(const SVG *svg) {
     xmlDocPtr doc = NULL;
     xmlNodePtr root_node = NULL;
@@ -538,7 +577,6 @@ xmlDocPtr svgToTree(const SVG *svg) {
     }
 
     xmlCleanupParser();
-    xmlMemoryDump();
 
     return doc;
 }
@@ -551,40 +589,39 @@ xmlDocPtr svgToTree(const SVG *svg) {
  * @return int the result of the validateDoc call
  */
 int validateTree(xmlDocPtr doc, char *xsdRef) {
-
+    int ret = -1;
     xmlSchemaPtr schema = NULL;
-    xmlSchemaParserCtxtPtr txt;
+    xmlSchemaParserCtxtPtr ctxt;
 
     xmlLineNumbersDefault(1);
 
-    txt = xmlSchemaNewParserCtxt(xsdRef);
+    ctxt = xmlSchemaNewParserCtxt(xsdRef);
 
-    xmlSchemaSetParserErrors(txt, (xmlSchemaValidityErrorFunc) fprintf, (xmlSchemaValidityWarningFunc) fprintf, stderr);
-    schema = xmlSchemaParse(txt);
-
-    xmlSchemaFreeParserCtxt(txt);
+    xmlSchemaSetParserErrors(ctxt, (xmlSchemaValidityErrorFunc) fprintf, (xmlSchemaValidityWarningFunc) fprintf, stderr);
+    schema = xmlSchemaParse(ctxt);
+    
+    xmlSchemaFreeParserCtxt(ctxt);
 
     if(doc == NULL) {
-        fprintf(stderr, "Could not parse in validateTree\n");
+        if(schema != NULL) xmlSchemaFree(schema);
+        xmlSchemaCleanupTypes();
+        xmlCleanupParser();
         return -1;
+
+    } else {
+
+        xmlSchemaValidCtxtPtr ctxt;
+        ctxt = xmlSchemaNewValidCtxt(schema);
+        xmlSchemaSetValidErrors(ctxt, (xmlSchemaValidityErrorFunc) fprintf, (xmlSchemaValidityWarningFunc) fprintf, stderr);
+
+        ret = xmlSchemaValidateDoc(ctxt, doc);
+
+        xmlSchemaFreeValidCtxt(ctxt);
     }
 
-    xmlSchemaValidCtxtPtr ctxt;
-    int ret;
-
-    ctxt = xmlSchemaNewValidCtxt(schema);
-    xmlSchemaSetValidErrors(ctxt, (xmlSchemaValidityErrorFunc) fprintf, (xmlSchemaValidityWarningFunc) fprintf, stderr);
-    ret = xmlSchemaValidateDoc(ctxt, doc);
-
-    xmlSchemaFreeValidCtxt(ctxt);
-
-
-    if(schema !=NULL) {
-        xmlSchemaFree(schema);
-    }
+    if(schema != NULL) xmlSchemaFree(schema);
     xmlSchemaCleanupTypes();
     xmlCleanupParser();
-    xmlMemoryDump();
 
     return ret;
 

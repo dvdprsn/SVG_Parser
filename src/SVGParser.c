@@ -1,3 +1,10 @@
+/**
+ * @file SVGParser.c
+ * @author David Pearson (1050197)
+ * @brief 
+ * 
+ */
+
 #include "SVGHelpers.h"
 #include "SVGParser.h"
 
@@ -648,8 +655,10 @@ SVG* createValidSVG(const char* fileName, const char* schemaFile) {
 
     xmlDocPtr doc = xmlReadFile(fileName, NULL, 0);
     int ret = validateTree(doc, (char*) schemaFile);
-
+    
+    //TODO test with harness but this free line throws mem error of 1 block just for the downloaded SVG, not testing ones
     xmlFreeDoc(doc);
+    xmlCleanupParser();
 
     if(ret == 0) {
         //Valid XML
@@ -678,6 +687,8 @@ bool validateSVG(const SVG* img, const char* schemaFile) {
     xmlDocPtr doc = svgToTree(img);
     int ret = validateTree(doc, (char*) schemaFile);
     xmlFreeDoc(doc);
+    xmlCleanupParser();
+
     //If it fails the schema check
     if(ret != 0) {
         return false;
@@ -704,6 +715,7 @@ bool validateSVG(const SVG* img, const char* schemaFile) {
 bool writeSVG(const SVG* img, const char* fileName) {
 
     xmlDocPtr doc = svgToTree(img);
+    //Validate writeout file
     int ret = xmlSaveFormatFile((char*) fileName, doc, 1);
 
     xmlFreeDoc(doc);
