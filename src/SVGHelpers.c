@@ -358,8 +358,8 @@ void findGroup(Group *group, List *lst) {
 
 void rectToXML(xmlNodePtr pNode, Rectangle *rect) {
     xmlNodePtr rectNode = xmlNewChild(pNode, NULL, BAD_CAST "rect", NULL);
-
-    char *temp = malloc(sizeof(char) * 10);
+    //TODO this is a bad malloc
+    char *temp = malloc((sizeof(char) * 20));
 
     //Get x
     sprintf(temp, "%f", rect->x);
@@ -396,8 +396,8 @@ void rectToXML(xmlNodePtr pNode, Rectangle *rect) {
 
 void circToXML(xmlNodePtr pNode, Circle *circ) {
     xmlNodePtr circNode = xmlNewChild(pNode, NULL, BAD_CAST "circle", NULL);
-
-    char *temp = malloc(sizeof(char) * 10);
+    //TODO this is a bad malloc
+    char *temp = malloc((sizeof(char) * 20));
     //Get cx
     sprintf(temp, "%f", circ->cx);
     strcat(temp, circ->units);
@@ -422,7 +422,58 @@ void circToXML(xmlNodePtr pNode, Circle *circ) {
 }
 
 void pathToXML(xmlNodePtr pNode, Path *path) {
-    
+    xmlNodePtr pathNode = xmlNewChild(pNode, NULL, BAD_CAST "path", NULL);
+    //Data
+    xmlNewProp(pathNode, BAD_CAST "d", BAD_CAST path->data);
+    //Other attr
+    ListIterator iter = createIterator(path->otherAttributes);
+    void *elem;
+    while((elem = nextElement(&iter))!= NULL) {
+        Attribute *a = (Attribute *) elem;
+        xmlNewProp(pathNode, BAD_CAST a->name, BAD_CAST a->value);
+    }
+
+}
+
+void groupToXML(xmlNodePtr pNode, Group *group) {
+    xmlNodePtr gNode = xmlNewChild(pNode, NULL, BAD_CAST "g", NULL);
+    //Add Attr
+    ListIterator iter = createIterator(group->otherAttributes);
+    void *elem;
+    while((elem = nextElement(&iter))!= NULL) {
+        Attribute *a = (Attribute*) elem;
+        xmlNewProp(gNode, BAD_CAST a->name, BAD_CAST a->value);
+    }
+
+    //Add rect
+    iter = createIterator(group->rectangles);
+    while((elem = nextElement(&iter))!=NULL) {
+        Rectangle *rect = (Rectangle*) elem;
+        rectToXML(gNode, rect);
+    }
+
+    //Add circle
+    iter = createIterator(group->circles);
+    while((elem = nextElement(&iter))!=NULL) {
+        Circle *circ = (Circle *) elem;
+        circToXML(gNode, circ);
+    }
+
+    //Add path
+    iter = createIterator(group->paths);
+    while((elem = nextElement(&iter))!=NULL) {
+        Path *path = (Path *) elem;
+        pathToXML(gNode, path);
+    }
+
+    //Add other groups
+    iter = createIterator(group->groups);
+    while((elem = nextElement(&iter))!= NULL) {
+        Group *g = (Group *) elem;
+        groupToXML(gNode, g);
+    }
+
+
 }
 
 
@@ -430,12 +481,17 @@ void pathToXML(xmlNodePtr pNode, Path *path) {
 xmlDocPtr svgToTree(SVG *svg) {
     xmlDocPtr doc = NULL;
     xmlNodePtr root_node = NULL;
-
-    //Add attributes of the SVG Node
+    
     doc = xmlNewDoc(BAD_CAST "1.0");
+    doc->standalone = 0;
     root_node = xmlNewNode(NULL, BAD_CAST "svg");
     xmlDocSetRootElement(doc,root_node);
 
+    //Set NS
+    xmlNsPtr ns = xmlNewNs(root_node, BAD_CAST svg->namespace, NULL);
+    xmlSetNs(root_node, ns);
+
+    //Add attributes of the SVG Node
     ListIterator iter = createIterator(svg->otherAttributes);
     void *elem;
     while((elem = nextElement(&iter))!=NULL) {
@@ -443,9 +499,6 @@ xmlDocPtr svgToTree(SVG *svg) {
         xmlNewProp(root_node, BAD_CAST a->name, BAD_CAST a->value);
 
     }
-    //Set NS
-    xmlNsPtr ns = xmlNewNs(root_node, BAD_CAST svg->namespace, NULL);
-    xmlSetNs(root_node, ns);
 
     //Set title and description
     if(strcmp(svg->title, "\0") != 0) {
@@ -478,6 +531,12 @@ xmlDocPtr svgToTree(SVG *svg) {
     }
 
     //Add groups
+    iter = createIterator(svg->groups);
+    while((elem = nextElement(&iter))!= NULL) {
+        Group *g = (Group *) elem;
+        groupToXML(root_node, g);
+    }
+
     //Add rect of g
     //Add circ of g
     //Add path of g
