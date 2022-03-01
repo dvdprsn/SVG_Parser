@@ -675,7 +675,7 @@ int validateGroup(Group *group) {
 
     return 1;  // If no invalid -1 return block was reached
 }
-//!TEST
+//! TEST
 /**
  * @brief validates the entire SVG struct
  *
