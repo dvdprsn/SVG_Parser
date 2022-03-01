@@ -1,17 +1,29 @@
-#include "SVGParser.h"
 #include "SVGHelpers.h"
+#include "SVGParser.h"
 
 int main(int argc, char **argv) {
-    //TODO check if arg is valid
-    SVG *svg = createValidSVG(argv[1], "svg.xsd");
-    if(svg == NULL){
-        printf("Failed to create SVG\n");
+    // TODO check if arg is valid
+    SVG *svg = createSVG(argv[1]);
+    //SVG *svg = createValidSVG(argv[1], "svg.xsd");
+    if (svg == NULL) {
         return 0;
     }
 
-    validateSVG(svg, "svg.xsd");
-    //TODO setup through args?
-    writeSVG(svg, "test.svg");
+    bool valid = validateSVG(svg, "svg.xsd");
+    if(!valid) {
+        printf("Invalid catch\n");
+        deleteSVG(svg);
+        return 0;
+    }
+
+    // TODO setup through args?
+    bool write = writeSVG(svg, "test.svg");
+    if(!write) {
+        printf("Failed to write\n");
+        deleteSVG(svg);
+        return 0;
+    }
+
 
     char *string = SVGToString(svg);
     printf("%s\n", string);
@@ -19,7 +31,7 @@ int main(int argc, char **argv) {
 
     char *test;
     List *rects = getRects(svg);
-    if(getLength(rects) != 0) {
+    if (getLength(rects) != 0) {
         printf("Get Rectanlges -----------\n");
         test = toString(rects);
         printf("%s\n", test);
@@ -27,12 +39,11 @@ int main(int argc, char **argv) {
     }
     freeList(rects);
 
-    
     List *circles = getCircles(svg);
-    if(getLength(circles) != 0) {
+    if (getLength(circles) != 0) {
         printf("Get Circles --------\n");
         test = toString(circles);
-        printf("%s\n",test);
+        printf("%s\n", test);
         free(test);
     }
     freeList(circles);
