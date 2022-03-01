@@ -701,6 +701,10 @@ void addComponent(SVG *img, elementType type, void *newElement) {
 
 char *attrToJSON(const Attribute *a) {
     char *txt = malloc(sizeof(char) * (strlen(a->name) + strlen(a->value)) + 20);
+    if (a == NULL) {
+        sprintf(txt, "{}");
+        return txt;
+    }
 
     sprintf(txt, "{\"name:\":\"%s\",\"value\":\"%s\"}", a->name, a->value);
     printf("%s\n", txt);
@@ -709,12 +713,32 @@ char *attrToJSON(const Attribute *a) {
 }
 
 char *circleToJSON(const Circle *c) {
+    //! Bad Malloc
+    char *txt = malloc(sizeof(char) * 200);
+    if (c == NULL) {
+        sprintf(txt, "{}");
+        return txt;
+    }
+    sprintf(txt, "{\"cx\":%f,\"cy\":%f,\"r\":%f,\"numAttr\":%d,\"units\":\"%s\"}", c->cx, c->cy, c->r, getLength(c->otherAttributes), c->units);
+
+    return txt;
 }
 
 char *rectToJSON(const Rectangle *r) {
+    //! bad Malloc
+    char *txt = malloc(sizeof(char) * 200);
+    if (r == NULL) {
+        sprintf(txt, "{}");
+        return txt;
+    }
+    sprintf(txt, "{\"x\":%f,\"y\":%f,\"w\":%f,\"h\":%f,\"numAttr\":%d,\"units\":\"%s\"}", 
+    r->x, r->y, r->width, r->height, getLength(r->otherAttributes), r->units);
+
+    return txt;
 }
 
 char *pathToJSON(const Path *p) {
+    
 }
 
 char *groupToJSON(const Group *g) {
