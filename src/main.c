@@ -62,6 +62,11 @@ int main(int argc, char **argv) {
     iter = createIterator(paths);
     while ((elem = nextElement(&iter)) != NULL) {
         Path *p = (Path *)elem;
+        char *tmp = NULL;
+        tmp = pathToJSON(p);
+        printf("%s\n", tmp);
+
+        free(tmp);
 
     }
     if (getLength(paths) != 0) {

@@ -738,12 +738,23 @@ char *rectToJSON(const Rectangle *r) {
 }
 
 char *pathToJSON(const Path *p) {
+
     char *txt = malloc(sizeof(char)*200);
     if(p == NULL) {
         sprintf(txt, "{}");
         return txt;
     }
-    // p->data[64] = '\0'; //By setting terminator at char 64 it truncates the remaining
+
+    char *tmp = malloc(sizeof(char)*strlen(p->data) + 1); 
+
+    strcpy(tmp, p->data);
+    if(strlen(tmp) > 64) {
+        tmp[64] = '\0';
+    }
+    
+    sprintf(txt, "%s", tmp);
+
+    free(tmp);
 
     return txt;
     
