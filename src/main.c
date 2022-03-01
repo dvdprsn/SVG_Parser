@@ -31,6 +31,17 @@ int main(int argc, char **argv) {
 
     char *test;
     List *rects = getRects(svg);
+
+    ListIterator iter = createIterator(rects);
+    void *elem;
+    while((elem = nextElement(&iter))!= NULL) {
+        Rectangle *rect = (Rectangle *) elem;
+        char *tmp = rectToJSON(rect);
+        printf("%s\n",tmp);
+
+        free(tmp);
+    }
+
     if (getLength(rects) != 0) {
         printf("Get Rectanlges -----------\n");
         test = toString(rects);
