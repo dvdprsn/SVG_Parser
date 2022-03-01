@@ -1,57 +1,50 @@
 /**
  * @file SVGHelpers.c
  * @author David Pearson (1050197)
- * @brief 
- * 
+ * @brief
+ *
  */
 
 #include "SVGHelpers.h"
 
 void parser(xmlNode *a_node, SVG *svg) {
-
     xmlNode *cur_node = NULL;
 
     for (cur_node = a_node; cur_node != NULL; cur_node = cur_node->next) {
-
-       char *nodeName = "\0";
+        char *nodeName = "\0";
 
         if (cur_node->type == XML_ELEMENT_NODE) {
-
             nodeName = (char *)cur_node->name;
 
-            if(strcmp(nodeName, "title") == 0) { //Works
+            if (strcmp(nodeName, "title") == 0) {  // Works
                 setSVGTitle(svg, cur_node->children);
-            } else if (strcmp(nodeName, "desc") == 0) { //Works
+            } else if (strcmp(nodeName, "desc") == 0) {  // Works
                 setSVGDesc(svg, cur_node->children);
-            } else if (strcmp(nodeName, "svg") == 0) { //Works
+            } else if (strcmp(nodeName, "svg") == 0) {  // Works
                 fillSVG(svg, cur_node);
-            } else if (strcmp(nodeName, "path") == 0) { 
-                insertBack(svg->paths,createPath(cur_node));
-            }else if (strcmp(nodeName, "rect") == 0) { //WORKS
-                insertBack(svg->rectangles,createRect(cur_node));
-            } else if (strcmp(nodeName, "circle") == 0) { //WORKS
-                insertBack(svg->circles,createCircle(cur_node));
-            } else if(strcmp(nodeName, "g") == 0) {
-                Group *g; 
-                g = malloc(sizeof(Group)+30);
-                if(g == NULL) return;
+            } else if (strcmp(nodeName, "path") == 0) {
+                insertBack(svg->paths, createPath(cur_node));
+            } else if (strcmp(nodeName, "rect") == 0) {  // WORKS
+                insertBack(svg->rectangles, createRect(cur_node));
+            } else if (strcmp(nodeName, "circle") == 0) {  // WORKS
+                insertBack(svg->circles, createCircle(cur_node));
+            } else if (strcmp(nodeName, "g") == 0) {
+                Group *g;
+                g = malloc(sizeof(Group) + 30);
+                if (g == NULL) return;
                 initGroup(g);
-                createGroup(g,cur_node);
-                insertBack(svg->groups,g);
-                cur_node = cur_node->next; //Forwards node so children of group are not added to other lists
+                createGroup(g, cur_node);
+                insertBack(svg->groups, g);
+                cur_node = cur_node->next;  // Forwards node so children of group are not added to other lists
             }
-
         }
 
         parser(cur_node->children, svg);
-
     }
-
 }
 
 Rectangle *createRect(xmlNode *cur_node) {
-
-    Rectangle *rect = malloc(sizeof(Rectangle)+30);
+    Rectangle *rect = malloc(sizeof(Rectangle) + 30);
     initRect(rect);
     char *ptr;
     xmlAttr *attr;
@@ -59,16 +52,16 @@ Rectangle *createRect(xmlNode *cur_node) {
     for (attr = cur_node->properties; attr != NULL; attr = attr->next) {
         xmlNode *value = attr->children;
 
-        char *attrName = (char *) attr->name;
-        char *cont = (char *) (value->content);
+        char *attrName = (char *)attr->name;
+        char *cont = (char *)(value->content);
 
         if (strcmp(attrName, "x") == 0) {
             rect->x = atof(cont);
 
-            strtoul(cont, &ptr, 10); // gets decimal onwards 1.214cm -> .214cm
-            if(ptr[0] == '.') ptr += 1; //Shifts pointer past decimal .214cm -> 214cm
-            strtoul(ptr, &ptr, 10); //removes numbers from char 214cm -> cm
-            strcpy(rect->units,ptr);
+            strtoul(cont, &ptr, 10);      // gets decimal onwards 1.214cm -> .214cm
+            if (ptr[0] == '.') ptr += 1;  // Shifts pointer past decimal .214cm -> 214cm
+            strtoul(ptr, &ptr, 10);       // removes numbers from char 214cm -> cm
+            strcpy(rect->units, ptr);
 
         } else if (strcmp(attrName, "y") == 0) {
             rect->y = atof(cont);
@@ -76,19 +69,16 @@ Rectangle *createRect(xmlNode *cur_node) {
             rect->width = atof(cont);
         } else if (strcmp(attrName, "height") == 0) {
             rect->height = atof(cont);
-        } else { //Other Attributes
+        } else {  // Other Attributes
             insertBack(rect->otherAttributes, createAttr(attrName, cont));
         }
-
     }
 
     return rect;
-
 }
 
 Circle *createCircle(xmlNode *cur_node) {
-
-    Circle *circle = malloc(sizeof(Circle)+20);
+    Circle *circle = malloc(sizeof(Circle) + 20);
     initCircle(circle);
     char *ptr;
     xmlAttr *attr;
@@ -96,129 +86,112 @@ Circle *createCircle(xmlNode *cur_node) {
     for (attr = cur_node->properties; attr != NULL; attr = attr->next) {
         xmlNode *value = attr->children;
 
-        char *attrName = (char *) attr->name;
-        char *cont = (char *) (value->content);
+        char *attrName = (char *)attr->name;
+        char *cont = (char *)(value->content);
 
         if (strcmp(attrName, "cx") == 0) {
+            circle->cx = atof(cont);  // get just float
 
-            circle->cx = atof(cont); // get just float 
-
-            strtoul(cont, &ptr, 10); // gets decimal onwards 1.214cm -> .214cm
-            if(ptr[0] == '.') ptr += 1; //Shifts pointer past decimal .214cm -> 214cm
-            strtoul(ptr, &ptr, 10); //removes numbers from char 214cm -> cm
-            strcpy(circle->units,ptr);
+            strtoul(cont, &ptr, 10);      // gets decimal onwards 1.214cm -> .214cm
+            if (ptr[0] == '.') ptr += 1;  // Shifts pointer past decimal .214cm -> 214cm
+            strtoul(ptr, &ptr, 10);       // removes numbers from char 214cm -> cm
+            strcpy(circle->units, ptr);
 
         } else if (strcmp(attrName, "cy") == 0) {
             circle->cy = atof(cont);
         } else if (strcmp(attrName, "r") == 0) {
             circle->r = atof(cont);
-        } else { //Other Attributes
+        } else {  // Other Attributes
             insertBack(circle->otherAttributes, createAttr(attrName, cont));
         }
-
     }
 
     return circle;
-
 }
 
-void createGroup(Group *g, xmlNode *cur_node) { 
-
+void createGroup(Group *g, xmlNode *cur_node) {
     xmlNode *a_node = cur_node->children;
 
     xmlAttr *attr;
     xmlNode *value;
     char *attrName;
     char *cont;
-    //Fills in attributes for this group
-    for(attr = cur_node->properties; attr != NULL; attr = attr->next) { //Get Attributes
-            value = attr->children;
+    // Fills in attributes for this group
+    for (attr = cur_node->properties; attr != NULL; attr = attr->next) {  // Get Attributes
+        value = attr->children;
 
-            attrName = (char *) (attr->name);
-            cont = (char *) (value->content);
+        attrName = (char *)(attr->name);
+        cont = (char *)(value->content);
 
-            insertBack(g->otherAttributes,createAttr(attrName,cont));
-    
+        insertBack(g->otherAttributes, createAttr(attrName, cont));
     }
-    //Recursively adds structures to group lists
-    for (cur_node = a_node; cur_node != NULL; cur_node = cur_node->next) { //Go over siblings ONLY
+    // Recursively adds structures to group lists
+    for (cur_node = a_node; cur_node != NULL; cur_node = cur_node->next) {  // Go over siblings ONLY
 
-       char *nodeName = "\0";
+        char *nodeName = "\0";
 
         if (cur_node->type == XML_ELEMENT_NODE) {
-
             nodeName = (char *)cur_node->name;
 
-            if(strcmp(nodeName, "rect") == 0 ) {
+            if (strcmp(nodeName, "rect") == 0) {
                 insertBack(g->rectangles, createRect(cur_node));
-            } else if(strcmp(nodeName, "circle") == 0) {
-                insertBack(g->circles,createCircle(cur_node));
-            } else if(strcmp(nodeName,"path")==0) {
-                insertBack(g->paths,createPath(cur_node));
-            } else if(strcmp(nodeName, "g") == 0) { //Nested group found
-                Group *groupNest; 
-                groupNest = malloc(sizeof(Group)+30); //Create nested group
-                initGroup(groupNest); //Init with empty lists
-                insertBack(g->groups,groupNest); //insert pointer to top level group
-                createGroup(groupNest,cur_node); //Fill group with children
+            } else if (strcmp(nodeName, "circle") == 0) {
+                insertBack(g->circles, createCircle(cur_node));
+            } else if (strcmp(nodeName, "path") == 0) {
+                insertBack(g->paths, createPath(cur_node));
+            } else if (strcmp(nodeName, "g") == 0) {  // Nested group found
+                Group *groupNest;
+                groupNest = malloc(sizeof(Group) + 30);  // Create nested group
+                initGroup(groupNest);                    // Init with empty lists
+                insertBack(g->groups, groupNest);        // insert pointer to top level group
+                createGroup(groupNest, cur_node);        // Fill group with children
             }
-
         }
-
     }
-
 }
 
 Attribute *createAttr(char *name, char value[]) {
-    if(value == NULL) return NULL; //Cannot have a nsame attr without value
+    if (value == NULL) return NULL;  // Cannot have a nsame attr without value
 
     Attribute *attr;
-    attr = malloc(sizeof(Attribute) + sizeof(char) * (strlen(value)+30)); //Allocate for flexible array member
-    if(attr == NULL) return NULL; //If alloc failed
+    attr = malloc(sizeof(Attribute) + sizeof(char) * (strlen(value) + 30));  // Allocate for flexible array member
+    if (attr == NULL) return NULL;                                           // If alloc failed
 
-    attr->name = malloc(sizeof(char)*strlen(name)+20); //Allocate space for the char* in attr struct
-    if(attr->name == NULL) return NULL; //Check for fail
-    
+    attr->name = malloc(sizeof(char) * strlen(name) + 20);  // Allocate space for the char* in attr struct
+    if (attr->name == NULL) return NULL;                    // Check for fail
+
     strcpy(attr->name, name);
-    strcpy(attr->value, value); //Copy string for value
+    strcpy(attr->value, value);  // Copy string for value
 
-    return attr;    //Return create attribute to caller
-
+    return attr;  // Return create attribute to caller
 }
 
 Path *createPath(xmlNode *cur_node) {
-    
     xmlAttr *attr;
-    xmlNode *value; 
+    xmlNode *value;
     Path *path;
 
     path = malloc(sizeof(Path));
-    if(path == NULL) return NULL;
-    path->otherAttributes = initializeList(&attributeToString,&deleteAttribute,&compareAttributes);
-
+    if (path == NULL) return NULL;
+    path->otherAttributes = initializeList(&attributeToString, &deleteAttribute, &compareAttributes);
 
     char *attrName;
     char *cont;
 
     for (attr = cur_node->properties; attr != NULL; attr = attr->next) {
-
         value = attr->children;
-        attrName = (char *) (attr->name);
-        cont = (char *) (value->content);
-
+        attrName = (char *)(attr->name);
+        cont = (char *)(value->content);
 
         if (strcmp(attrName, "d") == 0) {
-            path = realloc(path, sizeof(path)+ (sizeof(char)*strlen(cont)+30));
+            path = realloc(path, sizeof(path) + (sizeof(char) * strlen(cont) + 30));
             strcpy(path->data, cont);
-        } else { //Other Attributes
+        } else {  // Other Attributes
             insertBack(path->otherAttributes, createAttr(attrName, cont));
-            
         }
-
     }
-    
-    return path;
 
+    return path;
 }
 
 void initCircle(Circle *circle) {
@@ -239,7 +212,6 @@ void initRect(Rectangle *rect) {
 }
 
 void initSVG(SVG *svgReturn) {
-
     strcpy(svgReturn->namespace, "\0");
     strcpy(svgReturn->title, "\0");
     strcpy(svgReturn->description, "\0");
@@ -249,7 +221,6 @@ void initSVG(SVG *svgReturn) {
     svgReturn->circles = initializeList(&circleToString, &deleteCircle, &compareCircles);
     svgReturn->rectangles = initializeList(&rectangleToString, &deleteRectangle, &compareRectangles);
     svgReturn->otherAttributes = initializeList(&attributeToString, &deleteAttribute, &compareAttributes);
-
 }
 
 void initGroup(Group *group) {
@@ -266,71 +237,62 @@ void fillSVG(SVG *svg, xmlNode *cur_node) {
     Attribute *toAdd;
     char *attrName;
     char *cont;
-    
 
-    for (xmlAttr = cur_node->properties; xmlAttr != NULL; xmlAttr = xmlAttr->next) { //Go through all attributes on the node
+    for (xmlAttr = cur_node->properties; xmlAttr != NULL; xmlAttr = xmlAttr->next) {  // Go through all attributes on the node
 
-        value = xmlAttr->children; 
-        attrName = (char *) xmlAttr->name;
-        cont = (char *) value->content;
+        value = xmlAttr->children;
+        attrName = (char *)xmlAttr->name;
+        cont = (char *)value->content;
         toAdd = createAttr(attrName, cont);
-        insertBack(svg->otherAttributes, toAdd); //Insert new attr to back of attribute list for SVG
-
+        insertBack(svg->otherAttributes, toAdd);  // Insert new attr to back of attribute list for SVG
     }
-
 }
 
 void setSVGTitle(SVG *svg, xmlNode *cur_node) {
-    
-    if (cur_node->content != NULL) strcpy(svg->title, (char *) cur_node->content);
-
+    if (cur_node->content != NULL) strcpy(svg->title, (char *)cur_node->content);
 }
 
 void setSVGDesc(SVG *svg, xmlNode *cur_node) {
-    if (cur_node->content != NULL) strcpy(svg->description, (char *) cur_node->content);
+    if (cur_node->content != NULL) strcpy(svg->description, (char *)cur_node->content);
 }
 
 char *getNS(xmlNode *cur_node) {
-    if (cur_node) return (char *) cur_node->ns->href;
+    if (cur_node) return (char *)cur_node->ns->href;
     return "";
 }
 
-void dummyDel(void *data){
+void dummyDel(void *data) {
     return;
 }
 
 void findRect(Group *group, List *lst) {
-
-    //Get elements from list of rectangles in this group
+    // Get elements from list of rectangles in this group
     ListIterator iter = createIterator(group->rectangles);
     void *elem;
-    while ((elem = nextElement(&iter))!= NULL) {
-        Rectangle *rect = (Rectangle*) elem; //Cast to rectangle pointer
-        insertBack(lst,rect); //Insert rectangle into toReturn list
-
+    while ((elem = nextElement(&iter)) != NULL) {
+        Rectangle *rect = (Rectangle *)elem;  // Cast to rectangle pointer
+        insertBack(lst, rect);                // Insert rectangle into toReturn list
     }
-    //Iterate over groups within the list of subgroups calling findRects
+    // Iterate over groups within the list of subgroups calling findRects
     iter = createIterator(group->groups);
-    while((elem = nextElement(&iter))!=NULL) {
-        elem = (Group*) elem;
+    while ((elem = nextElement(&iter)) != NULL) {
+        elem = (Group *)elem;
         findRect(elem, lst);
     }
-
 }
 
 void findCirc(Group *group, List *lst) {
-    //Get elements from list of rectangles in this group
+    // Get elements from list of rectangles in this group
     ListIterator iter = createIterator(group->circles);
     void *elem;
-    while ((elem = nextElement(&iter))!= NULL) {
-        Circle *circ = (Circle*) elem; //Cast to rectangle pointer
-        insertBack(lst,circ); //Insert rectangle into toReturn list
-
+    while ((elem = nextElement(&iter)) != NULL) {
+        Circle *circ = (Circle *)elem;  // Cast to rectangle pointer
+        insertBack(lst, circ);          // Insert rectangle into toReturn list
     }
-    //Iterate over groups within the list of subgroups calling findRects
+    // Iterate over groups within the list of subgroups calling findRects
     iter = createIterator(group->groups);
-    while((elem = nextElement(&iter))!=NULL) {
-        Group *g = (Group*) elem;
+    while ((elem = nextElement(&iter)) != NULL) {
+        Group *g = (Group *)elem;
         findCirc(g, lst);
     }
 }
@@ -338,105 +300,102 @@ void findCirc(Group *group, List *lst) {
 void findPaths(Group *group, List *lst) {
     ListIterator iter = createIterator(group->paths);
     void *elem;
-    while((elem = nextElement(&iter))!=NULL) {
-        Path *p = (Path *) elem;
-        insertBack(lst,p);
-
+    while ((elem = nextElement(&iter)) != NULL) {
+        Path *p = (Path *)elem;
+        insertBack(lst, p);
     }
     iter = createIterator(group->groups);
-    while((elem = nextElement(&iter))!=NULL) {
-        Group *g = (Group *) elem;
-        findPaths(g,lst);
+    while ((elem = nextElement(&iter)) != NULL) {
+        Group *g = (Group *)elem;
+        findPaths(g, lst);
     }
 }
 
 void findGroup(Group *group, List *lst) {
     ListIterator iter = createIterator(group->groups);
     void *elem;
-    while((elem = nextElement(&iter))!= NULL) {
-        Group *g = (Group *) elem;
-        insertBack(lst,g);
-        findGroup(g,lst);
+    while ((elem = nextElement(&iter)) != NULL) {
+        Group *g = (Group *)elem;
+        insertBack(lst, g);
+        findGroup(g, lst);
     }
 }
-
 
 //-----------A2-------------
 
 /**
- * @brief 
- * 
- * @param pNode 
- * @param rect 
+ * @brief
+ *
+ * @param pNode
+ * @param rect
  */
 void rectToXML(xmlNodePtr pNode, Rectangle *rect) {
     xmlNodePtr rectNode = xmlNewChild(pNode, NULL, BAD_CAST "rect", NULL);
-    //TODO this is a bad malloc
+    // TODO this is a bad malloc
     char *temp = malloc((sizeof(char) * 20));
 
-    //Get x
+    // Get x
     sprintf(temp, "%f", rect->x);
     strcat(temp, rect->units);
     xmlNewProp(rectNode, BAD_CAST "x", BAD_CAST temp);
-    
-    //Get y
+
+    // Get y
     sprintf(temp, "%f", rect->y);
     strcat(temp, rect->units);
     xmlNewProp(rectNode, BAD_CAST "y", BAD_CAST temp);
 
-    //Get width
+    // Get width
     sprintf(temp, "%f", rect->width);
     strcat(temp, rect->units);
     xmlNewProp(rectNode, BAD_CAST "width", BAD_CAST temp);
 
-    //Get height
+    // Get height
     sprintf(temp, "%f", rect->height);
     strcat(temp, rect->units);
     xmlNewProp(rectNode, BAD_CAST "height", BAD_CAST temp);
 
-    //Get otherAttr
+    // Get otherAttr
     ListIterator iter = createIterator(rect->otherAttributes);
     void *elem;
-    while((elem = nextElement(&iter))!= NULL) {
-        Attribute *a = (Attribute *) elem;
+    while ((elem = nextElement(&iter)) != NULL) {
+        Attribute *a = (Attribute *)elem;
         xmlNewProp(rectNode, BAD_CAST a->name, BAD_CAST a->value);
     }
-
 
     free(temp);
 }
 
 /**
- * @brief 
- * 
- * @param pNode 
- * @param circ 
+ * @brief
+ *
+ * @param pNode
+ * @param circ
  */
 void circToXML(xmlNodePtr pNode, Circle *circ) {
     xmlNodePtr circNode = xmlNewChild(pNode, NULL, BAD_CAST "circle", NULL);
-    //TODO this is a bad malloc
+    // TODO this is a bad malloc
     char *temp = malloc((sizeof(char) * 20));
 
-    //Get cx
+    // Get cx
     sprintf(temp, "%f", circ->cx);
     strcat(temp, circ->units);
     xmlNewProp(circNode, BAD_CAST "cx", BAD_CAST temp);
-    
-    //Get cy
+
+    // Get cy
     sprintf(temp, "%f", circ->cy);
     strcat(temp, circ->units);
     xmlNewProp(circNode, BAD_CAST "cy", BAD_CAST temp);
 
-    //Get r
+    // Get r
     sprintf(temp, "%f", circ->r);
     strcat(temp, circ->units);
     xmlNewProp(circNode, BAD_CAST "r", BAD_CAST temp);
 
-    //Get otherAttr
+    // Get otherAttr
     ListIterator iter = createIterator(circ->otherAttributes);
     void *elem;
-    while((elem = nextElement(&iter))!= NULL) {
-        Attribute *a = (Attribute *) elem;
+    while ((elem = nextElement(&iter)) != NULL) {
+        Attribute *a = (Attribute *)elem;
         xmlNewProp(circNode, BAD_CAST a->name, BAD_CAST a->value);
     }
 
@@ -444,146 +403,138 @@ void circToXML(xmlNodePtr pNode, Circle *circ) {
 }
 
 /**
- * @brief 
- * 
- * @param pNode 
- * @param path 
+ * @brief
+ *
+ * @param pNode
+ * @param path
  */
 void pathToXML(xmlNodePtr pNode, Path *path) {
     xmlNodePtr pathNode = xmlNewChild(pNode, NULL, BAD_CAST "path", NULL);
-    //Other attr
+    // Other attr
     ListIterator iter = createIterator(path->otherAttributes);
     void *elem;
-    while((elem = nextElement(&iter))!= NULL) {
-        Attribute *a = (Attribute *) elem;
+    while ((elem = nextElement(&iter)) != NULL) {
+        Attribute *a = (Attribute *)elem;
         xmlNewProp(pathNode, BAD_CAST a->name, BAD_CAST a->value);
     }
-    //Data
+    // Data
     xmlNewProp(pathNode, BAD_CAST "d", BAD_CAST path->data);
-    
-
 }
 
 /**
- * @brief 
- * 
- * @param pNode 
- * @param group 
+ * @brief
+ *
+ * @param pNode
+ * @param group
  */
 void groupToXML(xmlNodePtr pNode, Group *group) {
-
     xmlNodePtr gNode = xmlNewChild(pNode, NULL, BAD_CAST "g", NULL);
 
-    //Add Attr
+    // Add Attr
     ListIterator iter = createIterator(group->otherAttributes);
     void *elem;
-    while((elem = nextElement(&iter))!= NULL) {
-        Attribute *a = (Attribute*) elem;
+    while ((elem = nextElement(&iter)) != NULL) {
+        Attribute *a = (Attribute *)elem;
         xmlNewProp(gNode, BAD_CAST a->name, BAD_CAST a->value);
     }
 
-    //Add rect
+    // Add rect
     iter = createIterator(group->rectangles);
-    while((elem = nextElement(&iter))!=NULL) {
-        Rectangle *rect = (Rectangle*) elem;
+    while ((elem = nextElement(&iter)) != NULL) {
+        Rectangle *rect = (Rectangle *)elem;
         rectToXML(gNode, rect);
     }
 
-    //Add circle
+    // Add circle
     iter = createIterator(group->circles);
-    while((elem = nextElement(&iter))!=NULL) {
-        Circle *circ = (Circle *) elem;
+    while ((elem = nextElement(&iter)) != NULL) {
+        Circle *circ = (Circle *)elem;
         circToXML(gNode, circ);
     }
 
-    //Add path
+    // Add path
     iter = createIterator(group->paths);
-    while((elem = nextElement(&iter))!=NULL) {
-        Path *path = (Path *) elem;
+    while ((elem = nextElement(&iter)) != NULL) {
+        Path *path = (Path *)elem;
         pathToXML(gNode, path);
     }
 
-    //Add other groups
+    // Add other groups
     iter = createIterator(group->groups);
-    while((elem = nextElement(&iter))!= NULL) {
-        Group *g = (Group *) elem;
+    while ((elem = nextElement(&iter)) != NULL) {
+        Group *g = (Group *)elem;
         groupToXML(gNode, g);
     }
-
 }
 
 /**
- * @brief 
- * 
- * @param svg 
- * @return xmlDocPtr 
+ * @brief
+ *
+ * @param svg
+ * @return xmlDocPtr
  */
 xmlDocPtr svgToTree(const SVG *svg) {
     xmlDocPtr doc = NULL;
     xmlNodePtr root_node = NULL;
-    
+
     doc = xmlNewDoc(BAD_CAST "1.0");
     root_node = xmlNewNode(NULL, BAD_CAST "svg");
-    xmlDocSetRootElement(doc,root_node);
+    xmlDocSetRootElement(doc, root_node);
 
-    //Set NS
+    // Set NS
     xmlNsPtr ns = xmlNewNs(root_node, BAD_CAST svg->namespace, NULL);
     xmlSetNs(root_node, ns);
 
-    //Add attributes of the SVG Node
+    // Add attributes of the SVG Node
     ListIterator iter = createIterator(svg->otherAttributes);
     void *elem;
-    while((elem = nextElement(&iter))!=NULL) {
-        Attribute *a = (Attribute *) elem;
+    while ((elem = nextElement(&iter)) != NULL) {
+        Attribute *a = (Attribute *)elem;
         xmlNewProp(root_node, BAD_CAST a->name, BAD_CAST a->value);
-
     }
 
-    //Set title and description
-    if(strcmp(svg->title, "\0") != 0) {
+    // Set title and description
+    if (strcmp(svg->title, "\0") != 0) {
         xmlNewChild(root_node, NULL, BAD_CAST "title", BAD_CAST svg->title);
     }
-    if(strcmp(svg->description, "\0") != 0) {
+    if (strcmp(svg->description, "\0") != 0) {
         xmlNewChild(root_node, NULL, BAD_CAST "desc", BAD_CAST svg->description);
     }
 
-    //Add rectangles to tree
+    // Add rectangles to tree
     iter = createIterator(svg->rectangles);
-    while((elem = nextElement(&iter))!=NULL) {
-        Rectangle *rect = (Rectangle *) elem;
+    while ((elem = nextElement(&iter)) != NULL) {
+        Rectangle *rect = (Rectangle *)elem;
         rectToXML(root_node, rect);
-
     }
 
-    //Add circle
+    // Add circle
     iter = createIterator(svg->circles);
-    while((elem=nextElement(&iter)) != NULL) {
-        Circle *circ = (Circle *) elem;
+    while ((elem = nextElement(&iter)) != NULL) {
+        Circle *circ = (Circle *)elem;
         circToXML(root_node, circ);
     }
 
-    //Add paths
+    // Add paths
     iter = createIterator(svg->paths);
-    while((elem = nextElement(&iter))!= NULL) {
-        Path *path = (Path *) elem;
+    while ((elem = nextElement(&iter)) != NULL) {
+        Path *path = (Path *)elem;
         pathToXML(root_node, path);
     }
 
-    //Add groups
+    // Add groups
     iter = createIterator(svg->groups);
-    while((elem = nextElement(&iter))!= NULL) {
-        Group *g = (Group *) elem;
+    while ((elem = nextElement(&iter)) != NULL) {
+        Group *g = (Group *)elem;
         groupToXML(root_node, g);
     }
-
-    xmlCleanupParser();
 
     return doc;
 }
 
 /**
  * @brief Validates an xmlDoc, NOT VALUES just in ref to the xsd file
- * 
+ *
  * @param fileName .svg filename
  * @param xsdRef .xsd validation file
  * @return int the result of the validateDoc call
@@ -597,32 +548,192 @@ int validateTree(xmlDocPtr doc, char *xsdRef) {
 
     ctxt = xmlSchemaNewParserCtxt(xsdRef);
 
-    xmlSchemaSetParserErrors(ctxt, (xmlSchemaValidityErrorFunc) fprintf, (xmlSchemaValidityWarningFunc) fprintf, stderr);
+    xmlSchemaSetParserErrors(ctxt, (xmlSchemaValidityErrorFunc)fprintf, (xmlSchemaValidityWarningFunc)fprintf, stderr);
     schema = xmlSchemaParse(ctxt);
-    
+
     xmlSchemaFreeParserCtxt(ctxt);
 
-    if(doc == NULL) {
-        if(schema != NULL) xmlSchemaFree(schema);
-        xmlSchemaCleanupTypes();
-        xmlCleanupParser();
+    if (doc == NULL) {
         return -1;
 
     } else {
-
         xmlSchemaValidCtxtPtr ctxt;
         ctxt = xmlSchemaNewValidCtxt(schema);
-        xmlSchemaSetValidErrors(ctxt, (xmlSchemaValidityErrorFunc) fprintf, (xmlSchemaValidityWarningFunc) fprintf, stderr);
+        xmlSchemaSetValidErrors(ctxt, (xmlSchemaValidityErrorFunc)fprintf, (xmlSchemaValidityWarningFunc)fprintf, stderr);
 
         ret = xmlSchemaValidateDoc(ctxt, doc);
 
         xmlSchemaFreeValidCtxt(ctxt);
     }
 
-    if(schema != NULL) xmlSchemaFree(schema);
+    if (schema != NULL) xmlSchemaFree(schema);
     xmlSchemaCleanupTypes();
-    xmlCleanupParser();
 
     return ret;
+}
 
+/**
+ * @brief Validates a rectangle against constraints
+ *
+ * @param rect The rectangle object
+ * @return int Represents a boolean
+ */
+int validateRect(Rectangle *rect) {
+    // x & y can be anything since its a coord
+    // width must be >= 0
+    // Height must be >= 0
+    // otherAttributes must not be null
+    if (rect->height < 0) return -1;
+    if (rect->width < 0) return -1;
+    if (rect->otherAttributes == NULL) return -1;
+
+    return 1;  // If not invalid was found
+}
+
+/**
+ * @brief Validates a circle against header
+ *
+ * @param circ Circle object
+ * @return int boolean if valid
+ */
+int validateCirc(Circle *circ) {
+    if (circ->r < 0) return -1;
+    if (circ->otherAttributes == NULL) return -1;
+
+    return 1;
+}
+
+/**
+ * @brief Validates a path against header
+ *
+ * @param path Path object to validate
+ * @return int boolean if valid
+ */
+int validatePath(Path *path) {
+    if (path->data == NULL) return -1;
+    if (path->otherAttributes == NULL) return -1;
+
+    return 1;
+}
+
+/**
+ * @brief Validates a group, contents of the group and contents of nested groups
+ *
+ * @param group the group to be validated
+ * @return int boolean if true
+ */
+int validateGroup(Group *group) {
+    ListIterator iter;
+    void *elem;
+
+    if (group->otherAttributes == NULL) return -1;
+
+    // Rectangles
+    if (group->rectangles != NULL) {
+        iter = createIterator(group->rectangles);
+        while ((elem = nextElement(&iter)) != NULL) {
+            Rectangle *rect = (Rectangle *)elem;
+            if (validateRect(rect) == -1) return -1;  // if invalid
+        }
+
+    } else {  // If list is null
+        return -1;
+    }
+
+    // Circles
+    if (group->circles != NULL) {
+        iter = createIterator(group->circles);
+        while ((elem = nextElement(&iter)) != NULL) {
+            Circle *circ = (Circle *)elem;
+            if (validateCirc(circ) == -1) return -1;  // if invliad
+        }
+    } else {
+        return -1;
+    }
+
+    // Paths
+    if (group->paths != NULL) {
+        iter = createIterator(group->paths);
+        while ((elem = nextElement(&iter)) != NULL) {
+            Path *p = (Path *)elem;
+            if (validatePath(p) == -1) return -1;  // if invalid
+        }
+    } else {
+        return -1;
+    }
+
+    // Groups
+    if (group->groups != NULL) {
+        iter = createIterator(group->groups);
+        while ((elem = nextElement(&iter)) != NULL) {
+            Group *g = (Group *)elem;
+            if (validateGroup(g) == -1) return -1;
+        }
+    } else {
+        return -1;
+    }
+
+    return 1;  // If no invalid -1 return block was reached
+}
+//!TEST
+/**
+ * @brief validates the entire SVG struct
+ *
+ * @param svg SVG to validate
+ * @return int boolean if valid
+ */
+int validateContents(SVG *svg) {
+    // NS must not be empty
+    if (strcmp(svg->namespace, "") == 0) return -1;  // Empty
+    if (svg->otherAttributes == NULL) return -1;
+
+    // List checks
+    void *elem;
+    ListIterator iter;
+
+    // Rectangles
+    if (svg->rectangles != NULL) {
+        iter = createIterator(svg->rectangles);
+        while ((elem = nextElement(&iter)) != NULL) {
+            Rectangle *rect = (Rectangle *)elem;
+            if (validateRect(rect) == -1) return -1;  // Not valid rect
+        }
+    } else {
+        return -1;  // list was null
+    }
+
+    // Circles
+    if (svg->circles != NULL) {
+        iter = createIterator(svg->circles);
+        while ((elem = nextElement(&iter)) != NULL) {
+            Circle *circ = (Circle *)elem;
+            if (validateCirc(circ) == -1) return -1;
+        }
+    } else {
+        return -1;
+    }
+
+    // Paths
+    if (svg->paths != NULL) {
+        iter = createIterator(svg->paths);
+        while ((elem = nextElement(&iter)) != NULL) {
+            Path *p = (Path *)elem;
+            if (validatePath(p) == -1) return -1;
+        }
+    } else {
+        return -1;
+    }
+
+    // Groups
+    if (svg->groups != NULL) {
+        iter = createIterator(svg->groups);
+        while ((elem = nextElement(&iter)) != NULL) {
+            Group *g = (Group *)elem;
+            if (validateGroup(g) == -1) return -1;
+        }
+    } else {
+        return -1;
+    }
+
+    return 1;  // No invalid component found
 }
