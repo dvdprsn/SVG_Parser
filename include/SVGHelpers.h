@@ -56,4 +56,10 @@ void groupToXML(xmlNodePtr pNode, Group *group);
 xmlDocPtr svgToTree(const SVG *svg);
 int validateTree(xmlDocPtr doc, char *xsdRef);
 
+int validateRect(Rectangle *rect);
+int validateCirc(Circle *circ);
+int validatePath(Path *path);
+int validateGroup(Group *group);
+int validateContents(SVG *svg);
+
 #endif
