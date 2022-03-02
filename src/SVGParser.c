@@ -698,6 +698,22 @@ bool setAttribute(SVG *img, elementType elemType, int elemIndex, Attribute *newA
 }
 
 void addComponent(SVG *img, elementType type, void *newElement) {
+    if (img == NULL) return;
+    if (newElement == NULL) return;
+    if (type == NULL) return;  //! WRONG maybe
+    // Only handle Circles - Rects - Paths
+    if (type == CIRC) {
+        Circle *circ = (Circle *)newElement;
+        insertBack(img->circles, circ);
+    } else if (type == RECT) {
+        Rectangle *rect = (Rectangle *)newElement;
+        insertBack(img->rectangles, rect);
+    } else if (type == PATH) {
+        Path *p = (Path *)newElement;
+        insertBack(img->paths, p);
+    } else {
+        return;
+    }
 }
 
 // MODULE 3
@@ -835,7 +851,7 @@ char *rectListToJSON(const List *list) {
     void *elem;
 
     while ((elem = nextElement(&iter)) != NULL) {
-        Rectangle *rect = (Rectangle*) elem;
+        Rectangle *rect = (Rectangle *)elem;
         char *tmp = rectToJSON(rect);
         toReturn = realloc(toReturn, sizeof(char) * (strlen(tmp) + strlen(toReturn) + 20));
         strcat(toReturn, tmp);
@@ -858,7 +874,7 @@ char *pathListToJSON(const List *list) {
     void *elem;
 
     while ((elem = nextElement(&iter)) != NULL) {
-        Path *p = (Path*) elem;
+        Path *p = (Path *)elem;
         char *tmp = pathToJSON(p);
         toReturn = realloc(toReturn, sizeof(char) * (strlen(tmp) + strlen(toReturn) + 20));
         strcat(toReturn, tmp);
@@ -881,7 +897,7 @@ char *groupListToJSON(const List *list) {
     void *elem;
 
     while ((elem = nextElement(&iter)) != NULL) {
-        Group *g = (Group*) elem;
+        Group *g = (Group *)elem;
         char *tmp = groupToJSON(g);
         toReturn = realloc(toReturn, sizeof(char) * (strlen(tmp) + strlen(toReturn) + 20));
         strcat(toReturn, tmp);
