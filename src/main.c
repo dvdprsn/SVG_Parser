@@ -2,7 +2,7 @@
 #include "SVGParser.h"
 
 int main(int argc, char **argv) {
-    // TODO check if arg is valid
+
     SVG *svg = createSVG(argv[1]);
     // SVG *svg = createValidSVG(argv[1], "svg.xsd");
     if (svg == NULL) {
@@ -16,7 +16,6 @@ int main(int argc, char **argv) {
         return 0;
     }
 
-    // TODO setup through args?
     bool write = writeSVG(svg, "test.svg");
     if (!write) {
         printf("Failed to write\n");
@@ -25,7 +24,7 @@ int main(int argc, char **argv) {
     }
 
     char *string = SVGToString(svg);
-    printf("%s\n", string);
+    //printf("%s\n", string);
     free(string);
 
     char *test;
@@ -42,18 +41,26 @@ int main(int argc, char **argv) {
     }
 
     if (getLength(rects) != 0) {
-        printf("Get Rectanlges -----------\n");
+        //printf("Get Rectanlges -----------\n");
         test = toString(rects);
-        printf("%s\n", test);
+        //printf("%s\n", test);
         free(test);
     }
     freeList(rects);
 
     List *circles = getCircles(svg);
+    iter = createIterator(circles);
+    while((elem = nextElement(&iter))!=NULL) {
+        Circle *circ = (Circle *)elem;
+        char *tmp = NULL;
+        tmp = circleToJSON(circ);
+        printf("%s\n",tmp);
+        free(tmp);
+    }
     if (getLength(circles) != 0) {
-        printf("Get Circles --------\n");
+        //printf("Get Circles --------\n");
         test = toString(circles);
-        printf("%s\n", test);
+        //printf("%s\n", test);
         free(test);
     }
     freeList(circles);
@@ -70,12 +77,25 @@ int main(int argc, char **argv) {
 
     }
     if (getLength(paths) != 0) {
-        printf("Get Paths-------\n");
+        //printf("Get Paths-------\n");
     }
-
     freeList(paths);
 
-    printf("Number of Attributes: %d\n", numAttr(svg));
+    List *groups = getGroups(svg);
+    iter = createIterator(groups);
+    while((elem = nextElement(&iter))!=NULL) {
+        Group *g = (Group *)elem;
+        char *tmp = NULL;
+        tmp = groupToJSON(g);
+        printf("%s\n",tmp);
+        free(tmp);
+    }
+    freeList(groups);
+
+    char *tmp = NULL;
+    tmp = SVGtoJSON(svg);
+    printf("%s\n",tmp);
+    free(tmp);
 
     deleteSVG(svg);
 

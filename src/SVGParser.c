@@ -503,7 +503,7 @@ char *rectangleToString(void *data) {
     tmpStr = malloc(sizeof(*tmpStr) * 256);
     if (tmpStr == NULL) return NULL;
 
-    sprintf(tmpStr, "x: %f y: %f units: %s, width: %f height: %f ", tmpRect->x, tmpRect->y, tmpRect->units, tmpRect->width, tmpRect->height);
+    sprintf(tmpStr, "x: %g y: %g units: %s, width: %g height: %g ", tmpRect->x, tmpRect->y, tmpRect->units, tmpRect->width, tmpRect->height);
     strcat(tmpStr, "\n");
 
     strTest = toString(tmpRect->otherAttributes);
@@ -551,7 +551,7 @@ char *circleToString(void *data) {
 
     sizeTest = toString(tmpCirc->otherAttributes);
 
-    sprintf(tmpStr, "cx: %f cy: %f r: %f units: %s", tmpCirc->cx, tmpCirc->cy, tmpCirc->r, tmpCirc->units);
+    sprintf(tmpStr, "cx: %g cy: %g r: %g units: %s", tmpCirc->cx, tmpCirc->cy, tmpCirc->r, tmpCirc->units);
 
     tmpStr = realloc(tmpStr, sizeof(*tmpStr) * (strlen(sizeTest) + 30 + sizeof(char) * 256));
     if (tmpStr == NULL) return NULL;
@@ -650,6 +650,7 @@ SVG *createValidSVG(const char *fileName, const char *schemaFile) {
  * @return false If invalid
  */
 bool validateSVG(const SVG *img, const char *schemaFile) {
+    if(img == NULL) return NULL;
     // Validate XML against schema
     xmlDocPtr doc = svgToTree(img);
     int ret = validateTree(doc, (char *)schemaFile);
@@ -675,6 +676,7 @@ bool validateSVG(const SVG *img, const char *schemaFile) {
  * @return false If write failed
  */
 bool writeSVG(const SVG *img, const char *fileName) {
+    if(img == NULL) return NULL;
     xmlDocPtr doc = svgToTree(img);
     // TODO Validate writeout file
     int ret = xmlSaveFormatFileEnc((char *)fileName, doc, "UTF-8", 1);
@@ -692,6 +694,7 @@ bool writeSVG(const SVG *img, const char *fileName) {
 // MODULE 2
 // TODO return here might be wrong
 bool setAttribute(SVG *img, elementType elemType, int elemIndex, Attribute *newAttribute) {
+    //Allocate space for new data if needed
 }
 
 void addComponent(SVG *img, elementType type, void *newElement) {
@@ -719,7 +722,7 @@ char *circleToJSON(const Circle *c) {
         sprintf(txt, "{}");
         return txt;
     }
-    sprintf(txt, "{\"cx\":%f,\"cy\":%f,\"r\":%f,\"numAttr\":%d,\"units\":\"%s\"}", c->cx, c->cy, c->r, getLength(c->otherAttributes), c->units);
+    sprintf(txt, "{\"cx\":%g,\"cy\":%g,\"r\":%g,\"numAttr\":%d,\"units\":\"%s\"}", c->cx, c->cy, c->r, getLength(c->otherAttributes), c->units);
 
     return txt;
 }
@@ -731,7 +734,7 @@ char *rectToJSON(const Rectangle *r) {
         sprintf(txt, "{}");
         return txt;
     }
-    sprintf(txt, "{\"x\":%f,\"y\":%f,\"w\":%f,\"h\":%f,\"numAttr\":%d,\"units\":\"%s\"}", 
+    sprintf(txt, "{\"x\":%g,\"y\":%g,\"w\":%g,\"h\":%g,\"numAttr\":%d,\"units\":\"%s\"}", 
     r->x, r->y, r->width, r->height, getLength(r->otherAttributes), r->units);
 
     return txt;
@@ -752,7 +755,7 @@ char *pathToJSON(const Path *p) {
         tmp[64] = '\0';
     }
     
-    sprintf(txt, "%s", tmp);
+    sprintf(txt, "{\"d\":\"%s\",\"numAttr\":%d}",tmp, getLength(p->otherAttributes));
 
     free(tmp);
 
@@ -761,6 +764,17 @@ char *pathToJSON(const Path *p) {
 }
 
 char *groupToJSON(const Group *g) {
+    char *txt = malloc(sizeof(char)*200);
+    if(g == NULL) {
+        sprintf(txt,"{}");
+        return txt;
+    }
+
+    int cVal = getLength(g->circles) + getLength(g->rectangles) + getLength(g->paths) + getLength(g->groups);
+
+    sprintf(txt, "{\"children\":%d,\"numAttr\":%d}", cVal, getLength(g->otherAttributes));
+
+    return txt;
 }
 
 char *attrListToJSON(const List *list) {
@@ -779,6 +793,32 @@ char *groupListToJSON(const List *list) {
 }
 
 char *SVGtoJSON(const SVG *img) {
+
+    char *txt = malloc(sizeof(char)*200);
+    if(img == NULL) {
+        sprintf(txt, "{}");
+        return txt;
+    }
+
+    List *rect = getRects(img);
+    List *circ = getCircles(img);
+    List *paths = getPaths(img);
+    List *groups = getGroups(img);
+
+    int numRect = getLength(rect);
+    int numCirc = getLength(circ);
+    int numPath = getLength(paths);
+    int numGroup = getLength(groups);
+
+    freeList(rect);
+    freeList(circ);
+    freeList(paths);
+    freeList(groups);
+
+    sprintf(txt, "{\"numRect\":%d,\"numCirc\":%d,\"numPaths\":%d,\"numGroups\":%d}", numRect, numCirc, numPath, numGroup);
+
+    return txt;
+
 }
 
 // MODULE 3 BONUS

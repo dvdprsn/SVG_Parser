@@ -335,22 +335,22 @@ void rectToXML(xmlNodePtr pNode, Rectangle *rect) {
     char *temp = malloc((sizeof(char) * 20));
 
     // Get x
-    sprintf(temp, "%f", rect->x);
+    sprintf(temp, "%.6g", rect->x);
     strcat(temp, rect->units);
     xmlNewProp(rectNode, BAD_CAST "x", BAD_CAST temp);
 
     // Get y
-    sprintf(temp, "%f", rect->y);
+    sprintf(temp, "%.6g", rect->y);
     strcat(temp, rect->units);
     xmlNewProp(rectNode, BAD_CAST "y", BAD_CAST temp);
 
     // Get width
-    sprintf(temp, "%f", rect->width);
+    sprintf(temp, "%.6g", rect->width);
     strcat(temp, rect->units);
     xmlNewProp(rectNode, BAD_CAST "width", BAD_CAST temp);
 
     // Get height
-    sprintf(temp, "%f", rect->height);
+    sprintf(temp, "%.6g", rect->height);
     strcat(temp, rect->units);
     xmlNewProp(rectNode, BAD_CAST "height", BAD_CAST temp);
 
@@ -377,17 +377,17 @@ void circToXML(xmlNodePtr pNode, Circle *circ) {
     char *temp = malloc((sizeof(char) * 20));
 
     // Get cx
-    sprintf(temp, "%f", circ->cx);
+    sprintf(temp, "%.6g", circ->cx);
     strcat(temp, circ->units);
     xmlNewProp(circNode, BAD_CAST "cx", BAD_CAST temp);
 
     // Get cy
-    sprintf(temp, "%f", circ->cy);
+    sprintf(temp, "%.6g", circ->cy);
     strcat(temp, circ->units);
     xmlNewProp(circNode, BAD_CAST "cy", BAD_CAST temp);
 
     // Get r
-    sprintf(temp, "%f", circ->r);
+    sprintf(temp, "%.6g", circ->r);
     strcat(temp, circ->units);
     xmlNewProp(circNode, BAD_CAST "r", BAD_CAST temp);
 
@@ -474,6 +474,7 @@ void groupToXML(xmlNodePtr pNode, Group *group) {
  * @return xmlDocPtr
  */
 xmlDocPtr svgToTree(const SVG *svg) {
+    if(svg == NULL) return NULL;
     xmlDocPtr doc = NULL;
     xmlNodePtr root_node = NULL;
 
@@ -579,6 +580,7 @@ int validateTree(xmlDocPtr doc, char *xsdRef) {
  * @return int Represents a boolean
  */
 int validateRect(Rectangle *rect) {
+    if(rect == NULL) return -1;
     // x & y can be anything since its a coord
     // width must be >= 0
     // Height must be >= 0
@@ -597,6 +599,7 @@ int validateRect(Rectangle *rect) {
  * @return int boolean if valid
  */
 int validateCirc(Circle *circ) {
+    if(circ == NULL) return -1;
     if (circ->r < 0) return -1;
     if (circ->otherAttributes == NULL) return -1;
 
@@ -610,6 +613,7 @@ int validateCirc(Circle *circ) {
  * @return int boolean if valid
  */
 int validatePath(Path *path) {
+    if(path == NULL) return -1;  
     if (path->data == NULL) return -1;
     if (path->otherAttributes == NULL) return -1;
 
@@ -623,6 +627,7 @@ int validatePath(Path *path) {
  * @return int boolean if true
  */
 int validateGroup(Group *group) {
+    if(group == NULL) return -1;
     ListIterator iter;
     void *elem;
 
@@ -683,6 +688,7 @@ int validateGroup(Group *group) {
  * @return int boolean if valid
  */
 int validateContents(SVG *svg) {
+    if(svg == NULL) return -1;
     // NS must not be empty
     if (strcmp(svg->namespace, "") == 0) return -1;  // Empty
     if (svg->otherAttributes == NULL) return -1;
