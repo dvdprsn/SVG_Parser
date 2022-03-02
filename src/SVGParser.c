@@ -751,7 +751,7 @@ char *pathToJSON(const Path *p) {
     char *tmp = malloc(sizeof(char) * strlen(p->data) + 1);
 
     strcpy(tmp, p->data);
-    if (strlen(tmp) > 64) {
+    if (strlen(tmp) > 64) {  //! This might be wrong
         tmp[64] = '\0';
     }
 
@@ -796,22 +796,101 @@ char *attrListToJSON(const List *list) {
         strcat(toReturn, ",");
         free(temp);
     }
-    toReturn[strlen(toReturn)-1] = '\0';
-    //TODO remove last comma
+    toReturn[strlen(toReturn) - 1] = '\0';
     strcat(toReturn, "]");
     return toReturn;
 }
 
 char *circListToJSON(const List *list) {
+    char *toReturn = malloc(sizeof(char) * 10);
+    if (list == NULL) {
+        sprintf(toReturn, "[]");
+        return toReturn;
+    }
+    sprintf(toReturn, "[");
+    ListIterator iter = createIterator((List *)list);
+    void *elem;
+
+    while ((elem = nextElement(&iter)) != NULL) {
+        Circle *circ = (Circle *)elem;
+        char *tmp = circleToJSON(circ);
+        toReturn = realloc(toReturn, sizeof(char) * (strlen(tmp) + strlen(toReturn) + 20));
+        strcat(toReturn, tmp);
+        strcat(toReturn, ",");
+        free(tmp);
+    }
+    toReturn[strlen(toReturn) - 1] = '\0';
+    strcat(toReturn, "]");
+    return toReturn;
 }
 
 char *rectListToJSON(const List *list) {
+    char *toReturn = malloc(sizeof(char) * 10);
+    if (list == NULL) {
+        sprintf(toReturn, "[]");
+        return toReturn;
+    }
+    sprintf(toReturn, "[");
+    ListIterator iter = createIterator((List *)list);
+    void *elem;
+
+    while ((elem = nextElement(&iter)) != NULL) {
+        Rectangle *rect = (Rectangle*) elem;
+        char *tmp = rectToJSON(rect);
+        toReturn = realloc(toReturn, sizeof(char) * (strlen(tmp) + strlen(toReturn) + 20));
+        strcat(toReturn, tmp);
+        strcat(toReturn, ",");
+        free(tmp);
+    }
+    toReturn[strlen(toReturn) - 1] = '\0';
+    strcat(toReturn, "]");
+    return toReturn;
 }
 
 char *pathListToJSON(const List *list) {
+    char *toReturn = malloc(sizeof(char) * 10);
+    if (list == NULL) {
+        sprintf(toReturn, "[]");
+        return toReturn;
+    }
+    sprintf(toReturn, "[");
+    ListIterator iter = createIterator((List *)list);
+    void *elem;
+
+    while ((elem = nextElement(&iter)) != NULL) {
+        Path *p = (Path*) elem;
+        char *tmp = pathToJSON(p);
+        toReturn = realloc(toReturn, sizeof(char) * (strlen(tmp) + strlen(toReturn) + 20));
+        strcat(toReturn, tmp);
+        strcat(toReturn, ",");
+        free(tmp);
+    }
+    toReturn[strlen(toReturn) - 1] = '\0';
+    strcat(toReturn, "]");
+    return toReturn;
 }
 
 char *groupListToJSON(const List *list) {
+    char *toReturn = malloc(sizeof(char) * 10);
+    if (list == NULL) {
+        sprintf(toReturn, "[]");
+        return toReturn;
+    }
+    sprintf(toReturn, "[");
+    ListIterator iter = createIterator((List *)list);
+    void *elem;
+
+    while ((elem = nextElement(&iter)) != NULL) {
+        Group *g = (Group*) elem;
+        char *tmp = groupToJSON(g);
+        toReturn = realloc(toReturn, sizeof(char) * (strlen(tmp) + strlen(toReturn) + 20));
+        strcat(toReturn, tmp);
+        strcat(toReturn, ",");
+        free(tmp);
+    }
+    toReturn[strlen(toReturn) - 1] = '\0';
+    strcat(toReturn, "]");
+    return toReturn;
 }
 
 char *SVGtoJSON(const SVG *img) {
