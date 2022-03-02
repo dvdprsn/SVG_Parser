@@ -171,7 +171,7 @@ Path *createPath(xmlNode *cur_node) {
     xmlNode *value;
     Path *path;
 
-    path = malloc(sizeof(Path) + 5);
+    path = malloc(sizeof(Path) + 300);
     if (path == NULL) return NULL;
     path->otherAttributes = initializeList(&attributeToString, &deleteAttribute, &compareAttributes);
 
@@ -182,9 +182,7 @@ Path *createPath(xmlNode *cur_node) {
         value = attr->children;
         attrName = (char *)(attr->name);
         cont = (char *)(value->content);
-
         if (strcmp(attrName, "d") == 0) {
-            path = realloc(path, sizeof(Path) + (sizeof(char) * strlen(cont) + 30));
             strcpy(path->data, cont);
         } else {  // Other Attributes
             insertBack(path->otherAttributes, createAttr(attrName, cont));
@@ -787,9 +785,9 @@ bool addOtherAttribute(List *otherAttr, Attribute *newAttr) {  // THIS FUNC WORK
     void *elem;
     while ((elem = nextElement(&iter)) != NULL) {
         Attribute *attr = (Attribute *)elem;
-        if (strcmp(attr->name, newAttr->name) == 0) {    // found match
-            if (atof(newAttr->value) < 0) return false;  // ! CHECK THIS
-            strcpy(attr->value, newAttr->value);         // copy new value, no need to change name
+        if (strcmp(attr->name, newAttr->name) == 0) {  // found match
+            if (atof(newAttr->value) < 0) return false;
+            strcpy(attr->value, newAttr->value);  // copy new value, no need to change name
             deleteAttribute(newAttr);
             return true;
         }
@@ -811,16 +809,7 @@ bool addGroupAttr(List *groups, int index, Attribute *newAttr) {
     }
     return false;
 }
-Path *realloc_Path(Path *p, int size) {
-    Path *tmp = realloc(p, sizeof(Path) + size);
-    if (!tmp) {
-        return NULL;
-    } else {
-        p = tmp;
-        return p;
-    }
-}
-//! Doesnt work
+
 bool addPathAttr(List *paths, int index, Attribute *newAttr) {
     ListIterator iter = createIterator(paths);
     void *elem;
@@ -829,8 +818,6 @@ bool addPathAttr(List *paths, int index, Attribute *newAttr) {
         if (i == index) {
             Path *p = (Path *)elem;
             if (strcmp(newAttr->name, "d") == 0) {
-                p = realloc_Path(p, sizeof(char) * strlen(newAttr->value) + 30);  //! BAD REALLOC
-
                 strcpy(p->data, newAttr->value);
                 deleteAttribute(newAttr);
                 return true;

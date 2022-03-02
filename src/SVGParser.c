@@ -714,7 +714,7 @@ bool writeSVG(const SVG *img, const char *fileName) {
 // MODULE 2
 bool setAttribute(SVG *img, elementType elemType, int elemIndex, Attribute *newAttribute) {
     if (img == NULL) return false;
-    if (elemIndex < 0) return false;
+    if (elemIndex < 0 && elemType != SVG_IMG) return false;
     if (newAttribute == NULL) return false;
 
     if (elemType == RECT) {

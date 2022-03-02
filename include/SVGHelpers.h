@@ -62,8 +62,6 @@ int validatePath(Path *path);
 int validateGroup(Group *group);
 int validateContents(SVG *svg);
 
-Path *realloc_Path(Path *p, int size);
-
 const char *fileEXT(const char *filename);
 bool addOtherAttribute(List *otherAttr, Attribute *newAttr);
 bool addRectAttr(List *rects, int index, Attribute *newAttr);
