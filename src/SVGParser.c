@@ -650,7 +650,7 @@ SVG *createValidSVG(const char *fileName, const char *schemaFile) {
  * @return false If invalid
  */
 bool validateSVG(const SVG *img, const char *schemaFile) {
-    if(img == NULL) return NULL;
+    if (img == NULL) return NULL;
     // Validate XML against schema
     xmlDocPtr doc = svgToTree(img);
     int ret = validateTree(doc, (char *)schemaFile);
@@ -676,7 +676,7 @@ bool validateSVG(const SVG *img, const char *schemaFile) {
  * @return false If write failed
  */
 bool writeSVG(const SVG *img, const char *fileName) {
-    if(img == NULL) return NULL;
+    if (img == NULL) return NULL;
     xmlDocPtr doc = svgToTree(img);
     // TODO Validate writeout file
     int ret = xmlSaveFormatFileEnc((char *)fileName, doc, "UTF-8", 1);
@@ -694,7 +694,7 @@ bool writeSVG(const SVG *img, const char *fileName) {
 // MODULE 2
 // TODO return here might be wrong
 bool setAttribute(SVG *img, elementType elemType, int elemIndex, Attribute *newAttribute) {
-    //Allocate space for new data if needed
+    // Allocate space for new data if needed
 }
 
 void addComponent(SVG *img, elementType type, void *newElement) {
@@ -703,14 +703,14 @@ void addComponent(SVG *img, elementType type, void *newElement) {
 // MODULE 3
 
 char *attrToJSON(const Attribute *a) {
-    char *txt = malloc(sizeof(char) * (strlen(a->name) + strlen(a->value)) + 20);
+    //! Bad malloc
+    char *txt = malloc(sizeof(char) * 200);
     if (a == NULL) {
         sprintf(txt, "{}");
         return txt;
     }
 
     sprintf(txt, "{\"name:\":\"%s\",\"value\":\"%s\"}", a->name, a->value);
-    printf("%s\n", txt);
 
     return txt;
 }
@@ -734,39 +734,38 @@ char *rectToJSON(const Rectangle *r) {
         sprintf(txt, "{}");
         return txt;
     }
-    sprintf(txt, "{\"x\":%g,\"y\":%g,\"w\":%g,\"h\":%g,\"numAttr\":%d,\"units\":\"%s\"}", 
-    r->x, r->y, r->width, r->height, getLength(r->otherAttributes), r->units);
+    sprintf(txt, "{\"x\":%g,\"y\":%g,\"w\":%g,\"h\":%g,\"numAttr\":%d,\"units\":\"%s\"}",
+            r->x, r->y, r->width, r->height, getLength(r->otherAttributes), r->units);
 
     return txt;
 }
 
 char *pathToJSON(const Path *p) {
-
-    char *txt = malloc(sizeof(char)*200);
-    if(p == NULL) {
+    //! Bad malloc
+    char *txt = malloc(sizeof(char) * 200);
+    if (p == NULL) {
         sprintf(txt, "{}");
         return txt;
     }
 
-    char *tmp = malloc(sizeof(char)*strlen(p->data) + 1); 
+    char *tmp = malloc(sizeof(char) * strlen(p->data) + 1);
 
     strcpy(tmp, p->data);
-    if(strlen(tmp) > 64) {
+    if (strlen(tmp) > 64) {
         tmp[64] = '\0';
     }
-    
-    sprintf(txt, "{\"d\":\"%s\",\"numAttr\":%d}",tmp, getLength(p->otherAttributes));
+
+    sprintf(txt, "{\"d\":\"%s\",\"numAttr\":%d}", tmp, getLength(p->otherAttributes));
 
     free(tmp);
 
     return txt;
-    
 }
 
 char *groupToJSON(const Group *g) {
-    char *txt = malloc(sizeof(char)*200);
-    if(g == NULL) {
-        sprintf(txt,"{}");
+    char *txt = malloc(sizeof(char) * 200);
+    if (g == NULL) {
+        sprintf(txt, "{}");
         return txt;
     }
 
@@ -778,6 +777,29 @@ char *groupToJSON(const Group *g) {
 }
 
 char *attrListToJSON(const List *list) {
+    char *toReturn = malloc(sizeof(char) * 10);
+
+    if (list == NULL) {
+        sprintf(toReturn, "[]");
+        return toReturn;
+    }
+
+    sprintf(toReturn, "[");
+    ListIterator iter = createIterator((List *)list);
+    void *elem;
+
+    while ((elem = nextElement(&iter)) != NULL) {
+        Attribute *attr = (Attribute *)elem;
+        char *temp = attrToJSON(attr);
+        toReturn = realloc(toReturn, sizeof(char) * (strlen(temp) + strlen(toReturn) + 20));
+        strcat(toReturn, temp);
+        strcat(toReturn, ",");
+        free(temp);
+    }
+    toReturn[strlen(toReturn)-1] = '\0';
+    //TODO remove last comma
+    strcat(toReturn, "]");
+    return toReturn;
 }
 
 char *circListToJSON(const List *list) {
@@ -793,9 +815,8 @@ char *groupListToJSON(const List *list) {
 }
 
 char *SVGtoJSON(const SVG *img) {
-
-    char *txt = malloc(sizeof(char)*200);
-    if(img == NULL) {
+    char *txt = malloc(sizeof(char) * 200);
+    if (img == NULL) {
         sprintf(txt, "{}");
         return txt;
     }
@@ -818,7 +839,6 @@ char *SVGtoJSON(const SVG *img) {
     sprintf(txt, "{\"numRect\":%d,\"numCirc\":%d,\"numPaths\":%d,\"numGroups\":%d}", numRect, numCirc, numPath, numGroup);
 
     return txt;
-
 }
 
 // MODULE 3 BONUS

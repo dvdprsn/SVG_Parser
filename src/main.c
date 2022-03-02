@@ -27,24 +27,21 @@ int main(int argc, char **argv) {
     //printf("%s\n", string);
     free(string);
 
-    char *test;
     List *rects = getRects(svg);
 
     ListIterator iter = createIterator(rects);
     void *elem;
     while ((elem = nextElement(&iter)) != NULL) {
         Rectangle *rect = (Rectangle *)elem;
+        char *attr = attrListToJSON(rect->otherAttributes);
+        
         char *tmp = rectToJSON(rect);
         printf("%s\n", tmp);
+        printf("%s\n",attr);
+
+        free(attr);
 
         free(tmp);
-    }
-
-    if (getLength(rects) != 0) {
-        //printf("Get Rectanlges -----------\n");
-        test = toString(rects);
-        //printf("%s\n", test);
-        free(test);
     }
     freeList(rects);
 
@@ -52,16 +49,13 @@ int main(int argc, char **argv) {
     iter = createIterator(circles);
     while((elem = nextElement(&iter))!=NULL) {
         Circle *circ = (Circle *)elem;
+        char *attr =attrListToJSON(circ->otherAttributes);
         char *tmp = NULL;
         tmp = circleToJSON(circ);
         printf("%s\n",tmp);
+        printf("%s\n",attr);
+        free(attr);
         free(tmp);
-    }
-    if (getLength(circles) != 0) {
-        //printf("Get Circles --------\n");
-        test = toString(circles);
-        //printf("%s\n", test);
-        free(test);
     }
     freeList(circles);
 
@@ -70,14 +64,13 @@ int main(int argc, char **argv) {
     while ((elem = nextElement(&iter)) != NULL) {
         Path *p = (Path *)elem;
         char *tmp = NULL;
+        char *attr = attrListToJSON(p->otherAttributes);
         tmp = pathToJSON(p);
         printf("%s\n", tmp);
-
+        printf("%s\n",attr);
+        free(attr);
         free(tmp);
 
-    }
-    if (getLength(paths) != 0) {
-        //printf("Get Paths-------\n");
     }
     freeList(paths);
 
@@ -85,9 +78,12 @@ int main(int argc, char **argv) {
     iter = createIterator(groups);
     while((elem = nextElement(&iter))!=NULL) {
         Group *g = (Group *)elem;
+        char *attr = attrListToJSON(g->otherAttributes);
         char *tmp = NULL;
         tmp = groupToJSON(g);
         printf("%s\n",tmp);
+        printf("%s\n",attr);
+        free(attr);
         free(tmp);
     }
     freeList(groups);
