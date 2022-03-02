@@ -171,7 +171,7 @@ Path *createPath(xmlNode *cur_node) {
     xmlNode *value;
     Path *path;
 
-    path = malloc(sizeof(Path));
+    path = malloc(sizeof(Path) + 5);
     if (path == NULL) return NULL;
     path->otherAttributes = initializeList(&attributeToString, &deleteAttribute, &compareAttributes);
 
@@ -184,7 +184,7 @@ Path *createPath(xmlNode *cur_node) {
         cont = (char *)(value->content);
 
         if (strcmp(attrName, "d") == 0) {
-            path = realloc(path, sizeof(path) + (sizeof(char) * strlen(cont) + 30));
+            path = realloc(path, sizeof(Path) + (sizeof(char) * strlen(cont) + 30));
             strcpy(path->data, cont);
         } else {  // Other Attributes
             insertBack(path->otherAttributes, createAttr(attrName, cont));
@@ -335,22 +335,22 @@ void rectToXML(xmlNodePtr pNode, Rectangle *rect) {
     char *temp = malloc((sizeof(char) * 20));
 
     // Get x
-    sprintf(temp, "%.6g", rect->x);
+    sprintf(temp, "%.2f", rect->x);
     strcat(temp, rect->units);
     xmlNewProp(rectNode, BAD_CAST "x", BAD_CAST temp);
 
     // Get y
-    sprintf(temp, "%.6g", rect->y);
+    sprintf(temp, "%.2f", rect->y);
     strcat(temp, rect->units);
     xmlNewProp(rectNode, BAD_CAST "y", BAD_CAST temp);
 
     // Get width
-    sprintf(temp, "%.6g", rect->width);
+    sprintf(temp, "%.2f", rect->width);
     strcat(temp, rect->units);
     xmlNewProp(rectNode, BAD_CAST "width", BAD_CAST temp);
 
     // Get height
-    sprintf(temp, "%.6g", rect->height);
+    sprintf(temp, "%.2f", rect->height);
     strcat(temp, rect->units);
     xmlNewProp(rectNode, BAD_CAST "height", BAD_CAST temp);
 
@@ -377,17 +377,17 @@ void circToXML(xmlNodePtr pNode, Circle *circ) {
     char *temp = malloc((sizeof(char) * 20));
 
     // Get cx
-    sprintf(temp, "%.6g", circ->cx);
+    sprintf(temp, "%.2f", circ->cx);
     strcat(temp, circ->units);
     xmlNewProp(circNode, BAD_CAST "cx", BAD_CAST temp);
 
     // Get cy
-    sprintf(temp, "%.6g", circ->cy);
+    sprintf(temp, "%.2f", circ->cy);
     strcat(temp, circ->units);
     xmlNewProp(circNode, BAD_CAST "cy", BAD_CAST temp);
 
     // Get r
-    sprintf(temp, "%.6g", circ->r);
+    sprintf(temp, "%.2f", circ->r);
     strcat(temp, circ->units);
     xmlNewProp(circNode, BAD_CAST "r", BAD_CAST temp);
 
@@ -474,7 +474,7 @@ void groupToXML(xmlNodePtr pNode, Group *group) {
  * @return xmlDocPtr
  */
 xmlDocPtr svgToTree(const SVG *svg) {
-    if(svg == NULL) return NULL;
+    if (svg == NULL) return NULL;
     xmlDocPtr doc = NULL;
     xmlNodePtr root_node = NULL;
 
@@ -540,20 +540,19 @@ xmlDocPtr svgToTree(const SVG *svg) {
  * @param xsdRef .xsd validation file
  * @return int the result of the validateDoc call
  */
-int validateTree(xmlDocPtr doc, char *xsdRef) {
+int validateTree(xmlDocPtr doc, const char *xsdRef) {
     int ret = -1;
     xmlSchemaPtr schema = NULL;
     xmlSchemaParserCtxtPtr ctxt;
-
     xmlLineNumbersDefault(1);
 
     ctxt = xmlSchemaNewParserCtxt(xsdRef);
 
     xmlSchemaSetParserErrors(ctxt, (xmlSchemaValidityErrorFunc)fprintf, (xmlSchemaValidityWarningFunc)fprintf, stderr);
     schema = xmlSchemaParse(ctxt);
-
+    
     xmlSchemaFreeParserCtxt(ctxt);
-
+    
     if (doc == NULL) {
         return -1;
 
@@ -580,7 +579,7 @@ int validateTree(xmlDocPtr doc, char *xsdRef) {
  * @return int Represents a boolean
  */
 int validateRect(Rectangle *rect) {
-    if(rect == NULL) return -1;
+    if (rect == NULL) return -1;
     // x & y can be anything since its a coord
     // width must be >= 0
     // Height must be >= 0
@@ -588,6 +587,13 @@ int validateRect(Rectangle *rect) {
     if (rect->height < 0) return -1;
     if (rect->width < 0) return -1;
     if (rect->otherAttributes == NULL) return -1;
+
+    ListIterator iter = createIterator(rect->otherAttributes);
+    void *elem;
+    while((elem = nextElement(&iter))!=NULL) {
+        Attribute *attr = (Attribute *)elem;
+        if(attr->name == NULL) return -1;
+    }
 
     return 1;  // If not invalid was found
 }
@@ -599,9 +605,16 @@ int validateRect(Rectangle *rect) {
  * @return int boolean if valid
  */
 int validateCirc(Circle *circ) {
-    if(circ == NULL) return -1;
+    if (circ == NULL) return -1;
     if (circ->r < 0) return -1;
     if (circ->otherAttributes == NULL) return -1;
+
+    ListIterator iter = createIterator(circ->otherAttributes);
+    void *elem;
+    while((elem = nextElement(&iter))!=NULL) {
+        Attribute *attr = (Attribute *)elem;
+        if(attr->name == NULL) return -1;
+    }
 
     return 1;
 }
@@ -613,9 +626,16 @@ int validateCirc(Circle *circ) {
  * @return int boolean if valid
  */
 int validatePath(Path *path) {
-    if(path == NULL) return -1;  
+    if (path == NULL) return -1;
     if (path->data == NULL) return -1;
     if (path->otherAttributes == NULL) return -1;
+
+    ListIterator iter = createIterator(path->otherAttributes);
+    void *elem;
+    while((elem = nextElement(&iter))!=NULL) {
+        Attribute *attr = (Attribute *)elem;
+        if(attr->name == NULL) return -1;
+    }
 
     return 1;
 }
@@ -627,11 +647,17 @@ int validatePath(Path *path) {
  * @return int boolean if true
  */
 int validateGroup(Group *group) {
-    if(group == NULL) return -1;
+    if (group == NULL) return -1;
     ListIterator iter;
     void *elem;
 
     if (group->otherAttributes == NULL) return -1;
+
+    iter = createIterator(group->otherAttributes);
+    while((elem = nextElement(&iter))!=NULL) {
+        Attribute *attr = (Attribute *)elem;
+        if(attr->name == NULL) return -1;
+    }
 
     // Rectangles
     if (group->rectangles != NULL) {
@@ -688,7 +714,7 @@ int validateGroup(Group *group) {
  * @return int boolean if valid
  */
 int validateContents(SVG *svg) {
-    if(svg == NULL) return -1;
+    if (svg == NULL) return -1;
     // NS must not be empty
     if (strcmp(svg->namespace, "") == 0) return -1;  // Empty
     if (svg->otherAttributes == NULL) return -1;
@@ -696,6 +722,12 @@ int validateContents(SVG *svg) {
     // List checks
     void *elem;
     ListIterator iter;
+    iter = createIterator(svg->otherAttributes);
+
+    while((elem = nextElement(&iter))!=NULL) {
+        Attribute *attr = (Attribute *)elem;
+        if(attr->name == NULL) return -1;
+    }
 
     // Rectangles
     if (svg->rectangles != NULL) {
@@ -742,4 +774,145 @@ int validateContents(SVG *svg) {
     }
 
     return 1;  // No invalid component found
+}
+
+const char *fileEXT(const char *filename) {
+    const char *dot = strrchr(filename, '.');
+    if (!dot || dot == filename) return "";
+    return dot + 1;
+}
+
+bool addOtherAttribute(List *otherAttr, Attribute *newAttr) {  // THIS FUNC WORKS
+    ListIterator iter = createIterator(otherAttr);
+    void *elem;
+    while ((elem = nextElement(&iter)) != NULL) {
+        Attribute *attr = (Attribute *)elem;
+        if (strcmp(attr->name, newAttr->name) == 0) {    // found match
+            if (atof(newAttr->value) < 0) return false;  // ! CHECK THIS
+            strcpy(attr->value, newAttr->value);         // copy new value, no need to change name
+            deleteAttribute(newAttr);
+            return true;
+        }
+    }
+    insertBack(otherAttr, newAttr);  // If not found add new to back
+    return true;
+}
+
+bool addGroupAttr(List *groups, int index, Attribute *newAttr) {
+    ListIterator iter = createIterator(groups);
+    void *elem;
+    int i = 0;
+    while ((elem = nextElement(&iter))!=NULL) {
+        Group *g = (Group *)elem;
+        if(i == index) {
+            return addOtherAttribute(g->otherAttributes, newAttr);
+        }
+        i++;
+    }
+    return false;
+}
+
+//!Doesnt work
+bool addPathAttr(List *paths, int index, Attribute *newAttr) {
+    ListIterator iter = createIterator(paths);
+    void *elem;
+    int i = 0;
+    while ((elem = nextElement(&iter)) != NULL) {
+        if (i == index) {
+            Path *p = (Path *)elem;
+            if (strcmp(newAttr->name, "d") == 0) {
+                //p = realloc(p, sizeof(Path) + (sizeof(char)*strlen(newAttr->value)+30));
+
+                //strcpy(p->data, newAttr->value);
+                deleteAttribute(newAttr);
+                return true;
+
+            } else {
+                if (addOtherAttribute(p->otherAttributes, newAttr) == true) {
+                    return true;
+                }
+            }
+        }
+        i++;
+    }
+
+    return false;
+}
+
+bool addCircAttr(List *circs, int index, Attribute *newAttr) {
+    ListIterator iter = createIterator(circs);
+    void *elem;
+    int i = 0;
+    while ((elem = nextElement(&iter)) != NULL) {
+        if (i == index) {
+            Circle *circ = (Circle *)elem;
+            if (strcmp(newAttr->name, "cx") == 0) {
+                float cx = atof(newAttr->value);
+                if (cx < 0) return false;
+                circ->cx = cx;
+                deleteAttribute(newAttr);
+                return true;
+            } else if (strcmp(newAttr->name, "cy") == 0) {
+                float cy = atof(newAttr->value);
+                if (cy < 0) return false;
+                circ->cy = cy;
+                deleteAttribute(newAttr);
+                return true;
+            } else if (strcmp(newAttr->name, "r") == 0) {
+                float r = atof(newAttr->value);
+                if (r < 0) return false;
+                circ->r = r;
+                deleteAttribute(newAttr);
+                return true;
+            } else {
+                if (addOtherAttribute(circ->otherAttributes, newAttr) == true) {
+                    return true;
+                }
+            }
+        }
+        i++;
+    }
+    return false;  // failed
+}
+
+bool addRectAttr(List *rects, int index, Attribute *newAttr) {
+    ListIterator iter = createIterator(rects);
+    void *elem;
+    int i = 0;
+    while ((elem = nextElement(&iter)) != NULL) {
+        if (i == index) {  // Element to modify found
+            Rectangle *rect = (Rectangle *)elem;
+            if (strcmp(newAttr->name, "x") == 0) {
+                float x = atof(newAttr->value);
+                if (x < 0) return false;
+                rect->x = x;
+                deleteAttribute(newAttr);
+                return true;
+            } else if (strcmp(newAttr->name, "y") == 0) {
+                float y = atof(newAttr->value);
+                if (y < 0) return false;
+                rect->y = y;
+                deleteAttribute(newAttr);
+                return true;
+            } else if (strcmp(newAttr->name, "width") == 0) {
+                float w = atof(newAttr->value);
+                if (w < 0) return false;
+                rect->width = w;
+                deleteAttribute(newAttr);
+                return true;
+            } else if (strcmp(newAttr->name, "height") == 0) {
+                float h = atof(newAttr->value);
+                if (h < 0) return false;
+                rect->height = h;
+                deleteAttribute(newAttr);
+                return true;
+            } else {  // Not one of the primary struct fields
+                if (addOtherAttribute(rect->otherAttributes, newAttr) == true) {
+                    return true;
+                }
+            }
+        }
+        i++;
+    }
+    return false;
 }

@@ -54,7 +54,7 @@ void circToXML(xmlNodePtr pNode, Circle *circ);
 void pathToXML(xmlNodePtr pNode, Path *path);
 void groupToXML(xmlNodePtr pNode, Group *group);
 xmlDocPtr svgToTree(const SVG *svg);
-int validateTree(xmlDocPtr doc, char *xsdRef);
+int validateTree(xmlDocPtr doc, const char *xsdRef);
 
 int validateRect(Rectangle *rect);
 int validateCirc(Circle *circ);
@@ -62,4 +62,10 @@ int validatePath(Path *path);
 int validateGroup(Group *group);
 int validateContents(SVG *svg);
 
+const char *fileEXT(const char *filename);
+bool addOtherAttribute(List *otherAttr, Attribute *newAttr);
+bool addRectAttr(List *rects, int index, Attribute *newAttr);
+bool addCircAttr(List *circs, int index, Attribute *newAttr);
+bool addPathAttr(List *paths, int index, Attribute *newAttr);
+bool addGroupAttr(List *groups, int index, Attribute *newAttr);
 #endif
