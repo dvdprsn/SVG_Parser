@@ -2,9 +2,8 @@
 #include "SVGParser.h"
 
 int main(int argc, char **argv) {
-
-    //SVG creation, validation and write out
-    //SVG *svg = createSVG(argv[1]);
+    // SVG creation, validation and write out
+    // SVG *svg = createSVG(argv[1]);
     SVG *svg = createValidSVG(argv[1], "svg.xsd");
     if (svg == NULL) {
         return 0;
@@ -23,34 +22,32 @@ int main(int argc, char **argv) {
         deleteSVG(svg);
         return 0;
     }
+
     printf("Attr: %d\n", numAttr(svg));
-    //Test setAttr
-    //SVG attributes
-    Attribute *attr = createAttr("viewBox", "0 0 1200 600"); //Should work
-    if(setAttribute(svg, SVG_IMG, 0, attr) == true) {
+
+    // Test setAttr
+    // SVG attributes
+    Attribute *attr = createAttr("viewBox", "0 0 1200 600");  // Should work
+    if (setAttribute(svg, SVG_IMG, 0, attr) == true) {
     } else {
-        printf("failed\n");
         deleteAttribute(attr);
     }
-    Attribute *attr2 = createAttr("height", "13.64cm"); //Should work
-    if(setAttribute(svg, SVG_IMG, 0, attr2) == true) {
+    Attribute *attr2 = createAttr("width", "13.64cm");  // Should work
+    if (setAttribute(svg, SVG_IMG, 0, attr2) == true) {
     } else {
-        printf("failed\n");
         deleteAttribute(attr2);
     }
-    
-    //Rectangle Attributes
-    Attribute *attr3 = createAttr("width", "13.64cm"); //Should fail
-    if(setAttribute(svg, RECT, 0, attr3) == true) {
+
+    // Rectangle Attributes
+    Attribute *attr3 = createAttr("width", "13.64cm");  // Should fail
+    if (setAttribute(svg, RECT, 0, attr3) == true) {
     } else {
-        printf("failed\n");
         deleteAttribute(attr3);
     }
-    
-    Attribute *attr5 = createAttr("d", "test");
-    if(setAttribute(svg, PATH, 0, attr5) == true){
+
+    Attribute *attr5 = createAttr("d", "m117.52 11.939c-0.893 4.02 2.681 7.147 2.681 12.507s0 9.828 2.233 19.655 6.778 21.297 13.479 29.784c6.7 8.487 14.663 21.14 33.424 34.987");
+    if (setAttribute(svg, PATH, 0, attr5) == true) {
     } else {
-        printf("attr path failed to add\n");
         deleteAttribute(attr5);
     }
 
@@ -62,35 +59,35 @@ int main(int argc, char **argv) {
     }
     printf("Attr: %d\n", numAttr(svg));
 
-    //JSON rects
+    // JSON rects
     List *rects = getRects(svg);
     char *rectJSON = rectListToJSON(rects);
-    printf("%s\n",rectJSON);
+    printf("%s\n", rectJSON);
     free(rectJSON);
     freeList(rects);
 
-    //JSON circs
+    // JSON circs
     List *circles = getCircles(svg);
     char *circs = circListToJSON(circles);
     printf("%s\n", circs);
     free(circs);
     freeList(circles);
 
-    //JSON paths
+    // JSON paths
     List *paths = getPaths(svg);
     char *pathJSON = pathListToJSON(paths);
-    printf("%s\n",pathJSON);
+    printf("%s\n", pathJSON);
     free(pathJSON);
     freeList(paths);
 
-    //JSON groups
+    // JSON groups
     List *groups = getGroups(svg);
     char *groupJSON = groupListToJSON(groups);
     printf("%s\n", groupJSON);
     free(groupJSON);
     freeList(groups);
 
-    //SVG JSON
+    // SVG JSON
     char *svgJSON = SVGtoJSON(svg);
     printf("%s\n", svgJSON);
     free(svgJSON);

@@ -623,12 +623,11 @@ int comparePaths(const void *first, const void *second) {
  * @return SVG* Parsed SVG Struct
  */
 SVG *createValidSVG(const char *fileName, const char *schemaFile) {
-
-    //if(strcmp(fileEXT(fileName), "svg")!=0) return NULL; // Bad file extention
-    //if(strcmp(fileEXT(schemaFile), "xsd")!=0) return NULL; // Bad file extention
+    // if(strcmp(fileEXT(fileName), "svg")!=0) return NULL; // Bad file extention
+    // if(strcmp(fileEXT(schemaFile), "xsd")!=0) return NULL; // Bad file extention
 
     xmlDocPtr doc = xmlReadFile(fileName, NULL, 0);
-    
+
     int ret = validateTree(doc, (char *)schemaFile);
 
     xmlFreeDoc(doc);
@@ -637,14 +636,13 @@ SVG *createValidSVG(const char *fileName, const char *schemaFile) {
     if (ret == 0) {
         // Valid XML
         SVG *toReturn = createSVG(fileName);
-        if(toReturn == NULL) return NULL;
+        if (toReturn == NULL) return NULL;
         int valid = validateSVG(toReturn, schemaFile);
-        if(valid != -1) {
+        if (valid != -1) {
             return toReturn;
         } else {
             return NULL;
         }
-
 
     } else if (ret > 0) {
         // Invalid XML
@@ -653,8 +651,6 @@ SVG *createValidSVG(const char *fileName, const char *schemaFile) {
         // Internal Error
         return NULL;
     }
-
-   
 }
 
 /**
@@ -667,22 +663,21 @@ SVG *createValidSVG(const char *fileName, const char *schemaFile) {
  */
 bool validateSVG(const SVG *img, const char *schemaFile) {
     if (img == NULL) return NULL;
-    
-    //if(strcmp(fileEXT(schemaFile), "xsd")!=0) return NULL; // Bad file extention
-    // Validate XML against schema
-    int valid = validateContents((SVG *) img);
-    if(valid == -1) return false;
+
+    // if(strcmp(fileEXT(schemaFile), "xsd")!=0) return NULL; // Bad file extention
+    //  Validate XML against schema
+    int valid = validateContents((SVG *)img);
+    if (valid == -1) return false;
 
     xmlDocPtr doc = svgToTree(img);
     int ret = validateTree(doc, schemaFile);
-    
+
     xmlFreeDoc(doc);
     xmlCleanupParser();
-    
-    
-    if (ret == 0) { //If tree is valid
+
+    if (ret == 0) {  // If tree is valid
         int valid = validateContents((SVG *)img);
-        if(valid != -1) {
+        if (valid != -1) {
             return true;
         } else {
             return false;
@@ -702,7 +697,7 @@ bool validateSVG(const SVG *img, const char *schemaFile) {
  */
 bool writeSVG(const SVG *img, const char *fileName) {
     if (img == NULL) return NULL;
-    //if(strcmp(fileEXT(fileName), "svg")!=0) return NULL; // Bad file extention
+    // if(strcmp(fileEXT(fileName), "svg")!=0) return NULL; // Bad file extention
     xmlDocPtr doc = svgToTree(img);
     int ret = xmlSaveFormatFileEnc((char *)fileName, doc, "UTF-8", 1);
 
@@ -718,22 +713,22 @@ bool writeSVG(const SVG *img, const char *fileName) {
 
 // MODULE 2
 bool setAttribute(SVG *img, elementType elemType, int elemIndex, Attribute *newAttribute) {
-    if(img == NULL) return false;
-    if(elemIndex < 0) return false;
-    if(newAttribute == NULL) return false;
+    if (img == NULL) return false;
+    if (elemIndex < 0) return false;
+    if (newAttribute == NULL) return false;
 
-    if(elemType == RECT) {
+    if (elemType == RECT) {
         List *rects = img->rectangles;
-        if(elemIndex > getLength(rects)) return false; // out of bounds
-        if(addRectAttr(rects, elemIndex, newAttribute) == true){
+        if (elemIndex > getLength(rects)) return false;  // out of bounds
+        if (addRectAttr(rects, elemIndex, newAttribute) == true) {
             return true;
         } else {
-            return false; // Failed to add
+            return false;  // Failed to add
         }
     } else if (elemType == CIRC) {
         List *circs = img->circles;
-        if(elemIndex > getLength(circs)) return false;
-        if(addCircAttr(circs, elemIndex, newAttribute) == true) {
+        if (elemIndex > getLength(circs)) return false;
+        if (addCircAttr(circs, elemIndex, newAttribute) == true) {
             return true;
         } else {
             return false;
@@ -741,8 +736,8 @@ bool setAttribute(SVG *img, elementType elemType, int elemIndex, Attribute *newA
 
     } else if (elemType == PATH) {
         List *paths = img->paths;
-        if(elemIndex > getLength(paths)) return false;
-        if(addPathAttr(paths, elemIndex, newAttribute) == true) {
+        if (elemIndex > getLength(paths)) return false;
+        if (addPathAttr(paths, elemIndex, newAttribute) == true) {
             return true;
         } else {
             return false;
@@ -750,8 +745,8 @@ bool setAttribute(SVG *img, elementType elemType, int elemIndex, Attribute *newA
 
     } else if (elemType == GROUP) {
         List *groups = img->groups;
-        if(elemIndex > getLength(groups)) return false;
-        if(addGroupAttr(groups, elemIndex, newAttribute) == true) {
+        if (elemIndex > getLength(groups)) return false;
+        if (addGroupAttr(groups, elemIndex, newAttribute) == true) {
             return true;
         } else {
             return false;
@@ -761,7 +756,7 @@ bool setAttribute(SVG *img, elementType elemType, int elemIndex, Attribute *newA
         return addOtherAttribute(img->otherAttributes, newAttribute);
 
     } else {
-        return false; // elemtype not found
+        return false;  // elemtype not found
     }
     return false;
 }
@@ -832,10 +827,10 @@ char *pathToJSON(const Path *p) {
         return txt;
     }
 
-    char *tmp = malloc(sizeof(char) * strlen(p->data) + 1);
+    char *tmp = malloc(sizeof(char) * strlen(p->data) + 20);
 
     strcpy(tmp, p->data);
-    if (strlen(tmp) > 64) {  //! This might be wrong
+    if (strlen(tmp) > 64) {
         tmp[64] = '\0';
     }
 

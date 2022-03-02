@@ -550,9 +550,9 @@ int validateTree(xmlDocPtr doc, const char *xsdRef) {
 
     xmlSchemaSetParserErrors(ctxt, (xmlSchemaValidityErrorFunc)fprintf, (xmlSchemaValidityWarningFunc)fprintf, stderr);
     schema = xmlSchemaParse(ctxt);
-    
+
     xmlSchemaFreeParserCtxt(ctxt);
-    
+
     if (doc == NULL) {
         return -1;
 
@@ -590,9 +590,9 @@ int validateRect(Rectangle *rect) {
 
     ListIterator iter = createIterator(rect->otherAttributes);
     void *elem;
-    while((elem = nextElement(&iter))!=NULL) {
+    while ((elem = nextElement(&iter)) != NULL) {
         Attribute *attr = (Attribute *)elem;
-        if(attr->name == NULL) return -1;
+        if (attr->name == NULL) return -1;
     }
 
     return 1;  // If not invalid was found
@@ -611,9 +611,9 @@ int validateCirc(Circle *circ) {
 
     ListIterator iter = createIterator(circ->otherAttributes);
     void *elem;
-    while((elem = nextElement(&iter))!=NULL) {
+    while ((elem = nextElement(&iter)) != NULL) {
         Attribute *attr = (Attribute *)elem;
-        if(attr->name == NULL) return -1;
+        if (attr->name == NULL) return -1;
     }
 
     return 1;
@@ -632,9 +632,9 @@ int validatePath(Path *path) {
 
     ListIterator iter = createIterator(path->otherAttributes);
     void *elem;
-    while((elem = nextElement(&iter))!=NULL) {
+    while ((elem = nextElement(&iter)) != NULL) {
         Attribute *attr = (Attribute *)elem;
-        if(attr->name == NULL) return -1;
+        if (attr->name == NULL) return -1;
     }
 
     return 1;
@@ -654,9 +654,9 @@ int validateGroup(Group *group) {
     if (group->otherAttributes == NULL) return -1;
 
     iter = createIterator(group->otherAttributes);
-    while((elem = nextElement(&iter))!=NULL) {
+    while ((elem = nextElement(&iter)) != NULL) {
         Attribute *attr = (Attribute *)elem;
-        if(attr->name == NULL) return -1;
+        if (attr->name == NULL) return -1;
     }
 
     // Rectangles
@@ -724,9 +724,9 @@ int validateContents(SVG *svg) {
     ListIterator iter;
     iter = createIterator(svg->otherAttributes);
 
-    while((elem = nextElement(&iter))!=NULL) {
+    while ((elem = nextElement(&iter)) != NULL) {
         Attribute *attr = (Attribute *)elem;
-        if(attr->name == NULL) return -1;
+        if (attr->name == NULL) return -1;
     }
 
     // Rectangles
@@ -802,17 +802,25 @@ bool addGroupAttr(List *groups, int index, Attribute *newAttr) {
     ListIterator iter = createIterator(groups);
     void *elem;
     int i = 0;
-    while ((elem = nextElement(&iter))!=NULL) {
+    while ((elem = nextElement(&iter)) != NULL) {
         Group *g = (Group *)elem;
-        if(i == index) {
+        if (i == index) {
             return addOtherAttribute(g->otherAttributes, newAttr);
         }
         i++;
     }
     return false;
 }
-
-//!Doesnt work
+Path *realloc_Path(Path *p, int size) {
+    Path *tmp = realloc(p, sizeof(Path) + size);
+    if (!tmp) {
+        return NULL;
+    } else {
+        p = tmp;
+        return p;
+    }
+}
+//! Doesnt work
 bool addPathAttr(List *paths, int index, Attribute *newAttr) {
     ListIterator iter = createIterator(paths);
     void *elem;
@@ -821,9 +829,9 @@ bool addPathAttr(List *paths, int index, Attribute *newAttr) {
         if (i == index) {
             Path *p = (Path *)elem;
             if (strcmp(newAttr->name, "d") == 0) {
-                //p = realloc(p, sizeof(Path) + (sizeof(char)*strlen(newAttr->value)+30));
+                p = realloc_Path(p, sizeof(char) * strlen(newAttr->value) + 30);  //! BAD REALLOC
 
-                //strcpy(p->data, newAttr->value);
+                strcpy(p->data, newAttr->value);
                 deleteAttribute(newAttr);
                 return true;
 
