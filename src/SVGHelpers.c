@@ -1,7 +1,7 @@
 /**
  * @file SVGHelpers.c
  * @author David Pearson (1050197)
- * @brief
+ * @brief Helper functions for the SVGParser
  *
  */
 
@@ -171,9 +171,6 @@ Path *createPath(xmlNode *cur_node) {
     xmlNode *value;
     Path *path;
 
-    //!Bad malloc but was told this is best way to get it to work
-    //Just allocate enough to start that the odds of needed more is low
-    //I know its bad but there seems to be no workable solution right now
     path = malloc(sizeof(Path) + 10);
     if (path == NULL) return NULL;
     path->otherAttributes = initializeList(&attributeToString, &deleteAttribute, &compareAttributes);
@@ -186,7 +183,7 @@ Path *createPath(xmlNode *cur_node) {
         attrName = (char *)(attr->name);
         cont = (char *)(value->content);
         if (strcmp(attrName, "d") == 0) {
-            path = realloc(path, sizeof(Path) + (sizeof(char)*strlen(cont))+50);
+            path = realloc(path, sizeof(Path) + (sizeof(char) * strlen(cont)) + 50);
             strcpy(path->data, cont);
         } else {  // Other Attributes
             insertBack(path->otherAttributes, createAttr(attrName, cont));
@@ -328,8 +325,8 @@ void findGroup(Group *group, List *lst) {
 /**
  * @brief Converts a Rect object to XML
  *
- * @param pNode
- * @param rect
+ * @param pNode Parent node ptr
+ * @param rect rectangle object to be added
  */
 void rectToXML(xmlNodePtr pNode, Rectangle *rect) {
     xmlNodePtr rectNode = xmlNewChild(pNode, NULL, BAD_CAST "rect", NULL);
@@ -370,8 +367,8 @@ void rectToXML(xmlNodePtr pNode, Rectangle *rect) {
 /**
  * @brief Converts circle object to XML
  *
- * @param pNode
- * @param circ
+ * @param pNode Parent node
+ * @param circ Circle object to be added
  */
 void circToXML(xmlNodePtr pNode, Circle *circ) {
     xmlNodePtr circNode = xmlNewChild(pNode, NULL, BAD_CAST "circle", NULL);
@@ -405,10 +402,10 @@ void circToXML(xmlNodePtr pNode, Circle *circ) {
 }
 
 /**
- * @brief
+ * @brief Converts path object to xml and adds to parent node
  *
- * @param pNode
- * @param path
+ * @param pNode Parent Node
+ * @param path Path object to be converted
  */
 void pathToXML(xmlNodePtr pNode, Path *path) {
     xmlNodePtr pathNode = xmlNewChild(pNode, NULL, BAD_CAST "path", NULL);
@@ -424,10 +421,10 @@ void pathToXML(xmlNodePtr pNode, Path *path) {
 }
 
 /**
- * @brief
+ * @brief Converts a group, objects in group and subgroups to xml
  *
- * @param pNode
- * @param group
+ * @param pNode Parent node
+ * @param group Group to be converted
  */
 void groupToXML(xmlNodePtr pNode, Group *group) {
     xmlNodePtr gNode = xmlNewChild(pNode, NULL, BAD_CAST "g", NULL);
@@ -470,10 +467,10 @@ void groupToXML(xmlNodePtr pNode, Group *group) {
 }
 
 /**
- * @brief
+ * @brief Converts a SVG to an XML tree
  *
- * @param svg
- * @return xmlDocPtr
+ * @param svg SVG object to be converted to tree
+ * @return xmlDocPtr The tree structure
  */
 xmlDocPtr svgToTree(const SVG *svg) {
     if (svg == NULL) return NULL;
@@ -590,6 +587,7 @@ int validateRect(Rectangle *rect) {
     if (rect->width < 0) return -1;
     if (rect->otherAttributes == NULL) return -1;
 
+    // Validate the name of the attributes as this cannot be NULL
     ListIterator iter = createIterator(rect->otherAttributes);
     void *elem;
     while ((elem = nextElement(&iter)) != NULL) {
@@ -654,6 +652,7 @@ int validateGroup(Group *group) {
     void *elem;
 
     if (group->otherAttributes == NULL) return -1;
+
     // otherAttributes
     iter = createIterator(group->otherAttributes);
     while ((elem = nextElement(&iter)) != NULL) {
@@ -723,6 +722,7 @@ int validateContents(SVG *svg) {
     // List checks
     void *elem;
     ListIterator iter;
+
     // Validate SVG otherAttributes
     iter = createIterator(svg->otherAttributes);
     while ((elem = nextElement(&iter)) != NULL) {
@@ -777,6 +777,12 @@ int validateContents(SVG *svg) {
     return 1;  // No invalid component found
 }
 
+/**
+ * @brief Isolates the file extention
+ *
+ * @param filename Filename to isolate ext
+ * @return const char* the ext (example.svg -> svg)
+ */
 const char *fileEXT(const char *filename) {
     if (filename == NULL) return "";
     const char *dot = strrchr(filename, '.');
@@ -784,14 +790,23 @@ const char *fileEXT(const char *filename) {
     return dot + 1;
 }
 
+/**
+ * @brief Adds an otherAttribute to the specified list
+ *
+ * @param otherAttr The list the element will be added to
+ * @param newAttr The attribute that will be added
+ * @return true Success
+ * @return false Fail
+ */
 bool addOtherAttribute(List *otherAttr, Attribute *newAttr) {  // THIS FUNC WORKS
-    // if (otherAttr == NULL) return false;
+    //Basic check to confirm number based values are not negative
+    if (atof(newAttr->value) < 0) return false;
     ListIterator iter = createIterator(otherAttr);
     void *elem;
     while ((elem = nextElement(&iter)) != NULL) {
         Attribute *attr = (Attribute *)elem;
         if (strcmp(attr->name, newAttr->name) == 0) {  // found match
-            if (atof(newAttr->value) < 0) return false;
+            
             strcpy(attr->value, newAttr->value);  // copy new value, no need to change name
             deleteAttribute(newAttr);
             return true;
@@ -801,8 +816,16 @@ bool addOtherAttribute(List *otherAttr, Attribute *newAttr) {  // THIS FUNC WORK
     return true;
 }
 
+/**
+ * @brief Adds attribute to specifed group
+ *
+ * @param groups List of all groups
+ * @param index Index of the group target
+ * @param newAttr Attribute to be added
+ * @return true Success
+ * @return false Fail
+ */
 bool addGroupAttr(List *groups, int index, Attribute *newAttr) {
-    // if (groups == NULL) return false;
     ListIterator iter = createIterator(groups);
     void *elem;
     int i = 0;
@@ -816,8 +839,16 @@ bool addGroupAttr(List *groups, int index, Attribute *newAttr) {
     return false;
 }
 
+/**
+ * @brief Manipulate the attributes of a path
+ *
+ * @param paths List of all paths to consider
+ * @param index index of target path
+ * @param newAttr Attribute to be added
+ * @return true Success
+ * @return false Fail
+ */
 bool addPathAttr(List *paths, int index, Attribute *newAttr) {
-    // if (paths == NULL) return false;
     ListIterator iter = createIterator(paths);
     void *elem;
     int i = 0;
@@ -825,15 +856,13 @@ bool addPathAttr(List *paths, int index, Attribute *newAttr) {
         if (i == index) {
             Path *p = (Path *)elem;
             if (strcmp(newAttr->name, "d") == 0) {
-                //No need for mem realloc based on spec will always be <= 
+                // No need for mem realloc based on spec will always be <=
                 strcpy(p->data, newAttr->value);
                 deleteAttribute(newAttr);
                 return true;
 
             } else {
-                if (addOtherAttribute(p->otherAttributes, newAttr) == true) {
-                    return true;
-                }
+                return addOtherAttribute(p->otherAttributes, newAttr);
             }
         }
         i++;
@@ -842,8 +871,16 @@ bool addPathAttr(List *paths, int index, Attribute *newAttr) {
     return false;
 }
 
+/**
+ * @brief Manipulate attributes in circle
+ *
+ * @param circs List of all circles to check
+ * @param index Index of target circle
+ * @param newAttr Attribute to be added
+ * @return true Success
+ * @return false Fail
+ */
 bool addCircAttr(List *circs, int index, Attribute *newAttr) {
-    // if (circs == NULL) return false;
     ListIterator iter = createIterator(circs);
     void *elem;
     int i = 0;
@@ -869,9 +906,7 @@ bool addCircAttr(List *circs, int index, Attribute *newAttr) {
                 deleteAttribute(newAttr);
                 return true;
             } else {
-                if (addOtherAttribute(circ->otherAttributes, newAttr) == true) {
-                    return true;
-                }
+                return addOtherAttribute(circ->otherAttributes, newAttr);
             }
         }
         i++;
@@ -879,8 +914,16 @@ bool addCircAttr(List *circs, int index, Attribute *newAttr) {
     return false;  // failed
 }
 
+/**
+ * @brief Change or add attribute on rectangle
+ *
+ * @param rects List of rectangles
+ * @param index Index of target rectangle
+ * @param newAttr Attribute to be added
+ * @return true Succes
+ * @return false Fail
+ */
 bool addRectAttr(List *rects, int index, Attribute *newAttr) {
-    // if (rects == NULL) return false;
     ListIterator iter = createIterator(rects);
     void *elem;
     int i = 0;
@@ -912,9 +955,7 @@ bool addRectAttr(List *rects, int index, Attribute *newAttr) {
                 deleteAttribute(newAttr);
                 return true;
             } else {  // Not one of the primary struct fields
-                if (addOtherAttribute(rect->otherAttributes, newAttr) == true) {
-                    return true;
-                }
+                return addOtherAttribute(rect->otherAttributes, newAttr);
             }
         }
         i++;

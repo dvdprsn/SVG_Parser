@@ -623,11 +623,11 @@ int comparePaths(const void *first, const void *second) {
  * @return SVG* Parsed SVG Struct
  */
 SVG *createValidSVG(const char *fileName, const char *schemaFile) {
-    if(fileName == NULL) return NULL;
-    if(schemaFile == NULL) return NULL;
+    if (fileName == NULL) return NULL;
+    if (schemaFile == NULL) return NULL;
 
-    if(strcmp(fileEXT(fileName), "svg")!=0) return NULL; // Bad file extention
-    if(strcmp(fileEXT(schemaFile), "xsd")!=0) return NULL; // Bad file extention
+    if (strcmp(fileEXT(fileName), "svg") != 0) return NULL;    // Bad file extention
+    if (strcmp(fileEXT(schemaFile), "xsd") != 0) return NULL;  // Bad file extention
 
     xmlDocPtr doc = xmlReadFile(fileName, NULL, 0);
 
@@ -638,7 +638,7 @@ SVG *createValidSVG(const char *fileName, const char *schemaFile) {
 
     if (ret == 0) {
         // Valid XML
-        //Create SVG from file then validate before return
+        // Create SVG from file then validate before return
         SVG *toReturn = createSVG(fileName);
         if (toReturn == NULL) return NULL;
 
@@ -667,29 +667,24 @@ SVG *createValidSVG(const char *fileName, const char *schemaFile) {
  * @return false If invalid
  */
 bool validateSVG(const SVG *img, const char *schemaFile) {
-    if (img == NULL) return NULL;
-    if(schemaFile == NULL) return NULL;
+    if (img == NULL) return false;
+    if (schemaFile == NULL) return false;
 
-    if(strcmp(fileEXT(schemaFile), "xsd")!=0) return NULL; // Bad file extention
+    if (strcmp(fileEXT(schemaFile), "xsd") != 0) return false;  // Bad file extention
 
-    //  Validate XML against schema
+    // Validate SVG before converting to XML
     int valid = validateContents((SVG *)img);
     if (valid == -1) return false;
 
+    //  Validate XML against schema
     xmlDocPtr doc = svgToTree(img);
-
     int ret = validateTree(doc, schemaFile);
 
     xmlFreeDoc(doc);
     xmlCleanupParser();
 
     if (ret == 0) {  // If tree is valid
-        int valid = validateContents((SVG *)img);
-        if (valid != -1) {
-            return true;
-        } else {
-            return false;
-        }
+        return true;
     } else {
         return false;
     }
@@ -704,10 +699,10 @@ bool validateSVG(const SVG *img, const char *schemaFile) {
  * @return false If write failed
  */
 bool writeSVG(const SVG *img, const char *fileName) {
-    if (img == NULL) return NULL;
-    if(fileName == NULL) return NULL;
+    if (img == NULL) return false;
+    if (fileName == NULL) return false;
 
-    if(strcmp(fileEXT(fileName), "svg")!=0) return NULL; // Bad file extention
+    if (strcmp(fileEXT(fileName), "svg") != 0) return false;  // Bad file extention
 
     xmlDocPtr doc = svgToTree(img);
 
@@ -724,11 +719,24 @@ bool writeSVG(const SVG *img, const char *fileName) {
 }
 
 // MODULE 2
+
+/**
+ * @brief Set the Attribute object
+ *
+ * @param img SVG Object
+ * @param elemType the type of element we wish to alter
+ * @param elemIndex The index in the list of target object
+ * @param newAttribute Attribute to be set
+ * @return true Success
+ * @return false Fail
+ */
 bool setAttribute(SVG *img, elementType elemType, int elemIndex, Attribute *newAttribute) {
+    // Basic Catches
     if (img == NULL) return false;
     if (elemIndex < 0 && elemType != SVG_IMG) return false;
     if (newAttribute == NULL) return false;
 
+    // Rectangle
     if (elemType == RECT) {
         List *rects = img->rectangles;
         if (elemIndex > getLength(rects)) return false;  // out of bounds
@@ -737,7 +745,7 @@ bool setAttribute(SVG *img, elementType elemType, int elemIndex, Attribute *newA
         } else {
             return false;  // Failed to add
         }
-    } else if (elemType == CIRC) {
+    } else if (elemType == CIRC) {  // Circle
         List *circs = img->circles;
         if (elemIndex > getLength(circs)) return false;
         if (addCircAttr(circs, elemIndex, newAttribute) == true) {
@@ -746,7 +754,7 @@ bool setAttribute(SVG *img, elementType elemType, int elemIndex, Attribute *newA
             return false;
         }
 
-    } else if (elemType == PATH) {
+    } else if (elemType == PATH) {  // Path
         List *paths = img->paths;
         if (elemIndex > getLength(paths)) return false;
         if (addPathAttr(paths, elemIndex, newAttribute) == true) {
@@ -755,7 +763,7 @@ bool setAttribute(SVG *img, elementType elemType, int elemIndex, Attribute *newA
             return false;
         }
 
-    } else if (elemType == GROUP) {
+    } else if (elemType == GROUP) {  // Group
         List *groups = img->groups;
         if (elemIndex > getLength(groups)) return false;
         if (addGroupAttr(groups, elemIndex, newAttribute) == true) {
@@ -764,7 +772,7 @@ bool setAttribute(SVG *img, elementType elemType, int elemIndex, Attribute *newA
             return false;
         }
 
-    } else if (elemType == SVG_IMG) {
+    } else if (elemType == SVG_IMG) {  // SVG
         return addOtherAttribute(img->otherAttributes, newAttribute);
 
     } else {
@@ -838,6 +846,7 @@ char *pathToJSON(const Path *p) {
 
     char *tmp = malloc(sizeof(char) * strlen(p->data) + 20);
 
+    // Truncate to 64 chars
     strcpy(tmp, p->data);
     if (strlen(tmp) > 64) {
         tmp[64] = '\0';
@@ -867,7 +876,7 @@ char *groupToJSON(const Group *g) {
 char *attrListToJSON(const List *list) {
     char *toReturn = malloc(sizeof(char) * 10);
 
-    if (list == NULL) {
+    if (list == NULL || getLength((List *)list) == 0) {
         sprintf(toReturn, "[]");
         return toReturn;
     }
@@ -891,10 +900,12 @@ char *attrListToJSON(const List *list) {
 
 char *circListToJSON(const List *list) {
     char *toReturn = malloc(sizeof(char) * 10);
-    if (list == NULL) {
+
+    if (list == NULL || getLength((List *)list) == 0) {
         sprintf(toReturn, "[]");
         return toReturn;
     }
+
     sprintf(toReturn, "[");
     ListIterator iter = createIterator((List *)list);
     void *elem;
@@ -907,6 +918,7 @@ char *circListToJSON(const List *list) {
         strcat(toReturn, ",");
         free(tmp);
     }
+
     toReturn[strlen(toReturn) - 1] = '\0';
     strcat(toReturn, "]");
     return toReturn;
@@ -914,7 +926,7 @@ char *circListToJSON(const List *list) {
 
 char *rectListToJSON(const List *list) {
     char *toReturn = malloc(sizeof(char) * 10);
-    if (list == NULL) {
+    if (list == NULL || getLength((List *)list) == 0) {
         sprintf(toReturn, "[]");
         return toReturn;
     }
@@ -937,7 +949,7 @@ char *rectListToJSON(const List *list) {
 
 char *pathListToJSON(const List *list) {
     char *toReturn = malloc(sizeof(char) * 10);
-    if (list == NULL) {
+    if (list == NULL || getLength((List *)list) == 0) {
         sprintf(toReturn, "[]");
         return toReturn;
     }
@@ -960,7 +972,7 @@ char *pathListToJSON(const List *list) {
 
 char *groupListToJSON(const List *list) {
     char *toReturn = malloc(sizeof(char) * 10);
-    if (list == NULL) {
+    if (list == NULL || getLength((List *)list) == 0) {
         sprintf(toReturn, "[]");
         return toReturn;
     }
@@ -1011,51 +1023,49 @@ char *SVGtoJSON(const SVG *img) {
 // MODULE 3 BONUS
 
 SVG *JSONtoSVG(const char *svgString) {
-    if(svgString == NULL) return NULL;
+    if (svgString == NULL) return NULL;
     SVG *svg = malloc(sizeof(SVG) + 30);
-    if(svg == NULL) return NULL;
+    if (svg == NULL) return NULL;
     initSVG(svg);
 
-
-    char *name = malloc(sizeof(char)*strlen(svgString)+5);
+    char *name = malloc(sizeof(char) * strlen(svgString) + 5);
     char *orgName = name;
     strcpy(name, svgString);
 
-    char *desc = malloc(sizeof(char)*strlen(svgString)+5);
+    char *desc = malloc(sizeof(char) * strlen(svgString) + 5);
     char *orgDesc = desc;
     strcpy(desc, svgString);
 
-    name += 9; //Remove starting bit
+    name += 9;  // Remove starting bit
     desc += 9;
     int found = 0;
     int idx = 0;
     for (int i = 0; i < strlen(name); i++) {
-        if(name[i]=='"'){
+        if (name[i] == '"') {
             found++;
-            if(found == 4) {
+            if (found == 4) {
                 idx = i;
                 break;
             }
         }
     }
-    desc += idx+1;
+    desc += idx + 1;
 
     char *p = strchr(name, '"');
-    if(!p) {
-
+    if (!p) {
     } else {
         *p = '\0';
     }
 
     p = strchr(desc, '"');
-    if(!p){
-
+    if (!p) {
     } else {
         *p = '\0';
     }
 
     strcpy(svg->title, name);
     strcpy(svg->description, desc);
+    strcpy(svg->namespace, "http://www.w3.org/2000/svg");
 
     free(orgDesc);
     free(orgName);
@@ -1063,13 +1073,13 @@ SVG *JSONtoSVG(const char *svgString) {
 }
 
 Rectangle *JSONtoRect(const char *svgString) {
-    if(svgString == NULL) return NULL;
+    if (svgString == NULL) return NULL;
     Rectangle *rect = malloc(sizeof(Rectangle) + 30);
-    if(rect == NULL) return NULL;
+    if (rect == NULL) return NULL;
     initRect(rect);
 
-    //get x
-    char *x = malloc(sizeof(char)*strlen(svgString)+5);
+    // get x
+    char *x = malloc(sizeof(char) * strlen(svgString) + 5);
     char *orgX = x;
     strcpy(x, svgString);
     x = strchr(x, ':');
@@ -1077,8 +1087,8 @@ Rectangle *JSONtoRect(const char *svgString) {
     char *p = strchr(x, ',');
     *p = '\0';
 
-    //get y
-    char *y = malloc(sizeof(char)*strlen(svgString)+30);
+    // get y
+    char *y = malloc(sizeof(char) * strlen(svgString) + 30);
     char *orgY = y;
     strcpy(y, svgString);
     y = strchr(y, 'y');
@@ -1088,9 +1098,8 @@ Rectangle *JSONtoRect(const char *svgString) {
     p = strchr(y, ',');
     *p = '\0';
 
-
-    //Get w
-    char *w = malloc(sizeof(char)*strlen(svgString)+30);
+    // Get w
+    char *w = malloc(sizeof(char) * strlen(svgString) + 30);
     char *orgW = w;
     strcpy(w, svgString);
     w = strchr(w, 'w');
@@ -1100,9 +1109,8 @@ Rectangle *JSONtoRect(const char *svgString) {
     p = strchr(w, ',');
     *p = '\0';
 
-
-    //Get h
-    char *h = malloc(sizeof(char)*strlen(svgString)+30);
+    // Get h
+    char *h = malloc(sizeof(char) * strlen(svgString) + 30);
     char *orgH = h;
     strcpy(h, svgString);
     h = strchr(h, 'h');
@@ -1112,9 +1120,8 @@ Rectangle *JSONtoRect(const char *svgString) {
     p = strchr(h, ',');
     *p = '\0';
 
-
-    //Get Units
-    char *unit = malloc(sizeof(char)*strlen(svgString)+30);
+    // Get Units
+    char *unit = malloc(sizeof(char) * strlen(svgString) + 30);
     char *orgUnit = unit;
     strcpy(unit, svgString);
     unit = strchr(unit, 'u');
@@ -1123,9 +1130,8 @@ Rectangle *JSONtoRect(const char *svgString) {
     unit++;
     p = strchr(unit, '"');
     *p = '\0';
-    
 
-    //Add to struct
+    // Add to struct
     rect->x = atof(x);
     rect->y = atof(y);
     rect->width = atof(w);
@@ -1141,13 +1147,13 @@ Rectangle *JSONtoRect(const char *svgString) {
 }
 
 Circle *JSONtoCircle(const char *svgString) {
-    if(svgString == NULL) return NULL;
+    if (svgString == NULL) return NULL;
     Circle *circ = malloc(sizeof(Circle) + 30);
-    if(circ == NULL) return NULL;
+    if (circ == NULL) return NULL;
     initCircle(circ);
 
-    //get cx
-    char *cx = malloc(sizeof(char)*strlen(svgString)+5);
+    // get cx
+    char *cx = malloc(sizeof(char) * strlen(svgString) + 5);
     char *orgCX = cx;
     strcpy(cx, svgString);
     cx = strchr(cx, ':');
@@ -1155,8 +1161,8 @@ Circle *JSONtoCircle(const char *svgString) {
     char *p = strchr(cx, ',');
     *p = '\0';
 
-    //get cy
-    char *cy = malloc(sizeof(char)*strlen(svgString)+30);
+    // get cy
+    char *cy = malloc(sizeof(char) * strlen(svgString) + 30);
     char *orgY = cy;
     strcpy(cy, svgString);
     cy = strchr(cy, 'y');
@@ -1166,9 +1172,8 @@ Circle *JSONtoCircle(const char *svgString) {
     p = strchr(cy, ',');
     *p = '\0';
 
-
-    //Get r
-    char *r = malloc(sizeof(char)*strlen(svgString)+30);
+    // Get r
+    char *r = malloc(sizeof(char) * strlen(svgString) + 30);
     char *orgR = r;
     strcpy(r, svgString);
     r = strchr(r, 'r');
@@ -1178,9 +1183,8 @@ Circle *JSONtoCircle(const char *svgString) {
     p = strchr(r, ',');
     *p = '\0';
 
-
-    //Get Units
-    char *unit = malloc(sizeof(char)*strlen(svgString)+30);
+    // Get Units
+    char *unit = malloc(sizeof(char) * strlen(svgString) + 30);
     char *orgUnit = unit;
     strcpy(unit, svgString);
     unit = strchr(unit, 'u');
@@ -1190,8 +1194,7 @@ Circle *JSONtoCircle(const char *svgString) {
     p = strchr(unit, '"');
     *p = '\0';
 
-
-    //Add to struct
+    // Add to struct
     circ->cx = atof(cx);
     circ->cy = atof(cy);
     circ->r = atof(r);
