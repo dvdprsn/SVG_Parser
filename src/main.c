@@ -23,29 +23,47 @@ int main(int argc, char **argv) {
         return 0;
     }
 
+    SVG *jsonSVG = JSONtoSVG("\"title\":\"stuffers in the powep\",\"descr\":\"junkdsaf sdf22 fsdf\"");
+    char *svgTest = SVGToString(jsonSVG);
+    printf("%s\n", svgTest);
+    free(svgTest);
+    deleteSVG(jsonSVG);
+
+    Rectangle *jsonRect = JSONtoRect("{\"x\":2.53,\"y\":3.43,\"w\":12,\"h\":10,\"units\":\"cm\"}");
+    char *rectStr = rectangleToString(jsonRect);
+    printf("%s\n",rectStr);
+    free(rectStr);
+    deleteRectangle(jsonRect);
+
+    Circle *jsonCirc = JSONtoCircle("{\"cx\":4.53,\"cy\":7.43,\"r\":20,\"units\":\"mm\"}");
+    char *circStr = circleToString(jsonCirc);
+    printf("%s\n", circStr);
+    free(circStr);
+    deleteCircle(jsonCirc);
+
     printf("Attr: %d\n", numAttr(svg));
 
     // Test setAttr
     // SVG attributes
-    Attribute *attr = createAttr("viewBox", "0 0 1200 600");  // Should work
+    Attribute *attr = createAttr("viewBox", "-0 0 1200 600");  // Should work
     if (setAttribute(svg, SVG_IMG, 0, attr) == true) {
     } else {
         deleteAttribute(attr);
     }
-    Attribute *attr2 = createAttr("width", "13.64cm");  // Should work
+    Attribute *attr2 = createAttr("width", "-13.64cm");  // Should work
     if (setAttribute(svg, SVG_IMG, 0, attr2) == true) {
     } else {
         deleteAttribute(attr2);
     }
 
     // Rectangle Attributes
-    Attribute *attr3 = createAttr("width", "13.64cm");  // Should fail
+    Attribute *attr3 = createAttr("width", "-13.31cm");  // Should fail
     if (setAttribute(svg, RECT, 0, attr3) == true) {
     } else {
         deleteAttribute(attr3);
     }
 
-    Attribute *attr5 = createAttr("d", "m116.4 49.881c-11.424-0.486-12.35-2.139-15.856 1.367-3.574 3.574-16.528 3.574-29.929 8.487s-33.498 13.848-41.986 15.635c-8.487 1.787-12.507 1.787-16.975 2.68-4.467 0.894-5.36 3.573-2.233 7.147s0.447 14.294 5.36 23.228c4.914 8.934 12.061 20.102 14.741 23.229s15.188 0 26.355 2.233");
+    Attribute *attr5 = createAttr("d", "tester fester man");
     if (setAttribute(svg, PATH, 0, attr5) == true) {
     } else {
         deleteAttribute(attr5);

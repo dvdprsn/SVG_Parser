@@ -171,7 +171,10 @@ Path *createPath(xmlNode *cur_node) {
     xmlNode *value;
     Path *path;
 
-    path = malloc(sizeof(Path) + 300);
+    //!Bad malloc but was told this is best way to get it to work
+    //Just allocate enough to start that the odds of needed more is low
+    //I know its bad but there seems to be no workable solution right now
+    path = malloc(sizeof(Path) + 10);
     if (path == NULL) return NULL;
     path->otherAttributes = initializeList(&attributeToString, &deleteAttribute, &compareAttributes);
 
@@ -183,6 +186,7 @@ Path *createPath(xmlNode *cur_node) {
         attrName = (char *)(attr->name);
         cont = (char *)(value->content);
         if (strcmp(attrName, "d") == 0) {
+            path = realloc(path, sizeof(Path) + (sizeof(char)*strlen(cont))+50);
             strcpy(path->data, cont);
         } else {  // Other Attributes
             insertBack(path->otherAttributes, createAttr(attrName, cont));
@@ -322,15 +326,15 @@ void findGroup(Group *group, List *lst) {
 //-----------A2-------------
 
 /**
- * @brief
+ * @brief Converts a Rect object to XML
  *
  * @param pNode
  * @param rect
  */
 void rectToXML(xmlNodePtr pNode, Rectangle *rect) {
     xmlNodePtr rectNode = xmlNewChild(pNode, NULL, BAD_CAST "rect", NULL);
-    // TODO this is a bad malloc
-    char *temp = malloc((sizeof(char) * 20));
+
+    char *temp = malloc(sizeof(char) * 20);
 
     // Get x
     sprintf(temp, "%.2f", rect->x);
@@ -364,15 +368,15 @@ void rectToXML(xmlNodePtr pNode, Rectangle *rect) {
 }
 
 /**
- * @brief
+ * @brief Converts circle object to XML
  *
  * @param pNode
  * @param circ
  */
 void circToXML(xmlNodePtr pNode, Circle *circ) {
     xmlNodePtr circNode = xmlNewChild(pNode, NULL, BAD_CAST "circle", NULL);
-    // TODO this is a bad malloc
-    char *temp = malloc((sizeof(char) * 20));
+
+    char *temp = malloc(sizeof(char) * 20);
 
     // Get cx
     sprintf(temp, "%.2f", circ->cx);
@@ -650,7 +654,7 @@ int validateGroup(Group *group) {
     void *elem;
 
     if (group->otherAttributes == NULL) return -1;
-
+    // otherAttributes
     iter = createIterator(group->otherAttributes);
     while ((elem = nextElement(&iter)) != NULL) {
         Attribute *attr = (Attribute *)elem;
@@ -704,7 +708,6 @@ int validateGroup(Group *group) {
 
     return 1;  // If no invalid -1 return block was reached
 }
-//! TEST
 /**
  * @brief validates the entire SVG struct
  *
@@ -720,8 +723,8 @@ int validateContents(SVG *svg) {
     // List checks
     void *elem;
     ListIterator iter;
+    // Validate SVG otherAttributes
     iter = createIterator(svg->otherAttributes);
-
     while ((elem = nextElement(&iter)) != NULL) {
         Attribute *attr = (Attribute *)elem;
         if (attr->name == NULL) return -1;
@@ -775,12 +778,14 @@ int validateContents(SVG *svg) {
 }
 
 const char *fileEXT(const char *filename) {
+    if (filename == NULL) return "";
     const char *dot = strrchr(filename, '.');
     if (!dot || dot == filename) return "";
     return dot + 1;
 }
 
 bool addOtherAttribute(List *otherAttr, Attribute *newAttr) {  // THIS FUNC WORKS
+    // if (otherAttr == NULL) return false;
     ListIterator iter = createIterator(otherAttr);
     void *elem;
     while ((elem = nextElement(&iter)) != NULL) {
@@ -797,6 +802,7 @@ bool addOtherAttribute(List *otherAttr, Attribute *newAttr) {  // THIS FUNC WORK
 }
 
 bool addGroupAttr(List *groups, int index, Attribute *newAttr) {
+    // if (groups == NULL) return false;
     ListIterator iter = createIterator(groups);
     void *elem;
     int i = 0;
@@ -811,6 +817,7 @@ bool addGroupAttr(List *groups, int index, Attribute *newAttr) {
 }
 
 bool addPathAttr(List *paths, int index, Attribute *newAttr) {
+    // if (paths == NULL) return false;
     ListIterator iter = createIterator(paths);
     void *elem;
     int i = 0;
@@ -818,6 +825,7 @@ bool addPathAttr(List *paths, int index, Attribute *newAttr) {
         if (i == index) {
             Path *p = (Path *)elem;
             if (strcmp(newAttr->name, "d") == 0) {
+                //No need for mem realloc based on spec will always be <= 
                 strcpy(p->data, newAttr->value);
                 deleteAttribute(newAttr);
                 return true;
@@ -835,6 +843,7 @@ bool addPathAttr(List *paths, int index, Attribute *newAttr) {
 }
 
 bool addCircAttr(List *circs, int index, Attribute *newAttr) {
+    // if (circs == NULL) return false;
     ListIterator iter = createIterator(circs);
     void *elem;
     int i = 0;
@@ -871,6 +880,7 @@ bool addCircAttr(List *circs, int index, Attribute *newAttr) {
 }
 
 bool addRectAttr(List *rects, int index, Attribute *newAttr) {
+    // if (rects == NULL) return false;
     ListIterator iter = createIterator(rects);
     void *elem;
     int i = 0;

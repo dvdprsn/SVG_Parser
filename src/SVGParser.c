@@ -623,8 +623,11 @@ int comparePaths(const void *first, const void *second) {
  * @return SVG* Parsed SVG Struct
  */
 SVG *createValidSVG(const char *fileName, const char *schemaFile) {
-    // if(strcmp(fileEXT(fileName), "svg")!=0) return NULL; // Bad file extention
-    // if(strcmp(fileEXT(schemaFile), "xsd")!=0) return NULL; // Bad file extention
+    if(fileName == NULL) return NULL;
+    if(schemaFile == NULL) return NULL;
+
+    if(strcmp(fileEXT(fileName), "svg")!=0) return NULL; // Bad file extention
+    if(strcmp(fileEXT(schemaFile), "xsd")!=0) return NULL; // Bad file extention
 
     xmlDocPtr doc = xmlReadFile(fileName, NULL, 0);
 
@@ -635,8 +638,10 @@ SVG *createValidSVG(const char *fileName, const char *schemaFile) {
 
     if (ret == 0) {
         // Valid XML
+        //Create SVG from file then validate before return
         SVG *toReturn = createSVG(fileName);
         if (toReturn == NULL) return NULL;
+
         int valid = validateSVG(toReturn, schemaFile);
         if (valid != -1) {
             return toReturn;
@@ -663,13 +668,16 @@ SVG *createValidSVG(const char *fileName, const char *schemaFile) {
  */
 bool validateSVG(const SVG *img, const char *schemaFile) {
     if (img == NULL) return NULL;
+    if(schemaFile == NULL) return NULL;
 
-    // if(strcmp(fileEXT(schemaFile), "xsd")!=0) return NULL; // Bad file extention
+    if(strcmp(fileEXT(schemaFile), "xsd")!=0) return NULL; // Bad file extention
+
     //  Validate XML against schema
     int valid = validateContents((SVG *)img);
     if (valid == -1) return false;
 
     xmlDocPtr doc = svgToTree(img);
+
     int ret = validateTree(doc, schemaFile);
 
     xmlFreeDoc(doc);
@@ -697,8 +705,12 @@ bool validateSVG(const SVG *img, const char *schemaFile) {
  */
 bool writeSVG(const SVG *img, const char *fileName) {
     if (img == NULL) return NULL;
-    // if(strcmp(fileEXT(fileName), "svg")!=0) return NULL; // Bad file extention
+    if(fileName == NULL) return NULL;
+
+    if(strcmp(fileEXT(fileName), "svg")!=0) return NULL; // Bad file extention
+
     xmlDocPtr doc = svgToTree(img);
+
     int ret = xmlSaveFormatFileEnc((char *)fileName, doc, "UTF-8", 1);
 
     xmlFreeDoc(doc);
@@ -764,6 +776,7 @@ bool setAttribute(SVG *img, elementType elemType, int elemIndex, Attribute *newA
 void addComponent(SVG *img, elementType type, void *newElement) {
     if (img == NULL) return;
     if (newElement == NULL) return;
+
     // Only handle Circles - Rects - Paths
     if (type == CIRC) {
         Circle *circ = (Circle *)newElement;
@@ -782,8 +795,7 @@ void addComponent(SVG *img, elementType type, void *newElement) {
 // MODULE 3
 
 char *attrToJSON(const Attribute *a) {
-    //! Bad malloc
-    char *txt = malloc(sizeof(char) * 200);
+    char *txt = malloc(sizeof(char) + 200);
     if (a == NULL) {
         sprintf(txt, "{}");
         return txt;
@@ -795,8 +807,7 @@ char *attrToJSON(const Attribute *a) {
 }
 
 char *circleToJSON(const Circle *c) {
-    //! Bad Malloc
-    char *txt = malloc(sizeof(char) * 200);
+    char *txt = malloc(sizeof(char) + 200);
     if (c == NULL) {
         sprintf(txt, "{}");
         return txt;
@@ -807,8 +818,7 @@ char *circleToJSON(const Circle *c) {
 }
 
 char *rectToJSON(const Rectangle *r) {
-    //! bad Malloc
-    char *txt = malloc(sizeof(char) * 200);
+    char *txt = malloc(sizeof(char) + 200);
     if (r == NULL) {
         sprintf(txt, "{}");
         return txt;
@@ -820,8 +830,7 @@ char *rectToJSON(const Rectangle *r) {
 }
 
 char *pathToJSON(const Path *p) {
-    //! Bad malloc
-    char *txt = malloc(sizeof(char) * 200);
+    char *txt = malloc(sizeof(char) + 200);
     if (p == NULL) {
         sprintf(txt, "{}");
         return txt;
@@ -842,7 +851,7 @@ char *pathToJSON(const Path *p) {
 }
 
 char *groupToJSON(const Group *g) {
-    char *txt = malloc(sizeof(char) * 200);
+    char *txt = malloc(sizeof(char) + 200);
     if (g == NULL) {
         sprintf(txt, "{}");
         return txt;
@@ -1002,10 +1011,195 @@ char *SVGtoJSON(const SVG *img) {
 // MODULE 3 BONUS
 
 SVG *JSONtoSVG(const char *svgString) {
+    if(svgString == NULL) return NULL;
+    SVG *svg = malloc(sizeof(SVG) + 30);
+    if(svg == NULL) return NULL;
+    initSVG(svg);
+
+
+    char *name = malloc(sizeof(char)*strlen(svgString)+5);
+    char *orgName = name;
+    strcpy(name, svgString);
+
+    char *desc = malloc(sizeof(char)*strlen(svgString)+5);
+    char *orgDesc = desc;
+    strcpy(desc, svgString);
+
+    name += 9; //Remove starting bit
+    desc += 9;
+    int found = 0;
+    int idx = 0;
+    for (int i = 0; i < strlen(name); i++) {
+        if(name[i]=='"'){
+            found++;
+            if(found == 4) {
+                idx = i;
+                break;
+            }
+        }
+    }
+    desc += idx+1;
+
+    char *p = strchr(name, '"');
+    if(!p) {
+
+    } else {
+        *p = '\0';
+    }
+
+    p = strchr(desc, '"');
+    if(!p){
+
+    } else {
+        *p = '\0';
+    }
+
+    strcpy(svg->title, name);
+    strcpy(svg->description, desc);
+
+    free(orgDesc);
+    free(orgName);
+    return svg;
 }
 
 Rectangle *JSONtoRect(const char *svgString) {
+    if(svgString == NULL) return NULL;
+    Rectangle *rect = malloc(sizeof(Rectangle) + 30);
+    if(rect == NULL) return NULL;
+    initRect(rect);
+
+    //get x
+    char *x = malloc(sizeof(char)*strlen(svgString)+5);
+    char *orgX = x;
+    strcpy(x, svgString);
+    x = strchr(x, ':');
+    x += 1;
+    char *p = strchr(x, ',');
+    *p = '\0';
+
+    //get y
+    char *y = malloc(sizeof(char)*strlen(svgString)+30);
+    char *orgY = y;
+    strcpy(y, svgString);
+    y = strchr(y, 'y');
+    y++;
+    y = strchr(y, ':');
+    y++;
+    p = strchr(y, ',');
+    *p = '\0';
+
+
+    //Get w
+    char *w = malloc(sizeof(char)*strlen(svgString)+30);
+    char *orgW = w;
+    strcpy(w, svgString);
+    w = strchr(w, 'w');
+    w++;
+    w = strchr(w, ':');
+    w++;
+    p = strchr(w, ',');
+    *p = '\0';
+
+
+    //Get h
+    char *h = malloc(sizeof(char)*strlen(svgString)+30);
+    char *orgH = h;
+    strcpy(h, svgString);
+    h = strchr(h, 'h');
+    h++;
+    h = strchr(h, ':');
+    h++;
+    p = strchr(h, ',');
+    *p = '\0';
+
+
+    //Get Units
+    char *unit = malloc(sizeof(char)*strlen(svgString)+30);
+    char *orgUnit = unit;
+    strcpy(unit, svgString);
+    unit = strchr(unit, 'u');
+    unit = strchr(unit, ':');
+    unit++;
+    unit++;
+    p = strchr(unit, '"');
+    *p = '\0';
+    
+
+    //Add to struct
+    rect->x = atof(x);
+    rect->y = atof(y);
+    rect->width = atof(w);
+    rect->height = atof(h);
+    strcpy(rect->units, unit);
+
+    free(orgUnit);
+    free(orgH);
+    free(orgW);
+    free(orgY);
+    free(orgX);
+    return rect;
 }
 
 Circle *JSONtoCircle(const char *svgString) {
+    if(svgString == NULL) return NULL;
+    Circle *circ = malloc(sizeof(Circle) + 30);
+    if(circ == NULL) return NULL;
+    initCircle(circ);
+
+    //get cx
+    char *cx = malloc(sizeof(char)*strlen(svgString)+5);
+    char *orgCX = cx;
+    strcpy(cx, svgString);
+    cx = strchr(cx, ':');
+    cx += 1;
+    char *p = strchr(cx, ',');
+    *p = '\0';
+
+    //get cy
+    char *cy = malloc(sizeof(char)*strlen(svgString)+30);
+    char *orgY = cy;
+    strcpy(cy, svgString);
+    cy = strchr(cy, 'y');
+    cy++;
+    cy = strchr(cy, ':');
+    cy++;
+    p = strchr(cy, ',');
+    *p = '\0';
+
+
+    //Get r
+    char *r = malloc(sizeof(char)*strlen(svgString)+30);
+    char *orgR = r;
+    strcpy(r, svgString);
+    r = strchr(r, 'r');
+    r++;
+    r = strchr(r, ':');
+    r++;
+    p = strchr(r, ',');
+    *p = '\0';
+
+
+    //Get Units
+    char *unit = malloc(sizeof(char)*strlen(svgString)+30);
+    char *orgUnit = unit;
+    strcpy(unit, svgString);
+    unit = strchr(unit, 'u');
+    unit = strchr(unit, ':');
+    unit++;
+    unit++;
+    p = strchr(unit, '"');
+    *p = '\0';
+
+
+    //Add to struct
+    circ->cx = atof(cx);
+    circ->cy = atof(cy);
+    circ->r = atof(r);
+    strcpy(circ->units, unit);
+
+    free(orgUnit);
+    free(orgR);
+    free(orgY);
+    free(orgCX);
+    return circ;
 }
