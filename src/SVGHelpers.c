@@ -799,14 +799,14 @@ const char *fileEXT(const char *filename) {
  * @return false Fail
  */
 bool addOtherAttribute(List *otherAttr, Attribute *newAttr) {  // THIS FUNC WORKS
-    //Basic check to confirm number based values are not negative
+    // Basic check to confirm number based values are not negative
     if (atof(newAttr->value) < 0) return false;
     ListIterator iter = createIterator(otherAttr);
     void *elem;
     while ((elem = nextElement(&iter)) != NULL) {
         Attribute *attr = (Attribute *)elem;
         if (strcmp(attr->name, newAttr->name) == 0) {  // found match
-            
+
             strcpy(attr->value, newAttr->value);  // copy new value, no need to change name
             deleteAttribute(newAttr);
             return true;
