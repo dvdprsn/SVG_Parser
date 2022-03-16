@@ -98,5 +98,7 @@ int main(int argc, char **argv) {
 
     deleteSVG(svg);
 
+    printf("%s\n", wrapSVGtoJSON(argv[1], "svg.xsd"));
+
     return 0;
 }

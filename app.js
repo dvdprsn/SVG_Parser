@@ -71,6 +71,14 @@ app.get('/uploads/:name', function (req, res) {
 
 //******************** Your code goes here ******************** 
 
+let sharedLib = ffi.Library('./libsvgparser', {
+    'wrapSVGtoJSON': ['string',['string', 'string']],
+});
+
+let c = sharedLib.wrapSVGtoJSON("uploads/beer.svg", "svg.xsd");
+let b = JSON.parse(c);
+console.log(b);
+
 //Sample endpoint
 app.get('/endpoint1', function (req, res) {
     let retStr = req.query.data1 + " " + req.query.data2;
@@ -92,42 +100,63 @@ app.get('/endpointFilesize', function (req, res) {
     );
 });
 
-app.get('/endpointDir', function(req,res) {
+app.get('/endpointDir', function (req, res) {
+    let files = getFilesList(req.query.dir);
+    let sizes = getSizesList(files);
 
-    let files = fs.readdirSync(req.query.dir);
-    for(let i = 0; i < files.length; i++) {
+    res.send(
+        {
+            fileArr: files,
+            sizeArr: sizes
+        }
+    );
+});
+
+app.get('/endpointFiles', function (req, res) {
+    let files = getFilesList(req.query.dir);
+    res.send(
+        {
+            fileArr: files
+        }
+    );
+});
+
+function getFilesList(directory) {
+
+    let files = fs.readdirSync(directory);
+    for (let i = 0; i < files.length; i++) {
         let file = files[i];
         let tmp = file.split('.').pop();
-        if(tmp != "svg") {
-            files.splice(i , 1);
+        if (tmp != "svg") {
+            files.splice(i, 1);
         }
     }
+    return files;
+}
+function getSizesList(files) {
     let sizes = [];
     for (let i = 0; i < files.length; i++) {
         let file = files[i];
         let size = getFilesize(file) + "KB";
         sizes.push(size);
     }
-    res.send(
-        {
-            fileArr: files,
-            sizeArr: sizes
-        }
-    )
-});
 
-app.listen(portNum);
-console.log('Running app at localhost: ' + portNum);
-
+    return sizes;
+}
 function getFilesize(filename) {
-    try{
+    try {
         var stats = fs.statSync("uploads/" + filename);
-    }catch(error) {
+    } catch (error) {
         console.log(error);
     }
-    
+
     var fileSize = stats.size / 1024;
     fileSize = Math.round(fileSize);
     return fileSize;
 }
+
+
+app.listen(portNum);
+console.log('Running app at localhost: ' + portNum);
+
 

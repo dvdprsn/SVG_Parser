@@ -642,7 +642,7 @@ SVG *createValidSVG(const char *fileName, const char *schemaFile) {
         if (toReturn == NULL) return NULL;
 
         bool valid = validateSVG(toReturn, schemaFile);
-        if (valid) {
+        if (valid == 1) {
             return toReturn;
         } else {
             return NULL;
@@ -1204,4 +1204,15 @@ Circle *JSONtoCircle(const char *svgString) {
     free(orgY);
     free(orgCX);
     return circ;
+}
+
+
+//Create function that creates a valid svg from file, convert to JSON and free svg returning the char
+
+char *wrapSVGtoJSON(char *filename, char *xsd) {
+
+    SVG *svg = createValidSVG(filename, xsd);
+    char *jsonSVG = SVGtoJSON(svg);
+    deleteSVG(svg);
+    return jsonSVG;
 }

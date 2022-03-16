@@ -1,10 +1,10 @@
 // Put all onload AJAX calls here, and event listeners
-jQuery(document).ready(function() {
+jQuery(document).ready(function () {
 
     // Event listener form example , we can use this instead explicitly listening for events
     // No redirects if possible
-    $('#someform').submit(function(e){
-        $('#blah').html("Form has data: "+$('#entryBox').val());
+    $('#someform').submit(function (e) {
+        $('#blah').html("Form has data: " + $('#entryBox').val());
         e.preventDefault();
         //Pass data to the Ajax call, so it gets passed to the server
         $.ajax({
@@ -12,39 +12,48 @@ jQuery(document).ready(function() {
             type: 'get',
             dataType: 'json',
             url: '/endpointFilesize',
-            data:{
+            data: {
                 filename: $('#entryBox').val()
-            }, 
-            success: function(data) {
+            },
+            success: function (data) {
                 $('#size').html(data.fileSize);
                 $('#entryBox').val(''); // Clear the box
                 // console.log(data);
             },
-            fail: function(error) {
+            fail: function (error) {
                 console.log(error);
             }
         });
     });
 
+    fillLog();
+    fillDropMenu();
+
+
+});
+
+function fillLog() {
     $.ajax({
         type: 'get',
         dataType: 'json',
         url: '/endpointDir',
-        data:{
+        data: {
             dir: "uploads/"
         },
-        success: function(data) {
-            console.log(data.fileArr);
+        success: function (data) {
+            console.log("fillLog AJAX Success");
+
             let files = data.fileArr;
             let sizes = data.sizeArr;
 
             const tableBody = document.getElementById('tableLog');
             let dataHtml = '';
-            if(files.length == 0) {
+
+            if (files.length == 0) { // No files on server
                 dataHtml += `<tr><td id="noFiles" colspan = "7">No files</td></tr>`;
             } else {
-                for(let i = 0; i < files.length; i++) {
-                    console.log("Here -> " + files[i]);
+                for (let i = 0; i < files.length; i++) { //For each file found on server
+                    console.log("Adding file to table");
                     let filename = files[i];
                     let size = sizes[i];
                     dataHtml += `<tr><td><a href="${filename}" download><img width="200" src="uploads/${filename}"/></a></td> <td><a href="${filename}" download>${filename}</a> </td><td>${size}</td></tr>`;
@@ -52,13 +61,48 @@ jQuery(document).ready(function() {
             }
 
             tableBody.innerHTML = dataHtml;
-            
-        }, 
-        fail: function(error) {
+
+        },
+        fail: function (error) {
             console.log(error);
         }
     });
+}
 
-});
+function fillDropMenu() {
+    $.ajax({
+        type: 'get',
+        dataType: 'json',
+        url: '/endpointFiles',
+        data: {
+            dir: "uploads/"
+        },
+        success: function (data) {
+            let files = data.fileArr;
+
+            const dropOptions = document.getElementById('svgFileSel');
+
+            let options = '';
+
+            for (let i = 0; i < files.length; i++) {
+                let file = files[i];
+
+                options += `<option value="${file}"> ${file} </option>`;
+            }
+
+            dropOptions.innerHTML += options;
+
+        },
+        fail: function (error) {
+            console.error(error);
+        }
+    });
+}
+
+var dropTest = document.getElementById('svgFileSel');
+dropTest.onchange = function () {
+    var x = document.getElementById('svgFileSel').value;
+    console.log(x);
+}
 
 

@@ -415,4 +415,7 @@ void deletePath(void* data);
 char* pathToString(void* data);
 int comparePaths(const void *first, const void *second);
 
+/***************** FOR A3 ******************/
+char *wrapSVGtoJSON(char *filename, char *xsd);
+
 #endif
