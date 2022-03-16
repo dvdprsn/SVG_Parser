@@ -42,6 +42,10 @@ input[type=submit], button {
         width: 100% !important;
     }
 }
+#viewPanel {
+    margin-left: auto;
+    margin-right: auto;
+}
 #topHeader {
     font-family: 'Times New Roman', Times, serif;
     font-weight: bold;

@@ -108,8 +108,21 @@ app.get('/endpointFiles', function (req, res) {
     );
 });
 
-function getFilesList(directory) {
+app.get('/endpointViewer', function(req,res) {
+    let file = req.query.file;
+    let path = "uploads/" + file;
+    
 
+    res.send(
+        {
+
+        }
+    )
+    console.log(path);
+});
+
+function getFilesList(directory) {
+    // Validate files before adding to the list
     let files = fs.readdirSync(directory);
     for (let i = 0; i < files.length; i++) {
         let file = files[i];
@@ -138,7 +151,6 @@ function getDataLists(files) {
         let tmp = sharedLib.wrapSVGtoJSON("uploads/"+file, "svg.xsd");
         let parsed = JSON.parse(tmp);
         data.push(parsed);
-        console.log(parsed);
     }
     return data;
 }

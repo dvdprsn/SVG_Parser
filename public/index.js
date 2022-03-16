@@ -112,8 +112,36 @@ function fillDropMenu() {
 
 var dropTest = document.getElementById('svgFileSel');
 dropTest.onchange = function () {
-    var x = document.getElementById('svgFileSel').value;
-    console.log(x);
+    var filename = document.getElementById('svgFileSel').value;
+    const tableBody = document.getElementById('viewPanel');
+    let dataHtml = '';
+
+    if(filename == 'NULL') {
+        dataHtml = '';
+        tableBody.innerHTML = dataHtml;
+        return;
+    }
+    console.log("Selected -> " + filename);
+
+    
+
+    dataHtml += `<tr>
+        <td colspan = "5"><a href="${filename}" download><img width="800" src="uploads/${filename}"/></a></td> 
+        </tr>`;
+
+    dataHtml += `<tr>
+        <td>Title</td> <td>Description</td>
+        </tr>`;
+
+    tableBody.innerHTML = dataHtml;
+    // $.ajax({
+    //     type: 'get',
+    //     dataType: 'json',
+    //     url: '/endpointViewer',
+    //     data: {
+    //         file: filename
+    //     },
+    // });
 }
 
 
