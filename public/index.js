@@ -45,6 +45,7 @@ function fillLog() {
 
             let files = data.fileArr;
             let sizes = data.sizeArr;
+            let datas = data.dataArr;
 
             const tableBody = document.getElementById('tableLog');
             let dataHtml = '';
@@ -56,7 +57,17 @@ function fillLog() {
                     console.log("Adding file to table");
                     let filename = files[i];
                     let size = sizes[i];
-                    dataHtml += `<tr><td><a href="${filename}" download><img width="200" src="uploads/${filename}"/></a></td> <td><a href="${filename}" download>${filename}</a> </td><td>${size}</td></tr>`;
+                    let data = datas[i];
+                    dataHtml += `<tr>
+                    <td><a href="${filename}" download><img width="200" src="uploads/${filename}"/></a></td> 
+                    <td><a href="${filename}" download>${filename}</a> </td>
+                    <td>${size}</td>
+                    <td>${data.numRect}</td> 
+                    <td>${data.numCirc}</td>
+                    <td>${data.numPaths}</td>
+                    <td>${data.numGroups}</td>
+
+                    </tr>`;
                 }
             }
 

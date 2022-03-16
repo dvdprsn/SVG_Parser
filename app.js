@@ -75,21 +75,6 @@ let sharedLib = ffi.Library('./libsvgparser', {
     'wrapSVGtoJSON': ['string',['string', 'string']],
 });
 
-let c = sharedLib.wrapSVGtoJSON("uploads/beer.svg", "svg.xsd");
-let b = JSON.parse(c);
-console.log(b);
-
-//Sample endpoint
-app.get('/endpoint1', function (req, res) {
-    let retStr = req.query.data1 + " " + req.query.data2;
-
-    res.send(
-        {
-            somethingElse: retStr
-        }
-    );
-});
-
 app.get('/endpointFilesize', function (req, res) {
     let retStr = getFilesize(req.query.filename) + "KB";
     res.send(
@@ -103,11 +88,13 @@ app.get('/endpointFilesize', function (req, res) {
 app.get('/endpointDir', function (req, res) {
     let files = getFilesList(req.query.dir);
     let sizes = getSizesList(files);
+    let data = getDataLists(files);
 
     res.send(
         {
             fileArr: files,
-            sizeArr: sizes
+            sizeArr: sizes,
+            dataArr: data
         }
     );
 });
@@ -143,6 +130,19 @@ function getSizesList(files) {
 
     return sizes;
 }
+
+function getDataLists(files) {
+    let data = [];
+    for(let i = 0; i < files.length; i++) {
+        let file = files[i];
+        let tmp = sharedLib.wrapSVGtoJSON("uploads/"+file, "svg.xsd");
+        let parsed = JSON.parse(tmp);
+        data.push(parsed);
+        console.log(parsed);
+    }
+    return data;
+}
+
 function getFilesize(filename) {
     try {
         var stats = fs.statSync("uploads/" + filename);
