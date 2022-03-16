@@ -6,7 +6,6 @@
  */
 
 #include "SVGParser.h"
-
 #include "SVGHelpers.h"
 
 SVG *createSVG(const char *fileName) {
@@ -642,8 +641,8 @@ SVG *createValidSVG(const char *fileName, const char *schemaFile) {
         SVG *toReturn = createSVG(fileName);
         if (toReturn == NULL) return NULL;
 
-        int valid = validateSVG(toReturn, schemaFile);
-        if (valid != -1) {
+        bool valid = validateSVG(toReturn, schemaFile);
+        if (valid) {
             return toReturn;
         } else {
             return NULL;
