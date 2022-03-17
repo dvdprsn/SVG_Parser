@@ -16,7 +16,7 @@ int main(int argc, char **argv) {
         return 0;
     }
 
-    bool write = writeSVG(svg, "test.svg");
+    bool write = writeSVG(svg, "include/sr.svg");
     if (!write) {
         printf("Failed to write\n");
         deleteSVG(svg);
@@ -50,12 +50,12 @@ int main(int argc, char **argv) {
         deleteAttribute(attr3);
     }
 
-    write = writeSVG(svg, "test_alt.svg");
-    if (!write) {
-        printf("Failed to write\n");
-        deleteSVG(svg);
-        return 0;
-    }
+    // write = writeSVG(svg, "test_alt.svg");
+    // if (!write) {
+    //     printf("Failed to write\n");
+    //     deleteSVG(svg);
+    //     return 0;
+    // }
 
 
     // JSON rects
@@ -95,6 +95,8 @@ int main(int argc, char **argv) {
     printf("SVG: ");
     printf("%s\n", svgJSON);
     free(svgJSON);
+
+
 
     deleteSVG(svg);
 
