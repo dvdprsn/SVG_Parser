@@ -116,10 +116,12 @@ dropTest.onchange = function () {
     var filename = document.getElementById('svgFileSel').value;
     const tableBody = document.getElementById('viewPanel');
     let dataHtml = '';
+    let divDis = document.getElementById("viewer");
 
     if(filename == 'NULL') {
         dataHtml = '';
         tableBody.innerHTML = dataHtml;
+        divDis.style.display = "none";
         return;
     }
     console.log("Selected -> " + filename);
@@ -198,8 +200,21 @@ dropTest.onchange = function () {
             }
             
 
-        tableBody.innerHTML = dataHtml;
-        console.log("Loaded View Successfully");
+            tableBody.innerHTML = dataHtml;
+            console.log("Loaded View Successfully");
+
+            divDis.style.display = "block";
+
+            const dropOptions = document.getElementById('attrSel');
+            let options = '';
+            options += `<option value="NULL"> Select </option>`;
+            dropOptions.innerHTML = options;
+
+            const attrTable = document.getElementById('attrTable');
+            let attrHtml = '';
+            attrTable.innerHTML = attrHtml;
+            fillAttrSel(filename);
+
         },
         fail: function(error) {
             console.error(error);
@@ -210,5 +225,277 @@ dropTest.onchange = function () {
     
 
 }
+function circAttrs(idx) {
+    const tableBody = document.getElementById('attrTable');
+    let dataHtml = '';
+    var filename = document.getElementById('svgFileSel').value;
+    console.log(filename);
+
+    // Fill Attribute table
+
+    $.ajax({
+        type: 'get',
+        dataType: 'json',
+        url: '/endpointCircAttr',
+        data: {
+            file: filename,
+            index: idx
+        },
+        success: function (data) {
+
+            let attrs = data.attrs;
+            dataHtml += `<tr class="rowHeader">
+            <td colspan="2">Attributes</td> 
+            </tr>`;
+
+            for(let i = 0; i < attrs.length; i++) {
+                let attr = attrs[i];
+                dataHtml += `<tr>
+                <td>${attr.name}</td> <td>${attr.value}</td>
+                </tr>`;
+            }
+
+            tableBody.innerHTML = dataHtml;
+        },
+        fail: function (error) {
+            console.error(error);
+        }
+    });
+}
+function rectAttrs(idx) {
+    const tableBody = document.getElementById('attrTable');
+    let dataHtml = '';
+    var filename = document.getElementById('svgFileSel').value;
+    console.log(filename);
+
+    // Fill Attribute table
+
+    $.ajax({
+        type: 'get',
+        dataType: 'json',
+        url: '/endpointRectAttr',
+        data: {
+            file: filename,
+            index: idx
+        },
+        success: function (data) {
+
+            let attrs = data.attrs;
+            dataHtml += `<tr class="rowHeader">
+            <td colspan="2">Attributes</td> 
+            </tr>`;
+
+            for(let i = 0; i < attrs.length; i++) {
+                let attr = attrs[i];
+                dataHtml += `<tr>
+                <td>${attr.name}</td> <td>${attr.value}</td>
+                </tr>`;
+            }
+
+            tableBody.innerHTML = dataHtml;
+        },
+        fail: function (error) {
+            console.error(error);
+        }
+    });
+}
+function pathAttrs(idx) {
+    const tableBody = document.getElementById('attrTable');
+    let dataHtml = '';
+    var filename = document.getElementById('svgFileSel').value;
+    console.log(filename);
+
+    // Fill Attribute table
+
+    $.ajax({
+        type: 'get',
+        dataType: 'json',
+        url: '/endpointPathAttr',
+        data: {
+            file: filename,
+            index: idx
+        },
+        success: function (data) {
+
+            let attrs = data.attrs;
+            dataHtml += `<tr class="rowHeader">
+            <td colspan="2">Attributes</td> 
+            </tr>`;
+
+            for(let i = 0; i < attrs.length; i++) {
+                let attr = attrs[i];
+                dataHtml += `<tr>
+                <td>${attr.name}</td> <td>${attr.value}</td>
+                </tr>`;
+            }
+
+            tableBody.innerHTML = dataHtml;
+        },
+        fail: function (error) {
+            console.error(error);
+        }
+    });
+}
+
+function groupAttrs(idx) {
+    const tableBody = document.getElementById('attrTable');
+    let dataHtml = '';
+    var filename = document.getElementById('svgFileSel').value;
+    console.log(filename);
+
+    // Fill Attribute table
+
+    $.ajax({
+        type: 'get',
+        dataType: 'json',
+        url: '/endpointGroupAttr',
+        data: {
+            file: filename,
+            index: idx
+        },
+        success: function (data) {
+
+            let attrs = data.attrs;
+            dataHtml += `<tr class="rowHeader">
+            <td colspan="2">Attributes</td> 
+            </tr>`;
+
+            for(let i = 0; i < attrs.length; i++) {
+                let attr = attrs[i];
+                dataHtml += `<tr>
+                <td>${attr.name}</td> <td>${attr.value}</td>
+                </tr>`;
+            }
+
+            tableBody.innerHTML = dataHtml;
+        },
+        fail: function (error) {
+            console.error(error);
+        }
+    });
+}
+
+function svgAttrs() {
+    const tableBody = document.getElementById('attrTable');
+    let dataHtml = '';
+    var filename = document.getElementById('svgFileSel').value;
+    console.log("selected svg");
+   
+    // Fill Attribute table
+
+    $.ajax({
+        type: 'get',
+        dataType: 'json',
+        url: '/endpointSVGAttr',
+        data: {
+            file: filename
+        },
+        success: function (data) {
+            let name = data.title;
+            let desc = data.desc;
+            let attrs = data.attrs;
+            dataHtml += `<tr class="rowHeader">
+            <td>Title</td> <td>Description</td>
+            </tr>`;
+            dataHtml += `<tr>
+            <td>${name}</td> <td>${desc}</td>
+            </tr>`;
+            dataHtml += `<tr class="rowHeader">
+            <td colspan="2">Attributes</td> 
+            </tr>`;
+
+            for(let i = 0; i < attrs.length; i++) {
+                let attr = attrs[i];
+                dataHtml += `<tr>
+                <td>${attr.name}</td> <td>${attr.value}</td>
+                </tr>`;
+            }
+
+            tableBody.innerHTML = dataHtml;
+        },
+        fail: function (error) {
+            console.error(error);
+        }
+    });
+
+    
+}
+
+var attrDrop = document.getElementById('attrSel');
+attrDrop.onchange = function () {
+    var select = document.getElementById('attrSel').value;
+    const tableBody = document.getElementById('attrTable');
+    let dataHtml = '';
+    console.log(select);
+    tableBody.innerHTML = dataHtml;
+    if(select == "svg") {
+        svgAttrs();
+    } else if (select.includes("circ")) {
+        let tmp = select.split('.').pop();
+        circAttrs(tmp);
+    } else if (select.includes("rect")) {
+        let tmp = select.split('.').pop();
+        rectAttrs(tmp);
+    }else if (select.includes("path")) {
+        let tmp = select.split('.').pop();
+        pathAttrs(tmp);
+    }else if (select.includes("group")) {
+        let tmp = select.split('.').pop();
+        groupAttrs(tmp);
+    }
+    
+}
+
+function fillAttrSel(filename) {
+    $.ajax({
+        type: 'get',
+        dataType: 'json',
+        url: '/endpointViewer',
+        data: {
+            file: filename
+        },
+        success: function (data) {
+            let paths = data.path;
+            let rects = data.rect;
+            let circs = data.circ;
+            let groups = data.group;
 
 
+            const dropOptions = document.getElementById('attrSel');
+            
+            let options = '';
+            options += `<option value="svg"> SVG </option>`;
+            for (let i = 0; i < rects.length; i++) {
+                let elem = rects[i];
+
+                console.log(elem);
+                options += `<option value="rect.${i}"> Rect ${i+1} </option>`;
+            }
+            for (let i = 0; i < circs.length; i++) {
+                let elem = circs[i];
+
+                console.log(elem);
+                options += `<option value="circ.${i}"> Circle ${i+1} </option>`;
+            }
+            for (let i = 0; i < paths.length; i++) {
+                let elem = paths[i];
+
+                console.log(elem);
+                options += `<option value="path.${i}"> Path ${i+1} </option>`;
+            }
+            
+            for (let i = 0; i < groups.length; i++) {
+                let elem = groups[i];
+
+                console.log(elem);
+                options += `<option value="group.${i}"> Group ${i+1} </option>`;
+            }
+            dropOptions.innerHTML += options;
+            console.log("Contents of DropDown Loaded Successfully");
+
+        },
+        fail: function (error) {
+            console.error(error);
+        }
+    });
+}

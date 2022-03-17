@@ -1272,5 +1272,95 @@ char *getGroupWrap(char *filename, char *xsd) {
 
     deleteSVG(svg);
     return tmp;
-    
+}
+//ADD TO HEADER
+char *getSVGAttr(char *filename, char *xsd) {
+    SVG *svg = createValidSVG(filename, xsd);
+    if (svg == NULL) return NULL;
+    char *tmp = attrListToJSON(svg->otherAttributes);
+
+    deleteSVG(svg);
+    return tmp;
+}
+
+char *getCircAttrs(char *filename, char *xsd, int index) {
+    SVG *svg = createValidSVG(filename, xsd);
+    if (svg == NULL) return NULL;
+
+    ListIterator iter = createIterator(svg->circles);
+    void *elem;
+    int c = 0;
+    char *tmp;
+    while((elem = nextElement(&iter)) != NULL) {
+        if (c == index) {
+            Circle *circ = (Circle *) elem;
+            tmp = attrListToJSON(circ->otherAttributes);
+            deleteSVG(svg);
+            return tmp;
+        }
+        c++;
+    }
+
+    return "NULL";
+}
+
+char *getRectAttrs(char *filename, char *xsd, int index) {
+    SVG *svg = createValidSVG(filename, xsd);
+    if (svg == NULL) return NULL;
+
+    ListIterator iter = createIterator(svg->rectangles);
+    void *elem;
+    int c = 0;
+    char *tmp;
+    while((elem = nextElement(&iter)) != NULL) {
+        if (c == index) {
+            Rectangle *rect = (Rectangle *) elem;
+            tmp = attrListToJSON(rect->otherAttributes);
+            deleteSVG(svg);
+            return tmp;
+        }
+        c++;
+    }
+
+    return "NULL";
+}
+char *getPathAttrs(char *filename, char *xsd, int index) {
+    SVG *svg = createValidSVG(filename, xsd);
+    if (svg == NULL) return NULL;
+
+    ListIterator iter = createIterator(svg->paths);
+    void *elem;
+    int c = 0;
+    char *tmp;
+    while((elem = nextElement(&iter)) != NULL) {
+        if (c == index) {
+            Path *path = (Path *) elem;
+            tmp = attrListToJSON(path->otherAttributes);
+            deleteSVG(svg);
+            return tmp;
+        }
+        c++;
+    }
+
+    return "NULL";
+}
+char *getGroupAttrs(char *filename, char *xsd, int index) {
+    SVG *svg = createValidSVG(filename, xsd);
+    if (svg == NULL) return NULL;
+
+    ListIterator iter = createIterator(svg->groups);
+    void *elem;
+    int c = 0;
+    char *tmp;
+    while((elem = nextElement(&iter)) != NULL) {
+        if (c == index) {
+            Group *group = (Group *) elem;
+            tmp = attrListToJSON(group->otherAttributes);
+            deleteSVG(svg);
+            return tmp;
+        }
+        c++;
+    }
+
+    return "NULL";
 }

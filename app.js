@@ -46,7 +46,7 @@ app.post('/upload', function (req, res) {
     }
 
     let uploadFile = req.files.uploadFile;
-
+    // TODO Verify file and check extention
     // Use the mv() method to place the file somewhere on your server
     uploadFile.mv('uploads/' + uploadFile.name, function (err) {
         if (err) {
@@ -81,6 +81,14 @@ let sharedLib = ffi.Library('./parser/bin/libsvgparser', {
     'getGroupWrap': ['string', ['string', 'string']]
 });
 
+let getAttrs = ffi.Library('./parser/bin/libsvgparser', {
+    'getSVGAttr': ['string',['string','string']],
+    'getCircAttrs': ['string',['string','string','int']],
+    'getRectAttrs': ['string',['string','string','int']],
+    'getPathAttrs': ['string',['string','string','int']],
+    'getGroupAttrs': ['string',['string','string','int']]
+})
+
 app.get('/endpointFilesize', function (req, res) {
     let retStr = getFilesize(req.query.filename) + "KB";
     res.send(
@@ -113,6 +121,74 @@ app.get('/endpointFiles', function (req, res) {
         }
     );
 });
+app.get('/endpointRectAttr', function(req,res) {
+    let file = req.query.file;
+    let path = "uploads/" + file;
+    let validation = "svg.xsd";
+    let index = req.query.index;
+
+    let tmp = getAttrs.getRectAttrs(path, validation, index);
+    let otherAttrs = JSON.parse(tmp);
+    res.send({
+        attrs: otherAttrs
+    });
+});
+
+app.get('/endpointPathAttr', function(req,res) {
+    let file = req.query.file;
+    let path = "uploads/" + file;
+    let validation = "svg.xsd";
+    let index = req.query.index;
+
+    let tmp = getAttrs.getPathAttrs(path, validation, index);
+    let otherAttrs = JSON.parse(tmp);
+    res.send({
+        attrs: otherAttrs
+    });
+});
+
+app.get('/endpointGroupAttr', function(req,res) {
+    let file = req.query.file;
+    let path = "uploads/" + file;
+    let validation = "svg.xsd";
+    let index = req.query.index;
+
+    let tmp = getAttrs.getGroupAttrs(path, validation, index);
+    let otherAttrs = JSON.parse(tmp);
+    res.send({
+        attrs: otherAttrs
+    });
+});
+
+app.get('/endpointCircAttr', function(req,res) {
+    let file = req.query.file;
+    let path = "uploads/" + file;
+    let validation = "svg.xsd";
+    let index = req.query.index;
+
+    let tmp = getAttrs.getCircAttrs(path, validation, index);
+    let otherAttrs = JSON.parse(tmp);
+    res.send({
+        attrs: otherAttrs
+    });
+});
+
+app.get('/endpointSVGAttr', function(req,res) {
+    let file = req.query.file;
+    let path = "uploads/" + file;
+    let validation = "svg.xsd";
+
+    let name = sharedLib.getTitleWrap(path, validation);
+    let descrip = sharedLib.getDescWrap(path, validation);
+
+    let tmp = getAttrs.getSVGAttr(path, validation);
+    let otherAttrs = JSON.parse(tmp);
+    res.send({
+        title: name,
+        desc: descrip,
+        attrs: otherAttrs
+    });
+});
 
 app.get('/endpointViewer', function(req,res) {
     let tmp;
@@ -143,8 +219,7 @@ app.get('/endpointViewer', function(req,res) {
             circ: circs,
             group: groups
         }
-    )
-    console.log(path);
+    );
 });
 
 function getFilesList(directory) {

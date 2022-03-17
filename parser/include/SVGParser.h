@@ -425,5 +425,11 @@ char *getCircWrap(char *filename, char *xsd);
 char *getPathWrap(char *filename, char *xsd);
 char *getGroupWrap(char *filename, char *xsd);
 
+char *getSVGAttr(char *filename, char *xsd);
+char *getCircAttrs(char *filename, char *xsd, int index);
+char *getRectAttrs(char *filename, char *xsd, int index);
+char *getPathAttrs(char *filename, char *xsd, int index);
+char *getGroupAttrs(char *filename, char *xsd, int index);
+
 
 #endif
