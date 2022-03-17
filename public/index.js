@@ -41,7 +41,6 @@ function fillLog() {
             dir: "uploads/"
         },
         success: function (data) {
-            console.log("fillLog AJAX Success");
 
             let files = data.fileArr;
             let sizes = data.sizeArr;
@@ -72,10 +71,11 @@ function fillLog() {
             }
 
             tableBody.innerHTML = dataHtml;
+            console.log("Filled SVG Log Successfully");
 
         },
         fail: function (error) {
-            console.log(error);
+            console.error(error);
         }
     });
 }
@@ -102,6 +102,7 @@ function fillDropMenu() {
             }
 
             dropOptions.innerHTML += options;
+            console.log("Contents of DropDown Loaded Successfully");
 
         },
         fail: function (error) {
@@ -139,7 +140,7 @@ dropTest.onchange = function () {
             let groups = data.group;
 
             dataHtml += `<tr>
-            <td colspan = "5"><a href="${filename}" download><img width="800" src="uploads/${filename}"/></a></td> 
+            <td colspan = "5"><img width="800" src="uploads/${filename}"/></td> 
             </tr>`;
 
             dataHtml += `<tr>
@@ -167,7 +168,6 @@ dropTest.onchange = function () {
                 <td>${rect.numAttr}</td>
                 </tr>`;
             }
-            console.log(circs);
             for(let i = 0; i < circs.length; i++) {
                 let circ = circs[i];
                 dataHtml += `<tr>
@@ -188,7 +188,6 @@ dropTest.onchange = function () {
                 </tr>`;
             }
 
-            console.log(groups)
             for(let i = 0; i < groups.length; i++) {
                 let group = groups[i];
                 dataHtml += `<tr>
@@ -200,7 +199,12 @@ dropTest.onchange = function () {
             
 
         tableBody.innerHTML = dataHtml;
+        console.log("Loaded View Successfully");
+        },
+        fail: function(error) {
+            console.error(error);
         }
+
     });
 
     
