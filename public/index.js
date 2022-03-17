@@ -143,7 +143,7 @@ dropTest.onchange = function () {
             <td colspan = "5"><img width="800" src="uploads/${filename}"/></td> 
             </tr>`;
 
-            dataHtml += `<tr>
+            dataHtml += `<tr class="rowHeader">
             <td>Title</td> <td colspan= "3">Description</td>
             </tr>`;
 
@@ -152,7 +152,7 @@ dropTest.onchange = function () {
             <td colspan = "2">${desc} </td>
             </tr>`;
 
-            dataHtml += `<tr>
+            dataHtml += `<tr class="rowHeader">
             <td>Component</td>
             <td>Summary</td>
             <td>Other Attributes</td>

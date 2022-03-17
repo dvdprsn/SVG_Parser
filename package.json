@@ -4,7 +4,8 @@
   "description": "CIS2750 W22 - A3",
   "main": "app.js",
   "scripts": {
-    "dev": "nodemon app.js"
+    "dev": "nodemon app.js",
+    "make": "cd parser/ && make && cd .."
   },
   "author": "",
   "license": "ISC",

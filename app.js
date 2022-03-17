@@ -71,7 +71,7 @@ app.get('/uploads/:name', function (req, res) {
 
 //******************** Your code goes here ******************** 
 
-let sharedLib = ffi.Library('./libsvgparser', {
+let sharedLib = ffi.Library('./parser/bin/libsvgparser', {
     'wrapSVGtoJSON': ['string',['string', 'string']],
     'getTitleWrap': ['string', ['string', 'string']],
     'getDescWrap': ['string', ['string', 'string']],
