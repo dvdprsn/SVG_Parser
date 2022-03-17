@@ -123,25 +123,88 @@ dropTest.onchange = function () {
     }
     console.log("Selected -> " + filename);
 
+    $.ajax({
+        type: 'get',
+        dataType: 'json',
+        url: '/endpointViewer',
+        data: {
+            file: filename
+        },
+        success: function(data) {
+            let title = data.title;
+            let desc = data.desc;
+            let paths = data.path;
+            let rects = data.rect;
+            let circs = data.circ;
+            let groups = data.group;
+
+            dataHtml += `<tr>
+            <td colspan = "5"><a href="${filename}" download><img width="800" src="uploads/${filename}"/></a></td> 
+            </tr>`;
+
+            dataHtml += `<tr>
+            <td>Title</td> <td colspan= "3">Description</td>
+            </tr>`;
+
+            dataHtml += `<tr>
+            <td>${title} </td>
+            <td colspan = "2">${desc} </td>
+            </tr>`;
+
+            dataHtml += `<tr>
+            <td>Component</td>
+            <td>Summary</td>
+            <td>Other Attributes</td>
+            </tr>`;
+
+            for(let i = 0; i < rects.length; i++) {
+                let rect = rects[i];
+                dataHtml += `<tr>
+                <td>Rectangle ${i+1}</td>
+                <td>Upper Left Corner: x = ${rect.x}${rect.units}, y = ${rect.y}${rect.units} <br>
+                    Width: ${rect.w}${rect.units}, Height = ${rect.h}${rect.units}
+                </td>
+                <td>${rect.numAttr}</td>
+                </tr>`;
+            }
+            console.log(circs);
+            for(let i = 0; i < circs.length; i++) {
+                let circ = circs[i];
+                dataHtml += `<tr>
+                <td>Circle ${i+1}</td>
+                <td>Centre: x = ${circ.cx}${circ.units}, y = ${circ.cy}${circ.units},
+                    radius: ${circ.r}${circ.units}
+                </td>
+                <td>${circ.numAttr}</td>
+                </tr>`;
+            }
+
+            for(let i = 0; i < paths.length; i++) {
+                let path = paths[i];
+                dataHtml += `<tr>
+                <td>Path ${i+1}</td>
+                <td>${path.d}</td>
+                <td>${path.numAttr}</td>
+                </tr>`;
+            }
+
+            console.log(groups)
+            for(let i = 0; i < groups.length; i++) {
+                let group = groups[i];
+                dataHtml += `<tr>
+                <td>Group ${i+1}</td>
+                <td>${group.children} Child Elements</td>
+                <td>${group.numAttr}</td>
+                </tr>`;
+            }
+            
+
+        tableBody.innerHTML = dataHtml;
+        }
+    });
+
     
 
-    dataHtml += `<tr>
-        <td colspan = "5"><a href="${filename}" download><img width="800" src="uploads/${filename}"/></a></td> 
-        </tr>`;
-
-    dataHtml += `<tr>
-        <td>Title</td> <td>Description</td>
-        </tr>`;
-
-    tableBody.innerHTML = dataHtml;
-    // $.ajax({
-    //     type: 'get',
-    //     dataType: 'json',
-    //     url: '/endpointViewer',
-    //     data: {
-    //         file: filename
-    //     },
-    // });
 }
 
 

@@ -73,6 +73,12 @@ app.get('/uploads/:name', function (req, res) {
 
 let sharedLib = ffi.Library('./libsvgparser', {
     'wrapSVGtoJSON': ['string',['string', 'string']],
+    'getTitleWrap': ['string', ['string', 'string']],
+    'getDescWrap': ['string', ['string', 'string']],
+    'getPathWrap': ['string', ['string', 'string']],
+    'getRectWrap': ['string', ['string', 'string']],
+    'getCircWrap': ['string', ['string', 'string']],
+    'getGroupWrap': ['string', ['string', 'string']]
 });
 
 app.get('/endpointFilesize', function (req, res) {
@@ -109,13 +115,33 @@ app.get('/endpointFiles', function (req, res) {
 });
 
 app.get('/endpointViewer', function(req,res) {
+    let tmp;
     let file = req.query.file;
     let path = "uploads/" + file;
-    
+    let validation = "svg.xsd";
+    let name = sharedLib.getTitleWrap(path, validation);
+    let descrip = sharedLib.getDescWrap(path, validation);
+
+    tmp = sharedLib.getPathWrap(path,validation);
+    let paths = JSON.parse(tmp);
+
+    tmp = sharedLib.getRectWrap(path, validation)
+    let rects = JSON.parse(tmp);
+
+    tmp = sharedLib.getCircWrap(path, validation);
+    let circs = JSON.parse(tmp);
+
+    tmp = sharedLib.getGroupWrap(path, validation);
+    let groups = JSON.parse(tmp);
 
     res.send(
         {
-
+            title: name,
+            desc: descrip,
+            path: paths, 
+            rect: rects,
+            circ: circs,
+            group: groups
         }
     )
     console.log(path);

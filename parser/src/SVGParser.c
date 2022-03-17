@@ -6,6 +6,7 @@
  */
 
 #include "SVGParser.h"
+
 #include "SVGHelpers.h"
 
 SVG *createSVG(const char *fileName) {
@@ -1206,13 +1207,70 @@ Circle *JSONtoCircle(const char *svgString) {
     return circ;
 }
 
-
-//Create function that creates a valid svg from file, convert to JSON and free svg returning the char
+// Create function that creates a valid svg from file, convert to JSON and free svg returning the char
 
 char *wrapSVGtoJSON(char *filename, char *xsd) {
-
     SVG *svg = createValidSVG(filename, xsd);
+    if (svg == NULL) return NULL;
     char *jsonSVG = SVGtoJSON(svg);
     deleteSVG(svg);
     return jsonSVG;
+}
+
+char *getTitleWrap(char *filename, char *xsd) {
+    SVG *svg = createValidSVG(filename, xsd);
+    if (svg == NULL) return NULL;
+    char *tmp = svg->title;
+
+    deleteSVG(svg);
+    return tmp;
+}
+
+char *getDescWrap(char *filename, char *xsd) {
+    SVG *svg = createValidSVG(filename, xsd);
+    if (svg == NULL) return NULL;
+    char *tmp = svg->description;
+
+    deleteSVG(svg);
+    return tmp;
+}
+
+char *getRectWrap(char *filename, char *xsd) {
+    SVG *svg = createValidSVG(filename, xsd);
+    if (svg == NULL) return NULL;
+    char *tmp = rectListToJSON(svg->rectangles);
+
+    deleteSVG(svg);
+    return tmp;
+    
+}
+
+char *getCircWrap(char *filename, char *xsd) {
+    SVG *svg = createValidSVG(filename, xsd);
+    if (svg == NULL) return NULL;
+    char *tmp = circListToJSON(svg->circles);
+
+    deleteSVG(svg);
+    return tmp;
+    
+}
+
+char *getPathWrap(char *filename, char *xsd) {
+    SVG *svg = createValidSVG(filename, xsd);
+    if (svg == NULL) return NULL;
+    char *tmp = pathListToJSON(svg->paths);
+
+    deleteSVG(svg);
+    return tmp;
+    
+}
+
+char *getGroupWrap(char *filename, char *xsd) {
+    SVG *svg = createValidSVG(filename, xsd);
+    if (svg == NULL) return NULL;
+    char *tmp = groupListToJSON(svg->groups);
+
+    deleteSVG(svg);
+    return tmp;
+    
 }

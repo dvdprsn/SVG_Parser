@@ -417,5 +417,13 @@ int comparePaths(const void *first, const void *second);
 
 /***************** FOR A3 ******************/
 char *wrapSVGtoJSON(char *filename, char *xsd);
+char *getTitleWrap(char *filename, char *xsd);
+char *getDescWrap(char *filename, char *xsd);
+
+char *getRectWrap(char *filename, char *xsd);
+char *getCircWrap(char *filename, char *xsd);
+char *getPathWrap(char *filename, char *xsd);
+char *getGroupWrap(char *filename, char *xsd);
+
 
 #endif
