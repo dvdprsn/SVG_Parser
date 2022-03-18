@@ -438,4 +438,6 @@ char *createEmptySVG(char *JSON, char *filename);
 char *addCircle(char *JSON, char *filename);
 char *addRect(char *JSON, char *filename);
 
+char *addAttribute(char *elemName, int index, char *name, char *value, char *path);
+
 #endif

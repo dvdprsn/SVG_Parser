@@ -33,6 +33,41 @@ window.onbeforeunload = function () {
 	window.scrollTo(0, 0);
 };
 
+document.getElementById("nAttrSub").onclick = () => {
+	let nameAttr = document.getElementById("newAttrName").value.toLowerCase();
+	let valueAttr = document.getElementById("newAttrVal").value.toLowerCase();
+	let path = "uploads/" + document.getElementById("svgFileSel").value;
+	let elemSelect = document.getElementById("attrSel").value;
+	let index = elemSelect.split(".");
+	if (elemSelect === "svg") {
+		index.push(0);
+	}
+	document.getElementById("newAttrName").value = "";
+	document.getElementById("newAttrVal").value = "";
+
+	$.ajax({
+		type: "get",
+		dataType: "json",
+		url: "/endpointNAttr",
+		data: {
+			name: nameAttr,
+			value: valueAttr,
+			data: index,
+			file: path,
+		},
+		success: (data) => {
+			let valid = data.succ;
+			if (valid == "f") {
+				console.log("Failed to add attribute");
+			} else {
+				window.location.reload();
+				console.log("New Attribute Success!!");
+			}
+		},
+		fail: (error) => {},
+	});
+};
+
 function fillLog() {
 	$.ajax({
 		type: "get",
@@ -112,11 +147,15 @@ function fillDropMenu() {
 }
 
 var dropTest = document.getElementById("svgFileSel");
-dropTest.onchange = function () {
+dropTest.onchange = () => {
 	var filename = document.getElementById("svgFileSel").value;
 	const tableBody = document.getElementById("viewPanel");
 	let dataHtml = "";
 	let divDis = document.getElementById("viewer");
+
+	//TODO NEW CODE
+	var editDiv = document.getElementById("editAttr");
+	editDiv.style.display = "none";
 
 	if (filename == "NULL") {
 		dataHtml = "";
@@ -255,15 +294,15 @@ titleSub.onclick = function () {
 	});
 };
 document.getElementById("addRect").onclick = () => {
-    let fields = document.getElementsByClassName("addRect");
+	let fields = document.getElementsByClassName("addRect");
 	let values = [];
 	let file = document.getElementById("svgFileSel").value;
 
-    for (let i = 0; i < fields.length; i++) {
+	for (let i = 0; i < fields.length; i++) {
 		values.push(fields[i].value);
 		fields[i].value = "";
 	}
-    let jsonString = JSON.stringify({
+	let jsonString = JSON.stringify({
 		x: parseFloat(values[0]),
 		y: parseFloat(values[1]),
 		w: parseFloat(values[2]),
@@ -271,7 +310,7 @@ document.getElementById("addRect").onclick = () => {
 		units: values[4],
 	});
 
-    $.ajax({
+	$.ajax({
 		type: "get",
 		dataType: "json",
 		url: "/endpointAddRect",
@@ -292,7 +331,7 @@ document.getElementById("addRect").onclick = () => {
 			console.error(error);
 		},
 	});
-}
+};
 document.getElementById("addCirc").onclick = () => {
 	console.log("Adding Init Circle");
 	let fields = document.getElementsByClassName("addCircle");
@@ -310,7 +349,6 @@ document.getElementById("addCirc").onclick = () => {
 		r: parseFloat(values[2]),
 		units: values[3],
 	});
-
 
 	$.ajax({
 		type: "get",
@@ -336,7 +374,7 @@ document.getElementById("addCirc").onclick = () => {
 };
 
 var newSVGSub = document.getElementById("nSVGSub");
-newSVGSub.onclick = function () {
+newSVGSub.onclick = () => {
 	let titleField = document.getElementById("newTitle");
 	let title = titleField.value;
 	titleField.value = "";
@@ -356,7 +394,7 @@ newSVGSub.onclick = function () {
 		return;
 	}
 	let jsonArr = { title: title, descr: desc };
-	console.log(jsonArr);
+	// console.log(jsonArr);
 
 	$.ajax({
 		type: "get",
@@ -500,7 +538,6 @@ function groupAttrs(idx) {
 	const tableBody = document.getElementById("attrTable");
 	let dataHtml = "";
 	var filename = document.getElementById("svgFileSel").value;
-	console.log(filename);
 
 	// Fill Attribute table
 
@@ -549,15 +586,8 @@ function svgAttrs() {
 			file: filename,
 		},
 		success: function (data) {
-			let name = data.title;
-			let desc = data.desc;
 			let attrs = data.attrs;
-			dataHtml += `<tr class="rowHeader">
-            <td>Title</td> <td>Description</td>
-            </tr>`;
-			dataHtml += `<tr>
-            <td>${name}</td> <td>${desc}</td>
-            </tr>`;
+
 			dataHtml += `<tr class="rowHeader">
             <td colspan="2">Attributes</td> 
             </tr>`;
@@ -581,7 +611,14 @@ var attrDrop = document.getElementById("attrSel");
 attrDrop.onchange = function () {
 	var select = document.getElementById("attrSel").value;
 	const tableBody = document.getElementById("attrTable");
+	var editDiv = document.getElementById("editAttr");
 	let dataHtml = "";
+	if (select == "NULL") {
+		editDiv.style.display = "none";
+	} else {
+		editDiv.style.display = "block";
+	}
+
 	// console.log(select);
 	tableBody.innerHTML = dataHtml;
 	if (select == "svg") {

@@ -1394,14 +1394,17 @@ char *addCircle(char *JSON, char *filename) {
     if (svg == NULL) return "f";
 
     Circle *circ = JSONtoCircle(JSON);
-    insertBack(svg->circles, circ);
-
+    // insertBack(svg->circles, circ);
+    addComponent(svg, CIRC, circ);
     bool valid = validateSVG(svg, "svg.xsd");
     if (!valid) {
+        deleteSVG(svg);
         return "f";
     }
 
     valid = writeSVG(svg, filename);
+    deleteSVG(svg);
+
     if (!valid) return "f";
 
     return "t";
@@ -1413,15 +1416,61 @@ char *addRect(char *JSON, char *filename) {
 
     // Circle *re = JSONtoCircle(JSON);
     Rectangle *rect = JSONtoRect(JSON);
-    // insertBack(svg->circles, circ);
-    insertBack(svg->rectangles, rect);
-
+    addComponent(svg, RECT, rect);
     bool valid = validateSVG(svg, "svg.xsd");
     if (!valid) {
+        deleteSVG(svg);
         return "f";
     }
 
     valid = writeSVG(svg, filename);
+    deleteSVG(svg);
+
+    if (!valid) return "f";
+
+    return "t";
+}
+
+char *addAttribute(char *elemName, int index, char *name, char *value, char *path) {
+    SVG *svg = createValidSVG(path, "svg.xsd");
+    if (svg == NULL) return "f";
+    elementType type;
+    Attribute *attr = createAttr(name, value);
+    bool valid;
+
+    if (strcmp(elemName, "svg") == 0) {
+        type = SVG_IMG;
+        valid = setAttribute(svg, type, 0, attr);
+    } else if (strcmp(elemName, "path") == 0) {
+        type = PATH;
+        valid = setAttribute(svg, type, index, attr);
+    } else if (strcmp(elemName, "rect") == 0) {
+        type = RECT;
+        valid = setAttribute(svg, type, index, attr);
+
+    } else if (strcmp(elemName, "circ") == 0) {
+        type = CIRC;
+        valid = setAttribute(svg, type, index, attr);
+
+    } else if (strcmp(elemName, "group") == 0) {
+        type = GROUP;
+        valid = setAttribute(svg, type, index, attr);
+
+    } else {
+        deleteAttribute(attr);
+        deleteSVG(svg);
+        return "f";
+    }
+
+    if (!valid) return "f";
+    valid = validateSVG(svg, "svg.xsd");
+    if (!valid) {
+        deleteSVG(svg);
+        return "f";
+    }
+    valid = writeSVG(svg, path);
+    deleteSVG(svg);
+
     if (!valid) return "f";
 
     return "t";

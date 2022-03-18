@@ -98,9 +98,18 @@
 			</select>
 			<table id="attrTable"></table>
 			<!-- Edit Attribute -->
-			<hr />
-			<h4>Edit Attribute</h4>
-			<form>Test</form>
+			<div id="editAttr" style="display: none">
+				<hr />
+				<h4>Edit Attribute</h4>
+
+				<label for="newAttrName">Name of Attribute to add or change:</label><br />
+				<input type="text" id="newAttrName" name="newAttrName" value="" /><br />
+
+				<label for="newAttrVal">Value:</label><br />
+				<input type="text" id="newAttrVal" name="newAttrVal" value="" /><br />
+
+				<button id="nAttrSub">Submit</button>
+			</div>
 
 			<hr />
 			<h4>Edit Title/Description</h4>
@@ -113,15 +122,12 @@
 			<hr />
 			<h4>Add Shape</h4>
 
-			<hr />
-			<h4>Scale Shapes</h4>
-
 			<div class="divAParent">
 				<div class="divAChild">
 					<h5>Circle</h5>
 					<label for="cxAdd">cx:</label><br />
 					<input type="text" class="addCircle" id="cxAdd" name="cxAdd" value="" /><br />
-                    
+
 					<label for="cyAdd">cy:</label><br />
 					<input type="text" class="addCircle" id="cyAdd" name="cyAdd" value="" /><br />
 
@@ -153,6 +159,9 @@
 					<button id="addRect">Submit</button>
 				</div>
 			</div>
+
+			<hr />
+			<h4>Scale Shapes</h4>
 		</div>
 		<hr />
 		<h4>Create Empty SVG</h4>

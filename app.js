@@ -97,7 +97,8 @@ let sharedLib = ffi.Library("./parser/bin/libsvgparser", {
 	changeNameDesc: ["string", ["string", "string", "string"]],
 	createEmptySVG: ["string", ["string", "string"]],
 	addCircle: ["string", ["string", "string"]],
-    addRect: ["string", ["string", "string"]],
+	addRect: ["string", ["string", "string"]],
+	addAttribute: ["string", ["string", "int", "string", "string", "string"]],
 });
 
 let getAttrs = ffi.Library("./parser/bin/libsvgparser", {
@@ -108,12 +109,24 @@ let getAttrs = ffi.Library("./parser/bin/libsvgparser", {
 	getGroupAttrs: ["string", ["string", "string", "int"]],
 });
 
+app.get("/endpointNAttr", (req, res) => {
+	let valid = "f";
+	let name = req.query.name;
+	let value = req.query.value;
+	let data = req.query.data;
+	let path = req.query.file;
+	valid = sharedLib.addAttribute(data[0], data[1], name, value, path);
+	res.send({
+		succ: valid,
+	});
+});
+
 app.get("/endpointAddRect", (req, res) => {
 	let valid;
 	let rectJSON = req.query.fieldData;
 	let file = "uploads/" + req.query.filename;
 
-    valid = sharedLib.addRect(rectJSON, file);
+	valid = sharedLib.addRect(rectJSON, file);
 
 	res.send({
 		succ: valid,
@@ -125,7 +138,7 @@ app.get("/endpointAddCirc", (req, res) => {
 	let circJSON = req.query.fieldData;
 	let file = "uploads/" + req.query.filename;
 
-    valid = sharedLib.addCircle(circJSON, file);
+	valid = sharedLib.addCircle(circJSON, file);
 
 	res.send({
 		succ: valid,
