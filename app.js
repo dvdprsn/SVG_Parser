@@ -32,18 +32,14 @@ app.get("/style.css", function (req, res) {
 
 // Send obfuscated JS, do not change
 app.get("/index.js", function (req, res) {
-	fs.readFile(
-		path.join(__dirname + "/public/index.js"),
-		"utf8",
-		function (err, contents) {
-			const minimizedContents = JavaScriptObfuscator.obfuscate(contents, {
-				compact: true,
-				controlFlowFlattening: true,
-			});
-			res.contentType("application/javascript");
-			res.send(minimizedContents._obfuscatedCode);
-		}
-	);
+	fs.readFile(path.join(__dirname + "/public/index.js"), "utf8", function (err, contents) {
+		const minimizedContents = JavaScriptObfuscator.obfuscate(contents, {
+			compact: true,
+			controlFlowFlattening: true,
+		});
+		res.contentType("application/javascript");
+		res.send(minimizedContents._obfuscatedCode);
+	});
 });
 
 //Respond to POST requests that upload files to uploads/ directory
@@ -100,6 +96,7 @@ let sharedLib = ffi.Library("./parser/bin/libsvgparser", {
 	validCheck: ["string", ["string", "string"]],
 	changeNameDesc: ["string", ["string", "string", "string"]],
 	createEmptySVG: ["string", ["string", "string"]],
+	addCircle: ["string", ["string", "string"]],
 });
 
 let getAttrs = ffi.Library("./parser/bin/libsvgparser", {
@@ -108,6 +105,18 @@ let getAttrs = ffi.Library("./parser/bin/libsvgparser", {
 	getRectAttrs: ["string", ["string", "string", "int"]],
 	getPathAttrs: ["string", ["string", "string", "int"]],
 	getGroupAttrs: ["string", ["string", "string", "int"]],
+});
+
+app.get("/endpointAddCirc", (req, res) => {
+	let valid;
+	let circJSON = req.query.fieldData;
+	let file = "uploads/" + req.query.filename;
+
+    valid = sharedLib.addCircle(circJSON, file);
+
+	res.send({
+		succ: valid,
+	});
 });
 
 app.get("/endpointFilesize", function (req, res) {
@@ -238,16 +247,15 @@ app.get("/endpointNSVG", function (req, res) {
 	let file = req.query.filename + ".svg";
 	let path = "uploads/" + file;
 	let jsonData = req.query.jsonData;
-    let fileList = getFilesList("uploads/");
-    let valid = "f";
-    if(fileList.includes(file)) {
-        console.log("File with this name already exists on server");
-    } else {
-        jsonData = JSON.stringify(jsonData);
-	    console.log(jsonData);
-	    valid = sharedLib.createEmptySVG(jsonData, path);
-    }
-	
+	let fileList = getFilesList("uploads/");
+	let valid = "f";
+	if (fileList.includes(file)) {
+		console.log("File with this name already exists on server");
+	} else {
+		jsonData = JSON.stringify(jsonData);
+		console.log(jsonData);
+		valid = sharedLib.createEmptySVG(jsonData, path);
+	}
 
 	res.send({
 		succ: valid,

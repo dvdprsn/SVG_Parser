@@ -628,37 +628,28 @@ SVG *createValidSVG(const char *fileName, const char *schemaFile) {
 
     if (strcmp(fileEXT(fileName), "svg") != 0) return NULL;    // Bad file extention
     if (strcmp(fileEXT(schemaFile), "xsd") != 0) return NULL;  // Bad file extention
-
+    // Read file to tree
     xmlDocPtr doc = xmlReadFile(fileName, NULL, 0);
-
+    // Validate the tree
     int ret = validateTree(doc, (char *)schemaFile);
-
+    // Clear out xml based processes
     xmlFreeDoc(doc);
     xmlCleanupParser();
 
-    if (ret == 0) {
+    if (ret == 0) {  // XML tree was valid
         // Valid XML
         // Create SVG from file then validate before return
         SVG *toReturn = createSVG(fileName);
         if (toReturn == NULL) return NULL;
 
         bool valid = validateSVG(toReturn, schemaFile);
-        if (valid == 1) {
-            return toReturn;
-        } else {
-            return NULL;
-        }
 
-    } else if (ret > 0) {
-        // Invalid XML
-        return NULL;
-    } else {
-        // Internal Error
-        return NULL;
+        if (valid) {
+            return toReturn;
+        }
     }
 
     return NULL;
-
 }
 
 /**
@@ -675,7 +666,7 @@ bool validateSVG(const SVG *img, const char *schemaFile) {
 
     if (strcmp(fileEXT(schemaFile), "xsd") != 0) return false;  // Bad file extention
 
-    // Validate SVG before converting to XML
+    // Validate SVG against header constraints
     int valid = validateContents((SVG *)img);
     if (valid == -1) return false;
 
@@ -1228,7 +1219,6 @@ char *getRectWrap(char *filename, char *xsd) {
 
     deleteSVG(svg);
     return tmp;
-    
 }
 
 char *getCircWrap(char *filename, char *xsd) {
@@ -1238,7 +1228,6 @@ char *getCircWrap(char *filename, char *xsd) {
 
     deleteSVG(svg);
     return tmp;
-    
 }
 
 char *getPathWrap(char *filename, char *xsd) {
@@ -1248,7 +1237,6 @@ char *getPathWrap(char *filename, char *xsd) {
 
     deleteSVG(svg);
     return tmp;
-    
 }
 
 char *getGroupWrap(char *filename, char *xsd) {
@@ -1259,7 +1247,7 @@ char *getGroupWrap(char *filename, char *xsd) {
     deleteSVG(svg);
     return tmp;
 }
-//ADD TO HEADER
+// ADD TO HEADER
 char *getSVGAttr(char *filename, char *xsd) {
     SVG *svg = createValidSVG(filename, xsd);
     if (svg == NULL) return "{}";
@@ -1277,9 +1265,9 @@ char *getCircAttrs(char *filename, char *xsd, int index) {
     void *elem;
     int c = 0;
     char *tmp;
-    while((elem = nextElement(&iter)) != NULL) {
+    while ((elem = nextElement(&iter)) != NULL) {
         if (c == index) {
-            Circle *circ = (Circle *) elem;
+            Circle *circ = (Circle *)elem;
             tmp = attrListToJSON(circ->otherAttributes);
             deleteSVG(svg);
             return tmp;
@@ -1298,9 +1286,9 @@ char *getRectAttrs(char *filename, char *xsd, int index) {
     void *elem;
     int c = 0;
     char *tmp;
-    while((elem = nextElement(&iter)) != NULL) {
+    while ((elem = nextElement(&iter)) != NULL) {
         if (c == index) {
-            Rectangle *rect = (Rectangle *) elem;
+            Rectangle *rect = (Rectangle *)elem;
             tmp = attrListToJSON(rect->otherAttributes);
             deleteSVG(svg);
             return tmp;
@@ -1318,9 +1306,9 @@ char *getPathAttrs(char *filename, char *xsd, int index) {
     void *elem;
     int c = 0;
     char *tmp;
-    while((elem = nextElement(&iter)) != NULL) {
+    while ((elem = nextElement(&iter)) != NULL) {
         if (c == index) {
-            Path *path = (Path *) elem;
+            Path *path = (Path *)elem;
             tmp = attrListToJSON(path->otherAttributes);
             deleteSVG(svg);
             return tmp;
@@ -1338,9 +1326,9 @@ char *getGroupAttrs(char *filename, char *xsd, int index) {
     void *elem;
     int c = 0;
     char *tmp;
-    while((elem = nextElement(&iter)) != NULL) {
+    while ((elem = nextElement(&iter)) != NULL) {
         if (c == index) {
-            Group *group = (Group *) elem;
+            Group *group = (Group *)elem;
             tmp = attrListToJSON(group->otherAttributes);
             deleteSVG(svg);
             return tmp;
@@ -1352,9 +1340,8 @@ char *getGroupAttrs(char *filename, char *xsd, int index) {
 }
 
 char *validCheck(char *filename, char *xsd) {
-
     SVG *svg = createValidSVG(filename, xsd);
-    if(svg == NULL){
+    if (svg == NULL) {
         return "f";
     }
     deleteSVG(svg);
@@ -1363,49 +1350,59 @@ char *validCheck(char *filename, char *xsd) {
 
 char *changeNameDesc(char *name, char *desc, char *filename) {
     SVG *svg = createValidSVG(filename, "svg.xsd");
-    if(svg == NULL) {
+    if (svg == NULL) {
         return "f";
     }
     strcpy(svg->title, name);
     strcpy(svg->description, desc);
 
     bool valid = validateSVG(svg, "svg.xsd");
-    if(!valid) {
+    if (!valid) {
         deleteSVG(svg);
         return "f";
     }
     valid = writeSVG(svg, filename);
     deleteSVG(svg);
 
-    if(!valid) {
+    if (!valid) {
         return "f";
     }
     return "t";
 }
 
 char *createEmptySVG(char *JSON, char *filename) {
-    printf("%s\n", JSON);
     SVG *svg = JSONtoSVG(JSON);
-    if(svg == NULL) {
-        printf("Init fail\n");
+    if (svg == NULL) {
         return "f";
     }
 
     bool valid = validateSVG(svg, "svg.xsd");
-    if(!valid) {
+    if (!valid) {
         deleteSVG(svg);
-        printf("Validation error\n");
-
         return "f";
     }
-    printf("filename: %s\n", filename);
     valid = writeSVG(svg, filename);
     deleteSVG(svg);
-    if(!valid){
-        printf("write faile\n");
-
+    if (!valid) {
         return "f";
     }
-    printf("It worked!\n");
+    return "t";
+}
+
+char *addCircle(char *JSON, char *filename) {
+    SVG *svg = createValidSVG(filename, "svg.xsd");
+    if (svg == NULL) return "f";
+
+    Circle *circ = JSONtoCircle(JSON);
+    insertBack(svg->circles, circ);
+
+    bool valid = validateSVG(svg, "svg.xsd");
+    if (!valid) {
+        return "f";
+    }
+
+    valid = writeSVG(svg, filename);
+    if (!valid) return "f";
+
     return "t";
 }

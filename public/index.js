@@ -254,6 +254,47 @@ titleSub.onclick = function () {
 		},
 	});
 };
+document.getElementById("addCirc").onclick = () => {
+	console.log("Add Circle");
+	let fields = document.getElementsByClassName("addCircle");
+	let values = [];
+	let file = document.getElementById("svgFileSel").value;
+
+	for (let i = 0; i < fields.length; i++) {
+		values.push(fields[i].value);
+		fields[i].value = "";
+	}
+
+	let jsonString = JSON.stringify({
+		cx: parseFloat(values[0]),
+		cy: parseFloat(values[1]),
+		r: parseFloat(values[2]),
+		units: values[3],
+	});
+
+
+	$.ajax({
+		type: "get",
+		dataType: "json",
+		url: "/endpointAddCirc",
+		data: {
+			fieldData: jsonString,
+			filename: file,
+		},
+		success: (data) => {
+			let valid = data.succ;
+			if (valid == "f") {
+				console.log("Failed to Add Circle");
+			} else {
+				window.location.reload();
+				console.log("Added new circle!");
+			}
+		},
+		fail: (error) => {
+			console.error(error);
+		},
+	});
+};
 
 var newSVGSub = document.getElementById("nSVGSub");
 newSVGSub.onclick = function () {
