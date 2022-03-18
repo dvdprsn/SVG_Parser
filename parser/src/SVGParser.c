@@ -1031,47 +1031,30 @@ SVG *JSONtoSVG(const char *svgString) {
     if (svg == NULL) return NULL;
     initSVG(svg);
 
-    char *name = malloc(sizeof(char) * strlen(svgString) + 5);
-    char *orgName = name;
-    strcpy(name, svgString);
+    char *x = malloc(sizeof(char) * strlen(svgString) + 5);
+    char *orgX = x;
+    strcpy(x, svgString);
+    x = strchr(x, ':');
+    x += 2;
+    char *p = strchr(x, '"');
+    *p = '\0';
 
-    char *desc = malloc(sizeof(char) * strlen(svgString) + 5);
-    char *orgDesc = desc;
-    strcpy(desc, svgString);
+    char *y = malloc(sizeof(char) * strlen(svgString) + 30);
+    char *orgY = y;
+    strcpy(y, svgString);
+    y = strchr(y, ',');
+    // y++;
+    y = strchr(y, ':');
+    y += 2;
+    p = strchr(y, '"');
+    *p = '\0';
 
-    name += 9;  // Remove starting bit
-    desc += 9;
-    int found = 0;
-    int idx = 0;
-    for (int i = 0; i < strlen(name); i++) {
-        if (name[i] == '"') {
-            found++;
-            if (found == 4) {
-                idx = i;
-                break;
-            }
-        }
-    }
-    desc += idx + 1;
-
-    char *p = strchr(name, '"');
-    if (!p) {
-    } else {
-        *p = '\0';
-    }
-
-    p = strchr(desc, '"');
-    if (!p) {
-    } else {
-        *p = '\0';
-    }
-
-    strcpy(svg->title, name);
-    strcpy(svg->description, desc);
+    strcpy(svg->title, x);
+    strcpy(svg->description, y);
     strcpy(svg->namespace, "http://www.w3.org/2000/svg");
 
-    free(orgDesc);
-    free(orgName);
+    free(orgY);
+    free(orgX);
     return svg;
 }
 
@@ -1401,6 +1384,7 @@ char *changeNameDesc(char *name, char *desc, char *filename) {
 }
 
 char *createEmptySVG(char *JSON, char *filename) {
+    printf("%s\n", JSON);
     SVG *svg = JSONtoSVG(JSON);
     if(svg == NULL) {
         printf("Init fail\n");
