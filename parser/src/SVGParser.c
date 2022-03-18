@@ -656,6 +656,9 @@ SVG *createValidSVG(const char *fileName, const char *schemaFile) {
         // Internal Error
         return NULL;
     }
+
+    return NULL;
+
 }
 
 /**
@@ -1211,7 +1214,7 @@ Circle *JSONtoCircle(const char *svgString) {
 
 char *wrapSVGtoJSON(char *filename, char *xsd) {
     SVG *svg = createValidSVG(filename, xsd);
-    if (svg == NULL) return NULL;
+    if (svg == NULL) return "{}";
     char *jsonSVG = SVGtoJSON(svg);
     deleteSVG(svg);
     return jsonSVG;
@@ -1219,7 +1222,7 @@ char *wrapSVGtoJSON(char *filename, char *xsd) {
 
 char *getTitleWrap(char *filename, char *xsd) {
     SVG *svg = createValidSVG(filename, xsd);
-    if (svg == NULL) return NULL;
+    if (svg == NULL) return "{}";
     char *tmp = svg->title;
 
     deleteSVG(svg);
@@ -1228,7 +1231,7 @@ char *getTitleWrap(char *filename, char *xsd) {
 
 char *getDescWrap(char *filename, char *xsd) {
     SVG *svg = createValidSVG(filename, xsd);
-    if (svg == NULL) return NULL;
+    if (svg == NULL) return "{}";
     char *tmp = svg->description;
 
     deleteSVG(svg);
@@ -1237,7 +1240,7 @@ char *getDescWrap(char *filename, char *xsd) {
 
 char *getRectWrap(char *filename, char *xsd) {
     SVG *svg = createValidSVG(filename, xsd);
-    if (svg == NULL) return NULL;
+    if (svg == NULL) return "{}";
     char *tmp = rectListToJSON(svg->rectangles);
 
     deleteSVG(svg);
@@ -1247,7 +1250,7 @@ char *getRectWrap(char *filename, char *xsd) {
 
 char *getCircWrap(char *filename, char *xsd) {
     SVG *svg = createValidSVG(filename, xsd);
-    if (svg == NULL) return NULL;
+    if (svg == NULL) return "{}";
     char *tmp = circListToJSON(svg->circles);
 
     deleteSVG(svg);
@@ -1257,7 +1260,7 @@ char *getCircWrap(char *filename, char *xsd) {
 
 char *getPathWrap(char *filename, char *xsd) {
     SVG *svg = createValidSVG(filename, xsd);
-    if (svg == NULL) return NULL;
+    if (svg == NULL) return "{}";
     char *tmp = pathListToJSON(svg->paths);
 
     deleteSVG(svg);
@@ -1267,7 +1270,7 @@ char *getPathWrap(char *filename, char *xsd) {
 
 char *getGroupWrap(char *filename, char *xsd) {
     SVG *svg = createValidSVG(filename, xsd);
-    if (svg == NULL) return NULL;
+    if (svg == NULL) return "{}";
     char *tmp = groupListToJSON(svg->groups);
 
     deleteSVG(svg);
@@ -1276,7 +1279,7 @@ char *getGroupWrap(char *filename, char *xsd) {
 //ADD TO HEADER
 char *getSVGAttr(char *filename, char *xsd) {
     SVG *svg = createValidSVG(filename, xsd);
-    if (svg == NULL) return NULL;
+    if (svg == NULL) return "{}";
     char *tmp = attrListToJSON(svg->otherAttributes);
 
     deleteSVG(svg);
@@ -1285,7 +1288,7 @@ char *getSVGAttr(char *filename, char *xsd) {
 
 char *getCircAttrs(char *filename, char *xsd, int index) {
     SVG *svg = createValidSVG(filename, xsd);
-    if (svg == NULL) return NULL;
+    if (svg == NULL) return "{}";
 
     ListIterator iter = createIterator(svg->circles);
     void *elem;
@@ -1301,12 +1304,12 @@ char *getCircAttrs(char *filename, char *xsd, int index) {
         c++;
     }
 
-    return "NULL";
+    return "{}";
 }
 
 char *getRectAttrs(char *filename, char *xsd, int index) {
     SVG *svg = createValidSVG(filename, xsd);
-    if (svg == NULL) return NULL;
+    if (svg == NULL) return "{}";
 
     ListIterator iter = createIterator(svg->rectangles);
     void *elem;
@@ -1322,11 +1325,11 @@ char *getRectAttrs(char *filename, char *xsd, int index) {
         c++;
     }
 
-    return "NULL";
+    return "{}";
 }
 char *getPathAttrs(char *filename, char *xsd, int index) {
     SVG *svg = createValidSVG(filename, xsd);
-    if (svg == NULL) return NULL;
+    if (svg == NULL) return "{}";
 
     ListIterator iter = createIterator(svg->paths);
     void *elem;
@@ -1342,11 +1345,11 @@ char *getPathAttrs(char *filename, char *xsd, int index) {
         c++;
     }
 
-    return "NULL";
+    return "{}";
 }
 char *getGroupAttrs(char *filename, char *xsd, int index) {
     SVG *svg = createValidSVG(filename, xsd);
-    if (svg == NULL) return NULL;
+    if (svg == NULL) return "{}";
 
     ListIterator iter = createIterator(svg->groups);
     void *elem;
@@ -1361,6 +1364,64 @@ char *getGroupAttrs(char *filename, char *xsd, int index) {
         }
         c++;
     }
+    deleteSVG(svg);
+    return "{}";
+}
 
-    return "NULL";
+char *validCheck(char *filename, char *xsd) {
+
+    SVG *svg = createValidSVG(filename, xsd);
+    if(svg == NULL){
+        return "f";
+    }
+    deleteSVG(svg);
+    return "t";
+}
+
+char *changeNameDesc(char *name, char *desc, char *filename) {
+    SVG *svg = createValidSVG(filename, "svg.xsd");
+    if(svg == NULL) {
+        return "f";
+    }
+    strcpy(svg->title, name);
+    strcpy(svg->description, desc);
+
+    bool valid = validateSVG(svg, "svg.xsd");
+    if(!valid) {
+        deleteSVG(svg);
+        return "f";
+    }
+    valid = writeSVG(svg, filename);
+    deleteSVG(svg);
+
+    if(!valid) {
+        return "f";
+    }
+    return "t";
+}
+
+char *createEmptySVG(char *JSON, char *filename) {
+    SVG *svg = JSONtoSVG(JSON);
+    if(svg == NULL) {
+        printf("Init fail\n");
+        return "f";
+    }
+
+    bool valid = validateSVG(svg, "svg.xsd");
+    if(!valid) {
+        deleteSVG(svg);
+        printf("Validation error\n");
+
+        return "f";
+    }
+    printf("filename: %s\n", filename);
+    valid = writeSVG(svg, filename);
+    deleteSVG(svg);
+    if(!valid){
+        printf("write faile\n");
+
+        return "f";
+    }
+    printf("It worked!\n");
+    return "t";
 }

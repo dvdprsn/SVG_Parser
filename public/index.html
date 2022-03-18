@@ -75,15 +75,30 @@
             <option value="NULL"> Select </option>
         </select>
         <table id="attrTable"></table>
-
+        <!-- Edit Attribute -->
         <hr>
         <h4>Edit Attribute</h4>
         <form>Test</form>
 
         <hr>
         <h4>Edit Title/Description</h4>
+        <label for="title">Title:</label><br>
+        <input type="text" id="title" name="title" value=""><br>
+        <label for="desc">Description:</label><br>
+        <input type="text" id="desc" name="desc" value=""><br>
+        <button id="tdSub">Submit</button>
         
     </div>
+    <hr>
+    <h4>Create Empty SVG</h4>
+    <label for="newTitle">Title:</label><br>
+    <input type="text" id="newTitle" name="newTitle" value=""><br>
+    <label for="newDesc">Description:</label><br>
+    <input type="text" id="newDesc" name="newDesc" value=""><br>
+    <label for="newFN">Filename (no extention or path):</label><br>
+    <input type="text" id="newFN" name="newFN" value=""><br>
+    <button id="nSVGSub">Submit</button>
+    
 
     <!-- Leave me at the bottom of body -->
     <script src="/index.js"></script>

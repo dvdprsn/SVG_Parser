@@ -1,36 +1,43 @@
 // Put all onload AJAX calls here, and event listeners
 jQuery(document).ready(function () {
 
-    // Event listener form example , we can use this instead explicitly listening for events
-    // No redirects if possible
-    $('#someform').submit(function (e) {
-        $('#blah').html("Form has data: " + $('#entryBox').val());
-        e.preventDefault();
-        //Pass data to the Ajax call, so it gets passed to the server
-        $.ajax({
-            //Create an object for connecting to another waypoint
-            type: 'get',
-            dataType: 'json',
-            url: '/endpointFilesize',
-            data: {
-                filename: $('#entryBox').val()
-            },
-            success: function (data) {
-                $('#size').html(data.fileSize);
-                $('#entryBox').val(''); // Clear the box
-                // console.log(data);
-            },
-            fail: function (error) {
-                console.log(error);
-            }
-        });
-    });
-
     fillLog();
     fillDropMenu();
 
 
+    // Event listener form example , we can use this instead explicitly listening for events
+    // No redirects if possible
+    // $('#someform').submit(function (e) {
+    //     $('#blah').html("Form has data: " + $('#entryBox').val());
+    //     e.preventDefault();
+    //     //Pass data to the Ajax call, so it gets passed to the server
+    //     $.ajax({
+    //         //Create an object for connecting to another waypoint
+    //         type: 'get',
+    //         dataType: 'json',
+    //         url: '/endpointFilesize',
+    //         data: {
+    //             filename: $('#entryBox').val()
+    //         },
+    //         success: function (data) {
+    //             $('#size').html(data.fileSize);
+    //             $('#entryBox').val(''); // Clear the box
+    //             // console.log(data);
+    //         },
+    //         fail: function (error) {
+    //             console.log(error);
+    //         }
+    //     });
+    // });
+
+    
+
+
 });
+
+window.onbeforeunload = function() {
+    window.scrollTo(0,0);
+};
 
 function fillLog() {
     $.ajax({
@@ -215,6 +222,8 @@ dropTest.onchange = function () {
             attrTable.innerHTML = attrHtml;
             fillAttrSel(filename);
 
+            changeTitleDesc(title, desc);
+
         },
         fail: function(error) {
             console.error(error);
@@ -225,11 +234,100 @@ dropTest.onchange = function () {
     
 
 }
+
+var titleSub = document.getElementById('tdSub');
+titleSub.onclick = function() {
+    let titleField = document.getElementById('title');
+    let descField = document.getElementById('desc');
+    let file = document.getElementById('svgFileSel').value;
+    if(titleField.value.length > 256 || descField.value.length > 256) {
+        console.log("Title or Desc is too long!");
+        return;
+    }
+    $.ajax({
+        type: 'get',
+        dataType: 'json',
+        url: '/endpointTC',
+        data: {
+            name: titleField.value,
+            desc: descField.value,
+            filename: file
+        },
+        success: function(data) {
+            let valid = data.succ;
+            if(valid == "f") {
+                console.log("Failed to change title or desc");
+            } else {
+                window.location.reload();
+                console.log("Change Success!!");
+
+            }
+        },
+        fail: function(error) {
+            console.error(error);
+        }
+    });
+};
+
+var newSVGSub = document.getElementById('nSVGSub');
+newSVGSub.onclick = function(){
+    let titleField = document.getElementById('newTitle');
+    let title = titleField.value;
+    titleField.value = "";
+    let descField = document.getElementById('newDesc');
+    let desc = descField.value;
+    descField.value = "";
+    let fileField = document.getElementById('newFN');
+    let file = fileField.value;
+    fileField.value = "";
+
+    
+    if(title > 256 || desc > 256 || file > 256) {
+        console.log("Title or Desc is too long!");
+        return;
+    }
+    if(file.includes(".")){
+        console.log("Invalid file name");
+        return;
+    }
+    let jsonArr = {title: title, descr: desc};
+    console.log(jsonArr);
+
+    $.ajax({
+        type: 'get',
+        dataType: 'json',
+        url: '/endpointNSVG',
+        data: {
+            jsonData: jsonArr,
+            filename: file
+        },
+        success: function(data) {
+            let valid = data.succ;
+            if(valid == "f") {
+                console.log("Failed to create new SVG");
+            } else {
+                window.location.reload();
+                console.log("Empty SVG Creation Success!");
+
+            }
+        },
+        fail: function(error) {
+            console.error(error);
+        }
+    });
+};
+
+function changeTitleDesc(title, desc) {
+    const titleField = document.getElementById('title');
+    const descField = document.getElementById('desc');
+    titleField.value = title;
+    descField.value = desc;
+}
 function circAttrs(idx) {
     const tableBody = document.getElementById('attrTable');
     let dataHtml = '';
     var filename = document.getElementById('svgFileSel').value;
-    console.log(filename);
+    // console.log(filename);
 
     // Fill Attribute table
 
@@ -266,7 +364,7 @@ function rectAttrs(idx) {
     const tableBody = document.getElementById('attrTable');
     let dataHtml = '';
     var filename = document.getElementById('svgFileSel').value;
-    console.log(filename);
+    // console.log(filename);
 
     // Fill Attribute table
 
@@ -303,7 +401,7 @@ function pathAttrs(idx) {
     const tableBody = document.getElementById('attrTable');
     let dataHtml = '';
     var filename = document.getElementById('svgFileSel').value;
-    console.log(filename);
+    // console.log(filename);
 
     // Fill Attribute table
 
@@ -379,7 +477,7 @@ function svgAttrs() {
     const tableBody = document.getElementById('attrTable');
     let dataHtml = '';
     var filename = document.getElementById('svgFileSel').value;
-    console.log("selected svg");
+    // console.log("selected svg");
    
     // Fill Attribute table
 
@@ -426,7 +524,7 @@ attrDrop.onchange = function () {
     var select = document.getElementById('attrSel').value;
     const tableBody = document.getElementById('attrTable');
     let dataHtml = '';
-    console.log(select);
+    // console.log(select);
     tableBody.innerHTML = dataHtml;
     if(select == "svg") {
         svgAttrs();
@@ -468,26 +566,26 @@ function fillAttrSel(filename) {
             for (let i = 0; i < rects.length; i++) {
                 let elem = rects[i];
 
-                console.log(elem);
+                // console.log(elem);
                 options += `<option value="rect.${i}"> Rect ${i+1} </option>`;
             }
             for (let i = 0; i < circs.length; i++) {
                 let elem = circs[i];
 
-                console.log(elem);
+                // console.log(elem);
                 options += `<option value="circ.${i}"> Circle ${i+1} </option>`;
             }
             for (let i = 0; i < paths.length; i++) {
                 let elem = paths[i];
 
-                console.log(elem);
+                // console.log(elem);
                 options += `<option value="path.${i}"> Path ${i+1} </option>`;
             }
             
             for (let i = 0; i < groups.length; i++) {
                 let elem = groups[i];
 
-                console.log(elem);
+                // console.log(elem);
                 options += `<option value="group.${i}"> Group ${i+1} </option>`;
             }
             dropOptions.innerHTML += options;

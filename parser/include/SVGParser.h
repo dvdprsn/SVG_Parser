@@ -431,5 +431,9 @@ char *getRectAttrs(char *filename, char *xsd, int index);
 char *getPathAttrs(char *filename, char *xsd, int index);
 char *getGroupAttrs(char *filename, char *xsd, int index);
 
+char *validCheck(char *filename, char *xsd);
+
+char *changeNameDesc(char *name, char *desc, char *filename);
+char *createEmptySVG(char *JSON, char *filename);
 
 #endif

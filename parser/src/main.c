@@ -4,11 +4,14 @@
 int main(int argc, char **argv) {
     // SVG creation, validation and write out
     // SVG *svg = createSVG(argv[1]);
+    printf("%s\n", validCheck(argv[1], "svg.xsd"));
     SVG *svg = createValidSVG(argv[1], "svg.xsd");
+
     if (svg == NULL) {
+        printf("Failed\n");
         return 0;
     }
-
+    
     // bool valid = validateSVG(svg, "svg.xsd");
     // if (!valid) {
     //     printf("Invalid catch\n");

@@ -46,7 +46,18 @@ app.post('/upload', function (req, res) {
     }
 
     let uploadFile = req.files.uploadFile;
-    // TODO Verify file and check extention
+
+    let tmp = uploadFile.name.split('.').pop();
+    if (tmp != "svg") {
+        console.log("Invalid File Extention");
+        return;
+    }
+    fs.readdirSync('uploads/').forEach(file => {
+        if(file == uploadFile.name) {
+            console.log("File Already Exists on Server");
+            return;
+        }
+    });
     // Use the mv() method to place the file somewhere on your server
     uploadFile.mv('uploads/' + uploadFile.name, function (err) {
         if (err) {
@@ -78,7 +89,10 @@ let sharedLib = ffi.Library('./parser/bin/libsvgparser', {
     'getPathWrap': ['string', ['string', 'string']],
     'getRectWrap': ['string', ['string', 'string']],
     'getCircWrap': ['string', ['string', 'string']],
-    'getGroupWrap': ['string', ['string', 'string']]
+    'getGroupWrap': ['string', ['string', 'string']],
+    'validCheck': ['string', ['string','string']],
+    'changeNameDesc': ['string', ['string','string','string']],
+    'createEmptySVG': ['string', ['string','string']]
 });
 
 let getAttrs = ffi.Library('./parser/bin/libsvgparser', {
@@ -87,16 +101,14 @@ let getAttrs = ffi.Library('./parser/bin/libsvgparser', {
     'getRectAttrs': ['string',['string','string','int']],
     'getPathAttrs': ['string',['string','string','int']],
     'getGroupAttrs': ['string',['string','string','int']]
-})
+});
 
 app.get('/endpointFilesize', function (req, res) {
     let retStr = getFilesize(req.query.filename) + "KB";
-    res.send(
-        {
-            fileSize: retStr,
-            name: req.query.filename
-        }
-    );
+    res.send({
+        fileSize: retStr,
+        name: req.query.filename
+    });
 });
 
 app.get('/endpointDir', function (req, res) {
@@ -104,22 +116,18 @@ app.get('/endpointDir', function (req, res) {
     let sizes = getSizesList(files);
     let data = getDataLists(files);
 
-    res.send(
-        {
-            fileArr: files,
-            sizeArr: sizes,
-            dataArr: data
-        }
-    );
+    res.send({
+        fileArr: files,
+        sizeArr: sizes,
+        dataArr: data
+    });
 });
 
 app.get('/endpointFiles', function (req, res) {
     let files = getFilesList(req.query.dir);
-    res.send(
-        {
-            fileArr: files
-        }
-    );
+    res.send({
+        fileArr: files
+    });
 });
 app.get('/endpointRectAttr', function(req,res) {
     let file = req.query.file;
@@ -221,19 +229,56 @@ app.get('/endpointViewer', function(req,res) {
         }
     );
 });
+app.get('/endpointNSVG', function(req,res) {
+    let file = req.query.filename;
+    let path = "uploads/" + file + ".svg";
+    let jsonData = req.query.jsonData;
+    jsonData = JSON.stringify(jsonData);
+    console.log(jsonData);
+    let valid = sharedLib.createEmptySVG(jsonData, path);
 
+    res.send({
+        succ: valid
+    });
+    
+});
+app.get('/endpointTC', function(req,res) {
+    let name = req.query.name;
+    let desc = req.query.desc;
+    let file = req.query.filename;
+    let path = "uploads/" + file;
+
+    let valid = sharedLib.changeNameDesc(name, desc, path);
+
+    res.send({
+        succ: valid
+    });
+
+
+});
+
+
+function validate(filename) {
+    let path = "uploads/" + filename;
+    let test = sharedLib.validCheck(path, "svg.xsd");
+    if(test == "f") return false;
+    if(test == "t") return true;
+
+    return false;
+}
 function getFilesList(directory) {
     // Validate files before adding to the list
-    let files = fs.readdirSync(directory);
-    for (let i = 0; i < files.length; i++) {
-        let file = files[i];
-        let tmp = file.split('.').pop();
-        if (tmp != "svg") {
-            files.splice(i, 1);
+    let fileRet = [];
+    fs.readdirSync(directory).forEach(file => {
+        let valid = validate(file);
+        if(valid) {
+            fileRet.push(file);
         }
-    }
-    return files;
+    });
+
+    return fileRet;
 }
+
 function getSizesList(files) {
     let sizes = [];
     for (let i = 0; i < files.length; i++) {
