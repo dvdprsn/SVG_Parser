@@ -254,8 +254,47 @@ titleSub.onclick = function () {
 		},
 	});
 };
+document.getElementById("addRect").onclick = () => {
+    let fields = document.getElementsByClassName("addRect");
+	let values = [];
+	let file = document.getElementById("svgFileSel").value;
+
+    for (let i = 0; i < fields.length; i++) {
+		values.push(fields[i].value);
+		fields[i].value = "";
+	}
+    let jsonString = JSON.stringify({
+		x: parseFloat(values[0]),
+		y: parseFloat(values[1]),
+		w: parseFloat(values[2]),
+		h: parseFloat(values[3]),
+		units: values[4],
+	});
+
+    $.ajax({
+		type: "get",
+		dataType: "json",
+		url: "/endpointAddRect",
+		data: {
+			fieldData: jsonString,
+			filename: file,
+		},
+		success: (data) => {
+			let valid = data.succ;
+			if (valid == "f") {
+				console.log("Failed to Add Rect");
+			} else {
+				window.location.reload();
+				console.log("Added new rect!");
+			}
+		},
+		fail: (error) => {
+			console.error(error);
+		},
+	});
+}
 document.getElementById("addCirc").onclick = () => {
-	console.log("Add Circle");
+	console.log("Adding Init Circle");
 	let fields = document.getElementsByClassName("addCircle");
 	let values = [];
 	let file = document.getElementById("svgFileSel").value;

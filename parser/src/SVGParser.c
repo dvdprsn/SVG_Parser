@@ -1406,3 +1406,23 @@ char *addCircle(char *JSON, char *filename) {
 
     return "t";
 }
+
+char *addRect(char *JSON, char *filename) {
+    SVG *svg = createValidSVG(filename, "svg.xsd");
+    if (svg == NULL) return "f";
+
+    // Circle *re = JSONtoCircle(JSON);
+    Rectangle *rect = JSONtoRect(JSON);
+    // insertBack(svg->circles, circ);
+    insertBack(svg->rectangles, rect);
+
+    bool valid = validateSVG(svg, "svg.xsd");
+    if (!valid) {
+        return "f";
+    }
+
+    valid = writeSVG(svg, filename);
+    if (!valid) return "f";
+
+    return "t";
+}

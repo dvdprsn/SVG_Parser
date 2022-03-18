@@ -48,6 +48,9 @@ button {
 	font-weight: bold;
 	text-transform: uppercase;
 }
+.divAChild {
+	display: inline-block;
+}
 #viewPanel {
 	margin-left: auto;
 	margin-right: auto;

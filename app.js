@@ -97,6 +97,7 @@ let sharedLib = ffi.Library("./parser/bin/libsvgparser", {
 	changeNameDesc: ["string", ["string", "string", "string"]],
 	createEmptySVG: ["string", ["string", "string"]],
 	addCircle: ["string", ["string", "string"]],
+    addRect: ["string", ["string", "string"]],
 });
 
 let getAttrs = ffi.Library("./parser/bin/libsvgparser", {
@@ -105,6 +106,18 @@ let getAttrs = ffi.Library("./parser/bin/libsvgparser", {
 	getRectAttrs: ["string", ["string", "string", "int"]],
 	getPathAttrs: ["string", ["string", "string", "int"]],
 	getGroupAttrs: ["string", ["string", "string", "int"]],
+});
+
+app.get("/endpointAddRect", (req, res) => {
+	let valid;
+	let rectJSON = req.query.fieldData;
+	let file = "uploads/" + req.query.filename;
+
+    valid = sharedLib.addRect(rectJSON, file);
+
+	res.send({
+		succ: valid,
+	});
 });
 
 app.get("/endpointAddCirc", (req, res) => {
@@ -253,7 +266,6 @@ app.get("/endpointNSVG", function (req, res) {
 		console.log("File with this name already exists on server");
 	} else {
 		jsonData = JSON.stringify(jsonData);
-		console.log(jsonData);
 		valid = sharedLib.createEmptySVG(jsonData, path);
 	}
 

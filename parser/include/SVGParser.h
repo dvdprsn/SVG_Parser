@@ -436,6 +436,6 @@ char *validCheck(char *filename, char *xsd);
 char *changeNameDesc(char *name, char *desc, char *filename);
 char *createEmptySVG(char *JSON, char *filename);
 char *addCircle(char *JSON, char *filename);
-
+char *addRect(char *JSON, char *filename);
 
 #endif
