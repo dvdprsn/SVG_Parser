@@ -61,6 +61,7 @@ app.post("/upload", function (req, res) {
 			console.log("File Already Exists on Server");
 			return;
 		}
+        
 	});
 	// Use the mv() method to place the file somewhere on your server
 	uploadFile.mv("uploads/" + uploadFile.name, function (err) {

@@ -2,32 +2,8 @@
 jQuery(document).ready(function () {
 	fillLog();
 	fillDropMenu();
-
-	// Event listener form example , we can use this instead explicitly listening for events
-	// No redirects if possible
-	// $('#someform').submit(function (e) {
-	//     $('#blah').html("Form has data: " + $('#entryBox').val());
-	//     e.preventDefault();
-	//     //Pass data to the Ajax call, so it gets passed to the server
-	//     $.ajax({
-	//         //Create an object for connecting to another waypoint
-	//         type: 'get',
-	//         dataType: 'json',
-	//         url: '/endpointFilesize',
-	//         data: {
-	//             filename: $('#entryBox').val()
-	//         },
-	//         success: function (data) {
-	//             $('#size').html(data.fileSize);
-	//             $('#entryBox').val(''); // Clear the box
-	//             // console.log(data);
-	//         },
-	//         fail: function (error) {
-	//             console.log(error);
-	//         }
-	//     });
-	// });
 });
+
 // On Window reload
 window.onbeforeunload = function () {
 	window.scrollTo(0, 0);
@@ -45,10 +21,12 @@ document.getElementById("scale").onclick = () => {
 
 	if (elemSel == "NULL") {
 		console.log("Did not select an element to scale");
+		alert("Did not select element type to scale");
 		return;
 	}
 	if (scaling < 0 || scaling == "") {
 		console.log("Scale cannot be less than 0!");
+		alert("Cannot scale by value less than 0");
 		return;
 	}
 
@@ -65,12 +43,14 @@ document.getElementById("scale").onclick = () => {
 			let valid = data.succ;
 			if (valid == "f") {
 				console.log("Failed to scale objects");
+				alert("Failed to scale");
 			} else {
 				window.location.reload();
 				console.log("Scaling Success!");
 			}
 		},
 		fail: (error) => {
+			alert(error);
 			console.log(error);
 		},
 	});
@@ -102,6 +82,7 @@ document.getElementById("nAttrSub").onclick = () => {
 			let valid = data.succ;
 			if (valid == "f") {
 				console.log("Failed to add attribute");
+				alert("failed to add attribute");
 			} else {
 				window.location.reload();
 				console.log("New Attribute Success!!");
@@ -156,7 +137,7 @@ function fillLog() {
 			console.log("Filled SVG Log Successfully");
 		},
 		fail: function (error) {
-			console.error(error);
+			console.log(error);
 		},
 	});
 }
@@ -183,10 +164,10 @@ function fillDropMenu() {
 			}
 
 			dropOptions.innerHTML += options;
-			console.log("Contents of DropDown Loaded Successfully");
+			console.log("Contents of file select Loaded Successfully");
 		},
 		fail: function (error) {
-			console.error(error);
+			console.log(error);
 		},
 	});
 }
@@ -300,7 +281,7 @@ dropTest.onchange = () => {
 			changeTitleDesc(title, desc);
 		},
 		fail: function (error) {
-			console.error(error);
+			console.log(error);
 		},
 	});
 };
@@ -313,6 +294,7 @@ titleSub.onclick = function () {
 	let file = document.getElementById("svgFileSel").value;
 	if (titleField.value.length > 256 || descField.value.length > 256) {
 		console.log("Title or Desc is too long!");
+		alert("Title or Desc is too long");
 		return;
 	}
 	$.ajax({
@@ -328,13 +310,14 @@ titleSub.onclick = function () {
 			let valid = data.succ;
 			if (valid == "f") {
 				console.log("Failed to change title or desc");
+				alert("Failed to change title or desc");
 			} else {
 				window.location.reload();
 				console.log("Change Success!!");
 			}
 		},
 		fail: function (error) {
-			console.error(error);
+			console.log(error);
 		},
 	});
 };
@@ -347,6 +330,7 @@ document.getElementById("addRect").onclick = () => {
 	for (let i = 0; i < fields.length; i++) {
 		if (fields[i].value == "" && i != fields.length - 1) {
 			console.log("Required items cannot be empty");
+			alert("Required items cannot be empty");
 			return;
 		}
 		values.push(fields[i].value);
@@ -372,13 +356,14 @@ document.getElementById("addRect").onclick = () => {
 			let valid = data.succ;
 			if (valid == "f") {
 				console.log("Failed to Add Rect");
+				alert("failed to add rect");
 			} else {
 				window.location.reload();
 				console.log("Added new rect!");
 			}
 		},
 		fail: (error) => {
-			console.error(error);
+			console.log(error);
 		},
 	});
 };
@@ -392,6 +377,7 @@ document.getElementById("addCirc").onclick = () => {
 	for (let i = 0; i < fields.length; i++) {
 		if (fields[i].value == "" && i != fields.length - 1) {
 			console.log("Required items cannot be empty");
+			alert("Required items cannot be empty");
 			return;
 		}
 		values.push(fields[i].value);
@@ -417,13 +403,14 @@ document.getElementById("addCirc").onclick = () => {
 			let valid = data.succ;
 			if (valid == "f") {
 				console.log("Failed to Add Circle");
+				alert("Failed to add circle");
 			} else {
 				window.location.reload();
 				console.log("Added new circle!");
 			}
 		},
 		fail: (error) => {
-			console.error(error);
+			console.log(error);
 		},
 	});
 };
@@ -442,18 +429,22 @@ newSVGSub.onclick = () => {
 	fileField.value = "";
 	if (file === "") {
 		console.log("File name cannot be empty");
+		alert("filename cannot be emtpy");
 		return;
 	}
 	if (title > 256 || desc > 256 || file > 256) {
 		console.log("Title or Desc is too long!");
+		alert("An element exceeds the limit (256 char)");
 		return;
 	}
 	if (file.includes(".")) {
 		console.log("Invalid file name");
+		alert("Filename should not contain a '.' char");
 		return;
 	}
 	if (file.includes("/")) {
 		console.log("Please do not include path!");
+		alert("Filename should not contain path information");
 		return;
 	}
 	let jsonArr = { title: title, descr: desc };
@@ -470,13 +461,14 @@ newSVGSub.onclick = () => {
 			let valid = data.succ;
 			if (valid == "f") {
 				console.log("Failed to create new SVG");
+				alert("failed to create new SVG");
 			} else {
 				window.location.reload();
 				console.log("Empty SVG Creation Success!");
 			}
 		},
 		fail: function (error) {
-			console.error(error);
+			console.log(error);
 		},
 	});
 };
@@ -517,7 +509,7 @@ function circAttrs(idx) {
 			tableBody.innerHTML = dataHtml;
 		},
 		fail: function (error) {
-			console.error(error);
+			console.log(error);
 		},
 	});
 }
@@ -554,7 +546,7 @@ function rectAttrs(idx) {
 			tableBody.innerHTML = dataHtml;
 		},
 		fail: function (error) {
-			console.error(error);
+			console.log(error);
 		},
 	});
 }
@@ -591,7 +583,7 @@ function pathAttrs(idx) {
 			tableBody.innerHTML = dataHtml;
 		},
 		fail: function (error) {
-			console.error(error);
+			console.log(error);
 		},
 	});
 }
@@ -627,7 +619,7 @@ function groupAttrs(idx) {
 			tableBody.innerHTML = dataHtml;
 		},
 		fail: function (error) {
-			console.error(error);
+			console.log(error);
 		},
 	});
 }
@@ -664,7 +656,7 @@ function svgAttrs() {
 			tableBody.innerHTML = dataHtml;
 		},
 		fail: function (error) {
-			console.error(error);
+			console.log(error);
 		},
 	});
 }
@@ -748,7 +740,7 @@ function fillAttrSel(filename) {
 			console.log("Contents of DropDown Loaded Successfully");
 		},
 		fail: function (error) {
-			console.error(error);
+			console.log(error);
 		},
 	});
 }
