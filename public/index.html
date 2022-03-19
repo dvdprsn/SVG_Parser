@@ -80,7 +80,7 @@
 		<h3 id="SVGView">SVG View Panel</h3>
 		<!-- Drop Down Menu -->
 		<label for="svgFile"> Choose an SVG File:</label>
-		<select name="svgFile" id="svgFileSel">
+		<select class="form-control" name="svgFile" id="svgFileSel">
 			<option value="NULL">Select</option>
 		</select>
 
@@ -93,14 +93,15 @@
 			<h4>Show Attributes</h4>
 
 			<label for="attrSel"> Choose an Attribute to View:</label>
-			<select name="attrSel" id="attrSel">
+			<select class="form-control" name="attrSel" id="attrSel">
 				<option value="NULL">Select</option>
 			</select>
+			<br />
 			<table id="attrTable"></table>
 			<!-- Edit Attribute -->
 			<div id="editAttr" style="display: none">
 				<hr />
-				<h4>Edit Attribute</h4>
+				<h4>Edit Attribute for this Component</h4>
 
 				<label for="newAttrName">Name of Attribute to add or change:</label><br />
 				<input type="text" id="newAttrName" name="newAttrName" value="" /><br />
@@ -108,7 +109,7 @@
 				<label for="newAttrVal">Value:</label><br />
 				<input type="text" id="newAttrVal" name="newAttrVal" value="" /><br />
 
-				<button id="nAttrSub">Submit</button>
+				<button class="btn btn-outline-primary" type="submit" id="nAttrSub">Submit</button>
 			</div>
 
 			<hr />
@@ -117,7 +118,7 @@
 			<input type="text" id="title" name="title" value="" /><br />
 			<label for="desc">Description:</label><br />
 			<input type="text" id="desc" name="desc" value="" /><br />
-			<button id="tdSub">Submit</button>
+			<button class="btn btn-outline-primary" id="tdSub">Submit</button>
 
 			<hr />
 			<h4>Add Shape</h4>
@@ -137,7 +138,9 @@
 					<label for="cUnits">units:</label><br />
 					<input type="text" class="addCircle" id="cUnits" name="cUnits" value="" /><br />
 
-					<button id="addCirc">Submit</button>
+					<button class="btn btn-outline-primary" type="submit" id="addCirc">
+						Submit
+					</button>
 				</div>
 				<div class="divAChild">
 					<h5>Rectangle</h5>
@@ -156,12 +159,26 @@
 					<label for="rUnits">units:</label><br />
 					<input type="text" class="addRect" id="rUnits" name="rUnits" value="" /><br />
 
-					<button id="addRect">Submit</button>
+					<button class="btn btn-outline-primary" type="submit" id="addRect">
+						Submit
+					</button>
 				</div>
 			</div>
 
 			<hr />
-			<h4>Scale Shapes</h4>
+			<div id="scaling">
+				<h4>Scale Shapes</h4>
+				<label for="scaleSel"> Select Element to Scale:</label>
+				<select class="form-control" name="scaleSel" id="scaleSel">
+					<option value="NULL">Select</option>
+					<option value="circ">Circles</option>
+					<option value="rect">Rectangles</option>
+				</select>
+				<br />
+				<label for="scaleFac">Scale Factor:</label><br />
+				<input type="text" class="scale" id="scaleFac" name="scaleFac" value="" /><br />
+				<button class="btn btn-outline-primary" type="submit" id="scale">Submit</button>
+			</div>
 		</div>
 		<hr />
 		<h4>Create Empty SVG</h4>
@@ -171,7 +188,7 @@
 		<input width="200px" type="text" id="newDesc" name="newDesc" value="" /><br />
 		<label for="newFN">Filename (no extention or path):</label><br />
 		<input width="200px" type="text" id="newFN" name="newFN" value="" /><br />
-		<button id="nSVGSub">Submit</button>
+		<button class="btn btn-outline-primary" type="submit" id="nSVGSub">Submit</button>
 
 		<!-- Leave me at the bottom of body -->
 		<script src="/index.js"></script>

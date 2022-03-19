@@ -1475,3 +1475,62 @@ char *addAttribute(char *elemName, int index, char *name, char *value, char *pat
 
     return "t";
 }
+
+char *scaleRects(char *path, float factor) {
+    SVG *svg = createValidSVG(path, "svg.xsd");
+    if (svg == NULL) return "f";
+
+    List *rects = getRects(svg);
+    ListIterator iter = createIterator(rects);
+
+    void *elem;
+    // For every rect in the SVG scale by factor
+    while ((elem = nextElement(&iter)) != NULL) {
+        Rectangle *rect = (Rectangle *)elem;
+        rect->height = rect->height * factor;
+        rect->width = rect->width * factor;
+    }
+
+    freeList(rects);
+
+    bool valid = validateSVG(svg, "svg.xsd");
+    if (!valid) {
+        deleteSVG(svg);
+        return "f";
+    }
+    valid = writeSVG(svg, path);
+    deleteSVG(svg);
+
+    if (!valid) return "f";
+
+    return "t";
+}
+
+char *scaleCircs(char *path, float factor) {
+    SVG *svg = createValidSVG(path, "svg.xsd");
+    if (svg == NULL) return "f";
+
+    List *circs = getCircles(svg);
+    ListIterator iter = createIterator(circs);
+
+    void *elem;
+    // For every rect in the SVG scale by factor
+    while ((elem = nextElement(&iter)) != NULL) {
+        Circle *circ = (Circle *)elem;
+        circ->r = circ->r * factor;
+    }
+
+    freeList(circs);
+
+    bool valid = validateSVG(svg, "svg.xsd");
+    if (!valid) {
+        deleteSVG(svg);
+        return "f";
+    }
+    valid = writeSVG(svg, path);
+    deleteSVG(svg);
+
+    if (!valid) return "f";
+
+    return "t";
+}

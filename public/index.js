@@ -28,11 +28,54 @@ jQuery(document).ready(function () {
 	//     });
 	// });
 });
-
+// On Window reload
 window.onbeforeunload = function () {
 	window.scrollTo(0, 0);
+	document.getElementById("scaleSel").selectedIndex = 0;
 };
+// For Scaling of SVG
+document.getElementById("scale").onclick = () => {
+	let elemSel = document.getElementById("scaleSel").value;
+	let scaling = document.getElementById("scaleFac").value;
+	scaling = parseFloat(scaling);
+	let path = "uploads/" + document.getElementById("svgFileSel").value;
 
+	document.getElementById("scaleSel").selectedIndex = 0;
+	document.getElementById("scaleFac").value = "";
+
+	if (elemSel == "NULL") {
+		console.log("Did not select an element to scale");
+		return;
+	}
+	if (scaling < 0 || scaling == "") {
+		console.log("Scale cannot be less than 0!");
+		return;
+	}
+
+	$.ajax({
+		type: "get",
+		dataType: "json",
+		url: "/endpointScale",
+		data: {
+			scale: scaling,
+			elem: elemSel,
+			file: path,
+		},
+		success: (data) => {
+			let valid = data.succ;
+			if (valid == "f") {
+				console.log("Failed to scale objects");
+			} else {
+				window.location.reload();
+				console.log("Scaling Success!");
+			}
+		},
+		fail: (error) => {
+			console.log(error);
+		},
+	});
+};
+// Adding a new attribute
 document.getElementById("nAttrSub").onclick = () => {
 	let nameAttr = document.getElementById("newAttrName").value.toLowerCase();
 	let valueAttr = document.getElementById("newAttrVal").value.toLowerCase();
@@ -64,10 +107,12 @@ document.getElementById("nAttrSub").onclick = () => {
 				console.log("New Attribute Success!!");
 			}
 		},
-		fail: (error) => {},
+		fail: (error) => {
+			console.log(error);
+		},
 	});
 };
-
+// Function to fill the file log
 function fillLog() {
 	$.ajax({
 		type: "get",
@@ -115,7 +160,7 @@ function fillLog() {
 		},
 	});
 }
-
+// Populates the dropdown menu of files
 function fillDropMenu() {
 	$.ajax({
 		type: "get",
@@ -145,7 +190,7 @@ function fillDropMenu() {
 		},
 	});
 }
-
+// Once an SVG file is selected
 var dropTest = document.getElementById("svgFileSel");
 dropTest.onchange = () => {
 	var filename = document.getElementById("svgFileSel").value;
@@ -153,7 +198,6 @@ dropTest.onchange = () => {
 	let dataHtml = "";
 	let divDis = document.getElementById("viewer");
 
-	//TODO NEW CODE
 	var editDiv = document.getElementById("editAttr");
 	editDiv.style.display = "none";
 
@@ -224,7 +268,7 @@ dropTest.onchange = () => {
 				let path = paths[i];
 				dataHtml += `<tr>
                 <td>Path ${i + 1}</td>
-                <td>${path.d}</td>
+                <td>path data = ${path.d}</td>
                 <td>${path.numAttr}</td>
                 </tr>`;
 			}
@@ -261,6 +305,7 @@ dropTest.onchange = () => {
 	});
 };
 
+// For changing the title or description of the SVG
 var titleSub = document.getElementById("tdSub");
 titleSub.onclick = function () {
 	let titleField = document.getElementById("title");
@@ -293,12 +338,17 @@ titleSub.onclick = function () {
 		},
 	});
 };
+//Adding a new rectanlge
 document.getElementById("addRect").onclick = () => {
 	let fields = document.getElementsByClassName("addRect");
 	let values = [];
 	let file = document.getElementById("svgFileSel").value;
 
 	for (let i = 0; i < fields.length; i++) {
+		if (fields[i].value == "" && i != fields.length - 1) {
+			console.log("Required items cannot be empty");
+			return;
+		}
 		values.push(fields[i].value);
 		fields[i].value = "";
 	}
@@ -332,6 +382,7 @@ document.getElementById("addRect").onclick = () => {
 		},
 	});
 };
+// Adding a new circle
 document.getElementById("addCirc").onclick = () => {
 	console.log("Adding Init Circle");
 	let fields = document.getElementsByClassName("addCircle");
@@ -339,6 +390,10 @@ document.getElementById("addCirc").onclick = () => {
 	let file = document.getElementById("svgFileSel").value;
 
 	for (let i = 0; i < fields.length; i++) {
+		if (fields[i].value == "" && i != fields.length - 1) {
+			console.log("Required items cannot be empty");
+			return;
+		}
 		values.push(fields[i].value);
 		fields[i].value = "";
 	}
@@ -373,6 +428,7 @@ document.getElementById("addCirc").onclick = () => {
 	});
 };
 
+// Create a new empty SVG
 var newSVGSub = document.getElementById("nSVGSub");
 newSVGSub.onclick = () => {
 	let titleField = document.getElementById("newTitle");
@@ -384,7 +440,10 @@ newSVGSub.onclick = () => {
 	let fileField = document.getElementById("newFN");
 	let file = fileField.value;
 	fileField.value = "";
-
+	if (file === "") {
+		console.log("File name cannot be empty");
+		return;
+	}
 	if (title > 256 || desc > 256 || file > 256) {
 		console.log("Title or Desc is too long!");
 		return;
@@ -393,8 +452,11 @@ newSVGSub.onclick = () => {
 		console.log("Invalid file name");
 		return;
 	}
+	if (file.includes("/")) {
+		console.log("Please do not include path!");
+		return;
+	}
 	let jsonArr = { title: title, descr: desc };
-	// console.log(jsonArr);
 
 	$.ajax({
 		type: "get",
@@ -418,20 +480,18 @@ newSVGSub.onclick = () => {
 		},
 	});
 };
-
+// Sets the input field to the arguments
 function changeTitleDesc(title, desc) {
 	const titleField = document.getElementById("title");
 	const descField = document.getElementById("desc");
 	titleField.value = title;
 	descField.value = desc;
 }
+// Gets the circles attributes and populate table
 function circAttrs(idx) {
 	const tableBody = document.getElementById("attrTable");
 	let dataHtml = "";
 	var filename = document.getElementById("svgFileSel").value;
-	// console.log(filename);
-
-	// Fill Attribute table
 
 	$.ajax({
 		type: "get",
@@ -461,6 +521,7 @@ function circAttrs(idx) {
 		},
 	});
 }
+// Get rectangles attributes and populate table
 function rectAttrs(idx) {
 	const tableBody = document.getElementById("attrTable");
 	let dataHtml = "";
@@ -497,6 +558,7 @@ function rectAttrs(idx) {
 		},
 	});
 }
+// Get paths attributes and populate table
 function pathAttrs(idx) {
 	const tableBody = document.getElementById("attrTable");
 	let dataHtml = "";
@@ -533,7 +595,7 @@ function pathAttrs(idx) {
 		},
 	});
 }
-
+// Get attributes for groups based on index
 function groupAttrs(idx) {
 	const tableBody = document.getElementById("attrTable");
 	let dataHtml = "";
@@ -569,7 +631,7 @@ function groupAttrs(idx) {
 		},
 	});
 }
-
+// Get other attributes of the SVG struct itself
 function svgAttrs() {
 	const tableBody = document.getElementById("attrTable");
 	let dataHtml = "";
@@ -606,7 +668,7 @@ function svgAttrs() {
 		},
 	});
 }
-
+// On the selection of an attribute from the drop down
 var attrDrop = document.getElementById("attrSel");
 attrDrop.onchange = function () {
 	var select = document.getElementById("attrSel").value;
@@ -624,6 +686,7 @@ attrDrop.onchange = function () {
 	if (select == "svg") {
 		svgAttrs();
 	} else if (select.includes("circ")) {
+		// These splits grab the index
 		let tmp = select.split(".").pop();
 		circAttrs(tmp);
 	} else if (select.includes("rect")) {
@@ -637,7 +700,7 @@ attrDrop.onchange = function () {
 		groupAttrs(tmp);
 	}
 };
-
+// Fills the drop down menu containing components
 function fillAttrSel(filename) {
 	$.ajax({
 		type: "get",

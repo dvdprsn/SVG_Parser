@@ -53,6 +53,7 @@ app.post("/upload", function (req, res) {
 	let tmp = uploadFile.name.split(".").pop();
 	if (tmp != "svg") {
 		console.log("Invalid File Extention");
+		res.redirect("/");
 		return;
 	}
 	fs.readdirSync("uploads/").forEach((file) => {
@@ -99,6 +100,8 @@ let sharedLib = ffi.Library("./parser/bin/libsvgparser", {
 	addCircle: ["string", ["string", "string"]],
 	addRect: ["string", ["string", "string"]],
 	addAttribute: ["string", ["string", "int", "string", "string", "string"]],
+	scaleRects: ["string", ["string", "float"]],
+	scaleCircs: ["string", ["string", "float"]],
 });
 
 let getAttrs = ffi.Library("./parser/bin/libsvgparser", {
@@ -107,6 +110,25 @@ let getAttrs = ffi.Library("./parser/bin/libsvgparser", {
 	getRectAttrs: ["string", ["string", "string", "int"]],
 	getPathAttrs: ["string", ["string", "string", "int"]],
 	getGroupAttrs: ["string", ["string", "string", "int"]],
+});
+
+app.get("/endpointScale", (req, res) => {
+	let valid = "f";
+	let scale = req.query.scale;
+	let elem = req.query.elem;
+	let path = req.query.file;
+	console.log(elem);
+	console.log(path);
+	console.log(scale);
+
+	if (elem == "circ") {
+		valid = sharedLib.scaleCircs(path, scale);
+	} else if (elem == "rect") {
+		valid = sharedLib.scaleRects(path, scale);
+	}
+	res.send({
+		succ: valid,
+	});
 });
 
 app.get("/endpointNAttr", (req, res) => {
