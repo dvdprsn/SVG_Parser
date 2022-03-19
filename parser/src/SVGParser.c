@@ -1197,8 +1197,7 @@ char *wrapSVGtoJSON(char *filename, char *xsd) {
 char *getTitleWrap(char *filename, char *xsd) {
     SVG *svg = createValidSVG(filename, xsd);
     if (svg == NULL) return "";
-    char *tmp = malloc(sizeof(char) * strlen(svg->title));
-    strcpy(tmp, svg->title);
+    char *tmp = svg->title;
 
     deleteSVG(svg);
     return tmp;
@@ -1207,9 +1206,7 @@ char *getTitleWrap(char *filename, char *xsd) {
 char *getDescWrap(char *filename, char *xsd) {
     SVG *svg = createValidSVG(filename, xsd);
     if (svg == NULL) return "";
-    // char *tmp = svg->description;
-    char *tmp = malloc(sizeof(char) * strlen(svg->description));
-    strcpy(tmp, svg->description);
+    char *tmp = svg->description;
 
     deleteSVG(svg);
     return tmp;
