@@ -263,24 +263,18 @@ app.get("/endpointSVGAttr", function (req, res) {
 });
 
 app.get("/endpointViewer", function (req, res) {
-	let tmp;
+
 	let file = req.query.file;
 	let path = "uploads/" + file;
 	let validation = "svg.xsd";
+
 	let name = sharedLib.getTitleWrap(path, validation);
 	let descrip = sharedLib.getDescWrap(path, validation);
 
-	tmp = sharedLib.getPathWrap(path, validation);
-	let paths = JSON.parse(tmp);
-
-	tmp = sharedLib.getRectWrap(path, validation);
-	let rects = JSON.parse(tmp);
-
-	tmp = sharedLib.getCircWrap(path, validation);
-	let circs = JSON.parse(tmp);
-
-	tmp = sharedLib.getGroupWrap(path, validation);
-	let groups = JSON.parse(tmp);
+	let paths = sharedLib.getPathWrap(path, validation);
+	let rects = sharedLib.getRectWrap(path, validation);
+	let circs = sharedLib.getCircWrap(path, validation);
+	let groups = sharedLib.getGroupWrap(path, validation);
 
 	res.send({
 		title: name,
@@ -291,6 +285,7 @@ app.get("/endpointViewer", function (req, res) {
 		group: groups,
 	});
 });
+
 app.get("/endpointNSVG", function (req, res) {
 	let file = req.query.filename + ".svg";
 	let path = "uploads/" + file;

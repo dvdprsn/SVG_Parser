@@ -200,10 +200,11 @@ dropTest.onchange = () => {
 		success: function (data) {
 			let title = data.title;
 			let desc = data.desc;
-			let paths = data.path;
-			let rects = data.rect;
-			let circs = data.circ;
-			let groups = data.group;
+
+			let paths = JSON.parse(data.path);
+			let rects = JSON.parse(data.rect);
+			let circs = JSON.parse(data.circ);
+			let groups = JSON.parse(data.group);
 
 			dataHtml += `<tr>
             <td colspan = "5"><img width="800" src="uploads/${filename}"/></td> 
@@ -214,8 +215,8 @@ dropTest.onchange = () => {
             </tr>`;
 
 			dataHtml += `<tr>
-            <td>${title} </td>
-            <td colspan = "2">${desc} </td>
+            <td>${title}</td>
+            <td colspan = "2">${desc}</td>
             </tr>`;
 
 			dataHtml += `<tr class="rowHeader">
