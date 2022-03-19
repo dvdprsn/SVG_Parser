@@ -441,5 +441,5 @@ char *addAttribute(char *elemName, int index, char *name, char *value, char *pat
 
 char *scaleRects(char *path, float factor);
 char *scaleCircs(char *path, float factor);
-
+char *scaleSVG(char *path, float factor);
 #endif

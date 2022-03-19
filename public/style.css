@@ -62,8 +62,7 @@ button {
 	overflow-y: auto;
 	white-space: nowrap;
 	max-height: 1000px;
-	margin-left: auto;
-	margin-right: auto;
+
 }
 #topHeader {
 	font-family: "Times New Roman", Times, serif;

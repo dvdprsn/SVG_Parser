@@ -1534,3 +1534,40 @@ char *scaleCircs(char *path, float factor) {
 
     return "t";
 }
+
+char *scaleSVG(char *path, float factor) {
+    SVG *svg = createValidSVG(path, "svg.xsd");
+    if (svg == NULL) return "f";
+    // Scale Circles
+    List *circs = getCircles(svg);
+    ListIterator iter = createIterator(circs);
+    void *elem;
+    // For every rect in the SVG scale by factor
+    while ((elem = nextElement(&iter)) != NULL) {
+        Circle *circ = (Circle *)elem;
+        circ->r = circ->r * factor;
+    }
+    freeList(circs);
+
+    // Scale Rectangles
+    List *rects = getRects(svg);
+    iter = createIterator(rects);
+    while ((elem = nextElement(&iter)) != NULL) {
+        Rectangle *rect = (Rectangle *)elem;
+        rect->height *= factor;
+        rect->width *= factor;
+    }
+    freeList(rects);
+
+    bool valid = validateSVG(svg, "svg.xsd");
+    if (!valid) {
+        deleteSVG(svg);
+        return "f";
+    }
+    valid = writeSVG(svg, path);
+    deleteSVG(svg);
+
+    if (!valid) return "f";
+
+    return "t";
+}

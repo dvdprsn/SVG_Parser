@@ -61,7 +61,6 @@ app.post("/upload", function (req, res) {
 			console.log("File Already Exists on Server");
 			return;
 		}
-        
 	});
 	// Use the mv() method to place the file somewhere on your server
 	uploadFile.mv("uploads/" + uploadFile.name, function (err) {
@@ -103,6 +102,7 @@ let sharedLib = ffi.Library("./parser/bin/libsvgparser", {
 	addAttribute: ["string", ["string", "int", "string", "string", "string"]],
 	scaleRects: ["string", ["string", "float"]],
 	scaleCircs: ["string", ["string", "float"]],
+	scaleSVG: ["string", ["string", "float"]],
 });
 
 let getAttrs = ffi.Library("./parser/bin/libsvgparser", {
@@ -118,14 +118,13 @@ app.get("/endpointScale", (req, res) => {
 	let scale = req.query.scale;
 	let elem = req.query.elem;
 	let path = req.query.file;
-	console.log(elem);
-	console.log(path);
-	console.log(scale);
 
 	if (elem == "circ") {
 		valid = sharedLib.scaleCircs(path, scale);
 	} else if (elem == "rect") {
 		valid = sharedLib.scaleRects(path, scale);
+	} else if (elem == "svg") {
+		valid = sharedLib.scaleSVG(path, scale);
 	}
 	res.send({
 		succ: valid,
